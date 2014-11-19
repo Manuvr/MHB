@@ -8,6 +8,8 @@ var serialport = require("serialport");
 var dgram = require("dgram");
 //var enum = rquire("enum");
 
+var derptest;
+
 var jsonbuff = [];
 
 var SP = serialport.SerialPort;
