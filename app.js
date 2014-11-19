@@ -6,7 +6,7 @@ var Dissolve = require('dissolve');
 var Concentrate = require('concentrate');
 var serialport = require("serialport");
 var dgram = require("dgram");
-//var enum = rquire("enum");
+//var enum = require("enum");
 
 var derptest;
 
@@ -26,7 +26,7 @@ var udp_socket = dgram.createSocket('udp4');
 var parser = Dissolve().loop(function(end) {
     var data_i = 0;
 
-    this.uint16be('command')
+    this.uint16be("command")
         .uint16be("commandId")
         .uint16be("totalLength")
         .uint8be("argCount")
@@ -61,6 +61,8 @@ var parser = Dissolve().loop(function(end) {
                         case    0x19:       this.sint16be("x").sint16be("y").sint16be("z"); break;
                         case    0x20:       this.uint16be("x").uint16be("y").uint16be("z"); break;
                         case    0x21:       // pointer type (never see)
+                        case    0xFE:       // reply
+                        case    0xFF:       // THROW THIS AWAY
                              default:       this.buffer("arg", this.vars.argLen);           break;
                     }
                 });
@@ -90,6 +92,19 @@ parser.on("readable", function() {
         //console.log(e);
     }
 });
+
+var processParser = function(JSONbinary) {
+    switch(JSONbinary.command) {
+        case  "0x0100": console.log("Datetime is " + toDateString(JSONbinary.args[0].arg))
+    }
+
+    //SEND RESPONSE BASED ON commandId
+
+    //linting DELETE ME
+    return 0;
+};
+
+
 
 
 serialPort.open(function (error) {
