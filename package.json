@@ -1,0 +1,21 @@
+{
+  "name": "DigitabulumHostBridge",
+  "version": "1.0.0",
+  "description": "DigitabulumHostBridge",
+  "main": "app.js",
+  "dependencies": {
+    "concentrate": "^0.2.2",
+    "dissolve": "^0.3.3",
+    "node-serial": "^0.1.1",
+    "serialport": "^1.4.6",
+    "socket.io": "^1.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jspark311/DigitabulumHostBridge"
+  },
+  "bugs": {
+    "url": "https://github.com/jspark311/DigitabulumHostBridge/issues"
+  },
+  "homepage": "https://github.com/jspark311/DigitabulumHostBridge"
+}

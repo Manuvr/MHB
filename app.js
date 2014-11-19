@@ -1,15 +1,15 @@
-var app = require('http').createServer(handler)
-var url= require('url')
-var fs = require('fs')
-var io = require('socket.io').listen(app)
-
-// Buffer parser
-var Dissolve = require('dissolve')
-
-// Buffer generator
-var Concentrate = require('concentrate')
-
+var app = require('http').createServer(handler);
+var url= require('url');
+var fs = require('fs');
+var io = require('socket.io').listen(app);
+var Dissolve = require('dissolve');
+var Concentrate = require('concentrate');
 var serialport = require("serialport");
+var dgram = require("dgram");
+//var enum = rquire("enum");
+
+var jsonbuff = [];
+
 var SP = serialport.SerialPort;
 var serialPort = new SP("/dev/ttyACM0",
 	{
@@ -17,17 +17,9 @@ var serialPort = new SP("/dev/ttyACM0",
 		parser: serialport.parsers.readline("\n")
 	}, false);
 
-
-app.listen(5000);
-
-var dgram = require('dgram');
+// NODE byte
 
 var udp_socket = dgram.createSocket('udp4');
-
-
-
-
-var jsonbuff = [];
 
 var parser = Dissolve().loop(function(end) {
     var data_i = 0;
@@ -69,7 +61,7 @@ var parser = Dissolve().loop(function(end) {
                         case    0x21:       // pointer type (never see)
                              default:       this.buffer("arg", this.vars.argLen);           break;
                     }
-                })
+                });
                 //.loop( function(end) {
                 //if (arg_i++ === this.vars.argLen) {
                 //    return end(true);
@@ -98,9 +90,6 @@ parser.on("readable", function() {
 });
 
 
-
-
-
 serialPort.open(function (error) {
   if ( error ) {
     console.log('failed to open: '+error);
@@ -117,8 +106,6 @@ serialPort.open(function (error) {
     //});
   }
 });
-
-
 
 // Http handler function
 function handler (req, res) {
@@ -160,7 +147,6 @@ function handler (req, res) {
 }
 
 
-
 // Web Socket Connection
 io.sockets.on('connection', function (socket) {
     
@@ -173,12 +159,11 @@ io.sockets.on('connection', function (socket) {
       // Set a timer for when we should stop watering
       setTimeout(function(){
           socket.emit("pong");
-      }, delay*1);
+      }, delay * 1);
       
   });
 
 });
-
 
 
 udp_socket.on('message', function(content, rinfo) {
@@ -186,6 +171,6 @@ udp_socket.on('message', function(content, rinfo) {
 	io.sockets.emit('udp_update', content.toString("utf8", 0, rinfo.size));
 });
 
-
+// Listens and binds
+app.listen(5000);
 udp_socket.bind(1900);
-
