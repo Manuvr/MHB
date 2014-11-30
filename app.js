@@ -8,8 +8,8 @@ var serialport = require("serialport");
 var dgram = require("dgram");
 //var enum = require("enum");
 
-// HUUUUURRRRRRR
 
+// stick our interpretation functions here for now
 var runItDefault = function(goods, def){console.log("hi from " + def + "\n" + JSON.stringify(goods, null, 2))};
 
 // Don't worry, we're going to change these default runIt's
@@ -86,7 +86,79 @@ var in_def = {
     0xE005 : { def: "SESS_DUMP_DEBUG                   " , runIt: function(goods){runItDefault(goods, this.def) }}   // Cause the XenoSession to dump its debug data.
 }
 
-// DURRRRR
+// dat duplicate code doe
+var out_def = {
+    REPLY_FROM_HOST             : 0xFFFF,   // This denotes that the packet that follows is a reply.
+    UNDEFINED                   : 0x0000,   //
+    SYS_BOOT_COMPLETED          : 0x0001,   // Raised when bootstrap is finished.
+    SYS_BOOTLOADER              : 0x0002,   // Reboots into the STM32F4 bootloader.
+    SYS_REBOOT                  : 0x0003,   // Reboots into THIS program.
+    SYS_SHUTDOWN                : 0x0004,   // Raised when the system is pending complete shutdown.
+    SYS_PREALLOCATION           : 0x0005,   // Any classes that do preallocation should listen for this.
+    SYS_ADVERTISE_SRVC          : 0x0006,   // A system service might feel the need to advertise it's arrival.
+    SYS_RETRACT_SRVC            : 0x0007,   // A system service sends this to tell others to stop using it.
+    SYS_DATETIME_CHANGED        : 0x0100,   // Raised when the system time changes.
+    SYS_SET_DATETIME            : 0x0101,   //
+    SYS_REPORT_DATETIME         : 0x0102,   //
+    SYS_POWER_MODE_0            : 0x0200,   // The system wants to enter power mode 0 (full-throttle).
+    SYS_POWER_MODE_1            : 0x0201,   // The system wants to enter power mode 1 (general-use).
+    SYS_POWER_MODE_2            : 0x0202,   // The system wants to enter power mode 2 (idle).
+    SYS_POWER_MODE_3            : 0x0203,   // The system wants to enter power mode 3 (sleep).
+    SYS_ISSUE_LOG_ITEM          : 0x0300,   // Classes emit this to get their log data saved/sent.
+    SYS_LOG_VERBOSITY           : 0x0301,   // This tells client classes to adjust their log verbosity.
+    SCHED_ENABLE_BY_PID         : 0x0400,   // The given PID is being enabled.
+    SCHED_DISABLE_BY_PID        : 0x0401,   // The given PID is being disabled.
+    SCHED_PROFILER_START        : 0x0402,   // We want to profile the given PID.
+    SCHED_PROFILER_STOP         : 0x0403,   // We want to stop profiling the given PID.
+    SCHED_PROFILER_DUMP         : 0x0404,   // Dump the profiler data for all PIDs (no args) or given PIDs.
+    SCHED_DUMP_META             : 0x0405,   // Tell the Scheduler to dump its meta metrics.
+    SCHED_DUMP_SCHEDULES        : 0x0406,   // Tell the Scheduler to dump schedules.
+    SCHED_WIPE_PROFILER         : 0x0407,   // Tell the Scheduler to wipe its profiler data. Pass PIDs to be selective.
+    SCHED_DEFERRED_EVENT        : 0x0408,   // Tell the Scheduler to broadcast the attached Event so many ms into the future.
+    SCHED_DEFINE                : 0x0409,   // Define a new Schedule. Implies a return code. Careful...
+    SCHED_DELETE                : 0x040A,   // Deletes an existing.
+    BT_CONNECTION_LOST          : 0x1000,   //
+    BT_CONNECTION_GAINED        : 0x1001,   //
+    BT_PREALLOCATATION          : 0x1002,   // The RN42 class consumed its spare memory.
+    BT_QUEUE_READY              : 0x1003,   // There is action possible in the bluetooth queue.
+    BT_RX_BUF_NOT_EMPTY         : 0x1004,   // The host sent us data without indication of an end.
+    BT_ENTERED_CMD_MODE         : 0x1005,   // The module entered command mode.
+    BT_EXITED_CMD_MODE          : 0x1006,   // The module exited command mode.
+    I2C_QUEUE_READY             : 0x2000,   // The i2c queue is ready for attention.
+    I2C_DUMP_DEBUG              : 0x2099,   // Debug dump for i2c.
+    RNG_BUFFER_EMPTY            : 0x3000,   // The RNG couldn't keep up with our entropy demands.
+    INTERRUPTS_MASKED           : 0x3002,   // Anything that depends on interrupts is now broken.
+    IMU_IRQ_RAISED              : 0x4000,   // IRQ asserted by CPLD.
+    IMU_DIRTY                   : 0x4001,   // An IMU has pending data.
+    IMU_MAP_REQUEST             : 0x4002,   //
+    INIT_IMUS                   : 0x4003,   // Signal to build the IMUs.
+    INIT_KMAP                   : 0x4004,   // Signal to build the k-map.
+    SENSOR_INA219               : 0x5000,   // The current sensor has something to say.
+    UNDEFINEDULUM_MSG_SENSOR_ISL: 0x5001,   // The light sensor has something to say.
+    SENSOR_LPS331               : 0x5002,   // The baro sensor has something to say.
+    SENSOR_SI7021               : 0x5003,   // The humidity sensor has something to say.
+    SENSOR_TMP006               : 0x5004,   // The thermopile has something to say.
+    KMAP_PENDING_FRAME          : 0x6000,   // The K-Map has a completed frame waiting.
+    KMAP_USER_CHANGED           : 0x6001,   // The K-Map has detected a user change.
+    KMAP_BIOMETRIC_MATCH        : 0x6002,   // The K-Map has biometrically validated the current user.
+    KMAP_BIOMETRIC_NULL         : 0x6003,   // The K-Map has lost a biometric fix on the current user.
+    OLED_DIRTY_FRAME_BUF        : 0x8000,   // Something changed the framebuffer and we need to redraw.
+    COM_HOST_AUTH               : 0x9001,   // Something changed the framebuffer and we need to redraw.
+    GPIO_VIBRATE_0              : 0xA000,   // Some class wants to trigger vibrator 0.
+    GPIO_VIBRATE_1              : 0xA001,   // Some class wants to trigger vibrator 1.
+    LED_WRIST_OFF               : 0xA002,   // Some class is wanting to turn the wrist LED off.
+    LED_WRIST_ON                : 0xA003,   // Some class is wanting to turn the wrist LED on.
+    LED_DIGITS_FULL_OFF         : 0xA004,   // Some class is wanting to turn the digit LEDs off.
+    LED_DIGITS_FULL_ON          : 0xA005,   // Some class is wanting to turn the digit LEDs on.
+    SD_EJECTED                  : 0xB000,   // The SD card was just ejected.
+    SD_INSERTED                 : 0xB001,   // An SD card was inserted.
+    SESS_ESTABLISHED            : 0xE000,   // Session established.
+    SESS_HANGUP                 : 0xE001,   // Session hangup.
+    SESS_AUTH_CHALLENGE         : 0xE002,   // A code for challenge-response authentication.
+    SESS_SUBCRIBE               : 0xE003,   // Used to subscribe this session to other events.
+    SESS_UNSUBCRIBE             : 0xE004,   // Used to unsubscribe this session from other events.
+    SESS_DUMP_DEBUG             : 0xE005   // Cause the XenoSession to dump its debug data.
+};
 
 
 var jsonbuff = [];
@@ -163,6 +235,13 @@ var parser = Dissolve().loop(function(end) {
         });
 });
 
+var processParser = function(JSONbinary) {
+
+    in_def[JSONbinary.command].runIt(JSONbinary);
+
+    return 0;
+};
+
 parser.on("readable", function() {
     var e;
     while (e = parser.read()) {
@@ -174,23 +253,6 @@ parser.on("readable", function() {
         jsonbuff.push(e);
     }
 });
-
-var processParser = function(JSONbinary) {
-    //switch(JSONbinary.command) {
-    //    case        0x0301:   console.log("Set log verbosity to " + JSONbinary.args[0].arg);               break;
-    //    case        0x0100:   console.log("Datetime is " + toDateString(JSONbinary.args[0].arg));  break;
-    //    case        0xa003:   console.log("I've turned on the LED");    break;
-    //    case        "":       console.log("derp");  break;
-    //    default:    console.log("I got something I didn't recognize");  break;
-    //}
-
-    in_def[JSONbinary.command].runIt(JSONbinary);
-
-    //SEND RESPONSE BASED ON commandId
-
-    //linting DELETE ME
-    return 0;
-};
 
 
 serialPort.open(function (error) {
@@ -229,6 +291,7 @@ function handler (req, res) {
                 res.writeHead(200,{'Content-Type': 'text/html'});
                 res.end(data);
             });
+
     // Managing the route for the javascript files
     } else if( /\.(js)$/.test(path) ) {
         index = fs.readFile(__dirname+'/public'+path, 
@@ -268,11 +331,52 @@ io.sockets.on('connection', function (socket) {
 
 });
 
-
 udp_socket.on('message', function(content, rinfo) {
 	console.log('UDP byte ', content, ' from ', rinfo.address, rinfo.port, ' JSON or rinfo ', JSON.stringify(rinfo));
 	io.sockets.emit('udp_update', content.toString("utf8", 0, rinfo.size));
 });
+
+
+
+// CONCENTRATE STUFF
+
+var c = Concentrate();
+
+c.on("end", function() {
+    //run some function to say we successfully sent it... or start a listener for the response?
+    console.log("ended");
+});
+
+c.on("readable", function() {
+    var e;
+    while (e = c.read()) {
+        console.log(e);
+        //spit "e" out to the streamer
+    }
+});
+
+// ghetto incrementor
+var counter = 0;
+var randomID = function(){
+    return counter++;
+};
+
+//assemble a "subscribe" message
+c.uint16be(out_def.SESS_SUBCRIBE)           //command
+    .uint16be(randomID())                                //commandID
+    .uint16be(12)                               //totalLength
+    .uint8(1)                                 //argCount
+    .uint8(0x07)                                 //argType
+    .uint8(2)                                 //argLen
+    .uint16le(out_def.LED_WRIST_ON)             // (specific) command code to subscribe to
+    .uint8(0)                                  //checkSum?
+    .flush().end();                             // what is this doing?
+
+// CONCENTRATE END
+
+
+
+
 
 
 // test case for when serial isn't working...
