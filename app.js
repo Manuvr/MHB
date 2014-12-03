@@ -428,7 +428,6 @@ c.uint16be(defs.out.SESS_SUBCRIBE)           // command
     .uint16le(defs.out.LED_WRIST_ON)         // (specific) command code to subscribe to
     .uint8(0)                                // checkSum?
     .flush();                                // what is this doing?
-
 c.uint16be(defs.out.SESS_SUBCRIBE)
     .uint16be(randomID())
     .uint16be(22)
