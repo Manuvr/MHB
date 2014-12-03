@@ -50,13 +50,270 @@ var exec_out = function(jsonBuff){
     }
 }
 
+// the big one
 
-var SP = serialport.SerialPort;
-var serialPort = new SP("/dev/ttyACM0",
-	{
-		baudrate: 115200,
-		parser: serialport.parsers.readline("\n")
-	}, false);
+var gloveModel = {
+    UID         :   0,
+    handedness  :   0,
+    type        :   0,  // kmap or IMUs... dictates types
+    timestamp   :   0,
+    ready       :   0,
+    powerMode   :   0,
+    baro        :   0,
+    IMU_set     :
+        {
+            wrist   :   {
+                x       :   0,
+                y       :   0,
+                z       :   0,
+                rx      :   0,
+                ry      :   0,
+                rz      :   0,
+                error_p :   0,
+                error_r :   0,
+                mag     :   0,
+                error_m :   0,
+                temp    :   0
+            },
+            hand   :   {
+                x       :   0,
+                y       :   0,
+                z       :   0,
+                rx      :   0,
+                ry      :   0,
+                rz      :   0,
+                error_p :   0,
+                error_r :   0,
+                mag     :   0,
+                error_m :   0,
+                temp    :   0,
+                LED     :   0,
+                LED_l   :   0
+            },
+            thumb   :   {
+                first  :   {
+                    x       :   0,
+                    y       :   0,
+                    z       :   0,
+                    rx      :   0,
+                    ry      :   0,
+                    rz      :   0,
+                    error_p :   0,
+                    error_r :   0,
+                    mag     :   0,
+                    error_m :   0,
+                    temp    :   0
+                },
+                second  :   {
+                    x       :   0,
+                    y       :   0,
+                    z       :   0,
+                    rx      :   0,
+                    ry      :   0,
+                    rz      :   0,
+                    error_p :   0,
+                    error_r :   0,
+                    mag     :   0,
+                    error_m :   0,
+                    temp    :   0
+                },
+                third   :   {
+                    x       :   0,
+                    y       :   0,
+                    z       :   0,
+                    rx      :   0,
+                    ry      :   0,
+                    rz      :   0,
+                    error_p :   0,
+                    error_r :   0,
+                    mag     :   0,
+                    error_m :   0,
+                    temp    :   0,
+                    LED     :   0,
+                    LED_l   :   0
+                }
+            },
+            index   :   {   //
+                first  :   {
+                    x       :   0,
+                    y       :   0,
+                    z       :   0,
+                    rx      :   0,
+                    ry      :   0,
+                    rz      :   0,
+                    error_p :   0,
+                    error_r :   0,
+                    mag     :   0,
+                    error_m :   0,
+                    temp    :   0
+                },
+                second  :   {
+                    x       :   0,
+                    y       :   0,
+                    z       :   0,
+                    rx      :   0,
+                    ry      :   0,
+                    rz      :   0,
+                    error_p :   0,
+                    error_r :   0,
+                    mag     :   0,
+                    error_m :   0,
+                    temp    :   0
+                },
+                third   :   {
+                    x       :   0,
+                    y       :   0,
+                    z       :   0,
+                    rx      :   0,
+                    ry      :   0,
+                    rz      :   0,
+                    error_p :   0,
+                    error_r :   0,
+                    mag     :   0,
+                    error_m :   0,
+                    temp    :   0,
+                    LED     :   0,
+                    LED_l   :   0
+                }
+            },
+            middle  :   {
+                first  :   {
+                    x       :   0,
+                    y       :   0,
+                    z       :   0,
+                    rx      :   0,
+                    ry      :   0,
+                    rz      :   0,
+                    error_p :   0,
+                    error_r :   0,
+                    mag     :   0,
+                    error_m :   0,
+                    temp    :   0
+                },
+                second  :   {
+                    x       :   0,
+                    y       :   0,
+                    z       :   0,
+                    rx      :   0,
+                    ry      :   0,
+                    rz      :   0,
+                    error_p :   0,
+                    error_r :   0,
+                    mag     :   0,
+                    error_m :   0,
+                    temp    :   0
+                },
+                third   :   {
+                    x       :   0,
+                    y       :   0,
+                    z       :   0,
+                    rx      :   0,
+                    ry      :   0,
+                    rz      :   0,
+                    error_p :   0,
+                    error_r :   0,
+                    mag     :   0,
+                    error_m :   0,
+                    temp    :   0,
+                    LED     :   0,
+                    LED_l   :   0
+                }
+            },
+            ring    :   {
+                first  :   {
+                    x       :   0,
+                    y       :   0,
+                    z       :   0,
+                    rx      :   0,
+                    ry      :   0,
+                    rz      :   0,
+                    error_p :   0,
+                    error_r :   0,
+                    mag     :   0,
+                    error_m :   0,
+                    temp    :   0
+                },
+                second  :   {
+                    x       :   0,
+                    y       :   0,
+                    z       :   0,
+                    rx      :   0,
+                    ry      :   0,
+                    rz      :   0,
+                    error_p :   0,
+                    error_r :   0,
+                    mag     :   0,
+                    error_m :   0,
+                    temp    :   0
+                },
+                third   :   {
+                    x       :   0,
+                    y       :   0,
+                    z       :   0,
+                    rx      :   0,
+                    ry      :   0,
+                    rz      :   0,
+                    error_p :   0,
+                    error_r :   0,
+                    mag     :   0,
+                    error_m :   0,
+                    temp    :   0,
+                    LED     :   0,
+                    LED_l   :   0
+                }
+            },
+            pinky   :   {
+                first  :   {
+                    x       :   0,
+                    y       :   0,
+                    z       :   0,
+                    rx      :   0,
+                    ry      :   0,
+                    rz      :   0,
+                    error_p :   0,
+                    error_r :   0,
+                    mag     :   0,
+                    error_m :   0,
+                    temp    :   0
+                },
+                second  :   {
+                    x       :   0,
+                    y       :   0,
+                    z       :   0,
+                    rx      :   0,
+                    ry      :   0,
+                    rz      :   0,
+                    error_p :   0,
+                    error_r :   0,
+                    mag     :   0,
+                    error_m :   0,
+                    temp    :   0
+                },
+                third   :   {
+                    x       :   0,
+                    y       :   0,
+                    z       :   0,
+                    rx      :   0,
+                    ry      :   0,
+                    rz      :   0,
+                    error_p :   0,
+                    error_r :   0,
+                    mag     :   0,
+                    error_m :   0,
+                    temp    :   0,
+                    LED     :   0,
+                    LED_l   :   0
+                }
+            }
+    }
+}
+
+//var SP = serialport.SerialPort;
+//var serialPort = new SP("/dev/ttyACM0",
+//	{
+//		baudrate: 115200,
+//		parser: serialport.parsers.readline("\n")
+//	}, false);
 
 
 var parser = Dissolve().loop(function(end) {
@@ -119,22 +376,22 @@ parser.on("readable", function() {
 
 // SERIAL PORT ACTIONS
 
-serialPort.open(function (error) {
-  if ( error ) {
-    console.log('failed to open: '+error);
-  } else {
-    console.log('open');
-    serialPort.on('data', function(data) {
-      console.log('data received: ' + data);
-      parser.write(data);
-      io.sockets.emit('serial_update', data);
-    });
-    //serialPort.write("ls\n", function(err, results) {
-    //  console.log('err ' + err);
-    //  console.log('results ' + results);
-    //});
-  }
-});
+//serialPort.open(function (error) {
+//  if ( error ) {
+//    console.log('failed to open: '+error);
+//  } else {
+//    console.log('open');
+//    serialPort.on('data', function(data) {
+//      console.log('data received: ' + data);
+//      parser.write(data);
+//      io.sockets.emit('serial_update', data);
+//    });
+//    //serialPort.write("ls\n", function(err, results) {
+//    //  console.log('err ' + err);
+//    //  console.log('results ' + results);
+//    //});
+//  }
+//});
 
 
 // CONCENTRATE (SENDING BINARY)
@@ -162,15 +419,15 @@ var randomID = function(){
 };
 
 //assemble a "subscribe" message
-c.uint16be(defs.out.SESS_SUBCRIBE)           //command
-    .uint16be(randomID())                    //commandID
-    .uint16be(12)                            //totalLength
-    .uint8(1)                                //argCount
-    .uint8(defs.arg.a_uint16be)              //argType
-    .uint8(2)                                //argLen
+c.uint16be(defs.out.SESS_SUBCRIBE)           // command
+    .uint16be(randomID())                    // commandID
+    .uint16be(12)                            // totalLength
+    .uint8(1)                                // argCount
+    .uint8(defs.arg.a_uint16be)              // argType
+    .uint8(2)                                // argLen
     .uint16le(defs.out.LED_WRIST_ON)         // (specific) command code to subscribe to
-    .uint8(0)                                //checkSum?
-    .flush();                          // what is this doing?
+    .uint8(0)                                // checkSum?
+    .flush();                                // what is this doing?
 
 c.uint16be(defs.out.SESS_SUBCRIBE)
     .uint16be(randomID())
