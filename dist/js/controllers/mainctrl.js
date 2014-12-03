@@ -1,0 +1,1 @@
+module.exports=function(e){e.test="Testing...",console.log("required...")};
