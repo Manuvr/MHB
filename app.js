@@ -1,5 +1,3 @@
-var io = require('socket.io')(80);
-var serialport = require("serialport");
 var Dissolve = require('dissolve');
 var Concentrate = require('concentrate');
 var util = require('util');
