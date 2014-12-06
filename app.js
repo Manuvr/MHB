@@ -3,6 +3,7 @@ var serialport = require("serialport");
 var Dissolve = require('dissolve');
 var Concentrate = require('concentrate');
 var util = require('util');
+var events = require("events");
 
 // this can cause issues if your system isn't configured... remove as necessary
 var btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort();
@@ -55,7 +56,6 @@ var exec_out = function(jsonBuff){
 };
 
 // the big one
-
 var gloveModel = {
     UID         :   0,
     handedness  :   0,
@@ -449,10 +449,27 @@ var gloveModel = {
     }
 };
 
+//
+var EventEmitter = events.EventEmitter;
+var ee = new EventEmitter();
 
+var syncPacket = Buffer([0x04, 0x00, 0x00, 0x55], 'hex');
 var maxLength = 2^24;
 var warningLength = 10000;
 var waitingForSync = 0;
+
+var bufferCompare = function (a, b) {
+    if (!Buffer.isBuffer(a)) return undefined;
+    if (!Buffer.isBuffer(b)) return undefined;
+    if (typeof a.equals === 'function') return a.equals(b);
+    if (a.length !== b.length) return false;
+
+    for (var i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) return false;
+    }
+
+    return true;
+};
 
 var sync = function(flag){
     waitingForSync = flag;
@@ -466,6 +483,10 @@ var sync = function(flag){
 
 var dataCheck = function(jsonBuff){
     var buffSum = 0;
+    if(jsonBuff.checkSum === 0x55){
+        console.log("Sync got in here somehow?");
+        return 1;
+    }
     for(var i = 0; i < jsonBuff.raw.length; i++){
         buffSum += jsonBuff.raw.readUInt8(i);
     }
@@ -482,49 +503,68 @@ var dataCheck = function(jsonBuff){
 
 
 var parser = Dissolve().loop(function(end) {
-    this.uint32le("temp")
-        .tap(function(){
-            this.vars.totalLength   =   this.vars.temp & 0x00FFFFFF; // converting in to 24 bit integer
-            this.vars.checkSum      =   this.vars.temp >> 24;        // grabbing the checksum
-            delete this.vars.temp;
-            if(waitingForSync === 1){
-                if(this.vars.totalLength === 4 && this.vars.checkSum === 0x55){
-                    sync(0);
+    if(waitingForSync === 1 ){
+        this.uint8("wait")
+            .tap(function(){
+                if(this.vars.wait === 0x55){
+                    this.buffer("check", 4)
+                        .tap(function(){
+                            if(bufferCompare(this.vars.check, syncPacket)){
+                                sync(0);
+                            }
+                            this.vars = Object.create(null);
+                        })
+                    this.vars = Object.create(null);
+                } else {
+                    this.vars = Object.create(null);
                 }
-            } else {
-                if(this.vars.totalLength > 4){
-                    if(this.vars.totalLength >= warningLength && this.vars.totalLength < maxLength){
+            })
+    } else {
+        this.uint32le("temp")
+            .tap(function () {
+                this.vars.totalLength   = this.vars.temp & 0x00FFFFFF;      // converting in to 24 bit integer
+                this.vars.checkSum      = this.vars.temp >> 24;             // grabbing the checksum
+                delete this.vars.temp;
+                if (this.vars.totalLength > 4) {
+                    if (this.vars.totalLength >= warningLength && this.vars.totalLength < maxLength) {
                         console.log("I'm getting a big packet of " + this.vars.totalLength + " bytes");
                         this.buffer("raw", this.vars.totalLength - 4)
-                    } else if(this.vars.totalLength >= maxLength){
-                        // above the maxLength
-                        console.log("Something is WAY too big; attempting to sync again...");
+                    } else if (this.vars.totalLength >= maxLength) {
+                        console.log("Something is WAY too big; dropping to sync mode...");
+                        //This will consume a lot of events....
+                        //this.buffer("raw", this.vars.totalLength - 4)
                         sync(1);
                     } else {
                         this.buffer("raw", this.vars.totalLength - 4)
                     }
                 } else {
-                    if(this.vars.checkSum === 0x55){
-                        //it's a good sync packet but it's not needed...
-                        console.log("...sync only...")
+                    if (this.vars.checkSum === 0x55) {
+                        console.log("...sync...")
                     } else {
-                        // something is wrong
+                        // something is very wrong...
                         sync(1);
                     }
-
                 }
-            }
-
-        })
-        .tap(function() {
-            if(this.vars.checkSum !== 0x55 || waitingForSync === 0){
-                this.push(this.vars);
-            } else {
-                // got data, but couldn't push it
-            }
-            this.vars = Object.create(null);
-        });
+            })
+            .tap(function () {
+                if (this.vars.checkSum != 0x55 && waitingForSync === 0) {
+                    this.push(this.vars);
+                } else {
+                    // got data, but couldn't push it
+                }
+                this.vars = Object.create(null);
+            })
+    };
 });
+
+ee.on("addedToBufferIn", function () {
+    console.log("event has occured");
+    if(null != jsonBuffArrayIn[0]) {
+        exec_in(jsonBuffArrayIn[0]);
+        jsonBuffArrayIn.shift();
+    }
+});
+
 
 parser.on("readable", function() {
     var e;
@@ -536,6 +576,7 @@ parser.on("readable", function() {
             e.messageId = e.raw.readUInt16LE(2);
             e.raw = e.raw.slice(4);
             jsonBuffArrayIn.push(e);
+            ee.emit("addedToBufferIn");
         } else {
             sync(0);
         }
@@ -543,8 +584,35 @@ parser.on("readable", function() {
 });
 
 
+
 // Test case for the parser
 parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
+parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
+parser.write(new Buffer([0x22, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
+parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
+parser.write(syncPacket);
+parser.write(syncPacket);
+parser.write(syncPacket);
+parser.write(syncPacket);
+parser.write(syncPacket);
+parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
+parser.write(syncPacket);
+parser.write(syncPacket);
+parser.write(syncPacket);
+parser.write(syncPacket);
+parser.write(syncPacket);
+parser.write(syncPacket);
+parser.write(syncPacket);
+parser.write(syncPacket);
+parser.write(syncPacket);
+parser.write(syncPacket);
+parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
+parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
+parser.write(syncPacket);
+parser.write(syncPacket);
+parser.write(syncPacket);
+parser.write(syncPacket);
+parser.write(syncPacket);
 
 
 // BLUETOOTH COPYPASTA
@@ -554,9 +622,9 @@ btSerial.on('found', function(address, name) {
         btSerial.connect(address, channel, function() {
             console.log('connected');
 
-            btSerial.write(new Buffer([01, 02, 03, 04], 'hex'), function(err, bytesWritten) {
-                if (err) console.log(err);
-            });
+            //btSerial.write(syncPacket, function(err, bytesWritten) {
+            //    if (err) console.log(err);
+            //});
 
             btSerial.on('data', function(buffer) {
                 console.log("Getting some BT data...");
@@ -573,22 +641,15 @@ btSerial.on('found', function(address, name) {
     });
 });
 
-
-
 // mainloop... convert this to a Node Eventloop later
 
-shutDown = 0;
-inquire = 0;
+var shutDown = 0;
 
+// this halts EVERYTHING
 btSerial.inquire();
-console.log("got past inquire...");
 
-
+console.log("I got past the BT inquire.");
 
 while(!shutDown) {
-    if(null != jsonBuffArrayIn[0]) {
-        exec_in(jsonBuffArrayIn[0]);
-        jsonBuffArrayIn.shift();
-    }
+    //sit and don't close
 }
-
