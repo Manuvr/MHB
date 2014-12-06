@@ -631,7 +631,7 @@ btSerial.on('found', function(address, name) {
         }, function () {
             console.log('cannot connect');
         });
-
+        console.log("BT closing?")
         // close the connection when you're ready
         btSerial.close();
     }, function() {
@@ -642,12 +642,12 @@ btSerial.on('found', function(address, name) {
 // mainloop... convert this to a Node Eventloop later
 
 var shutDown = 0;
-
-// this halts EVERYTHING
-btSerial.inquire();
-
+var runCount = 0;
 console.log("I got past the BT inquire.");
 
 while(!shutDown) {
     //sit and don't close
+    btSerial.inquire();
+    console.log("Inquire has ran " + runCount  + " time...");
+    runCount++;
 }
