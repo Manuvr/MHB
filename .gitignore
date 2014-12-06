@@ -6,3 +6,5 @@ node_modules
 .floo
 .flooignore
 temp.js
+.idea/workspace.xml
+.idea/scopes/scope_settings.xml
