@@ -4,7 +4,6 @@ var util = require('util');
 var events = require("events");
 
 // this can cause issues if your system isn't configured... remove as necessary
-var btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort();
 
 // our libs
 var defs = require("./lib/defs.js");
@@ -615,6 +614,9 @@ parser.write(syncPacket);
 
 // BLUETOOTH COPYPASTA
 
+
+var btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort();
+
 btSerial.on('found', function(address, name) {
     btSerial.findSerialPortChannel(address, function(channel) {
         console.log('Connection at address: ' + address + "\n");
@@ -625,7 +627,7 @@ btSerial.on('found', function(address, name) {
                 btSerial.write(syncPacket, function(err, bytesWritten) {
                     if (err) console.log(err);
                 });
-            })
+            }, 10000);
 
             btSerial.on('data', function(buffer) {
                 console.log("Getting some BT data...");
@@ -646,11 +648,12 @@ btSerial.on('found', function(address, name) {
 
 var shutDown = 0;
 var runCount = 0;
-console.log("I got past the BT inquire.");
+btSerial.inquire();
+console.log("got past inquire... derp");
 
-while(!shutDown) {
-    //sit and don't close
-    btSerial.inquire();
-    console.log("Inquire has ran " + runCount  + " time...");
-    runCount++;
-}
+//while(!shutDown) {
+//    //sit and don't close
+//    btSerial.inquire();
+//    console.log("Inquire has ran " + runCount  + " time...");
+//    runCount++;
+//}
