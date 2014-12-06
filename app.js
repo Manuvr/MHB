@@ -2,6 +2,10 @@ var io = require('socket.io')(80);
 var serialport = require("serialport");
 var Dissolve = require('dissolve');
 var Concentrate = require('concentrate');
+var util = require('util');
+
+// this can cause issues if your system isn't configured... remove as necessary
+var btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort();
 
 // our libs
 var defs = require("./lib/defs.js");
@@ -25,18 +29,18 @@ var listenerArray = [];
 
 
 var exec_in = function(jsonBuff){
-    if(jsonBuff.command == defs.out.REPLY_FROM_HOST){
-        defs.in[jsonBuff.command].runIt(jsonBuff);
+    if(jsonBuff.messageId == defs.out.REPLY_FROM_HOST){
+        defs.in[jsonBuff.messageId].runIt(jsonBuff);
     } else {
-        defs.in[jsonBuff.command].runIt(jsonBuff);
+        defs.in[jsonBuff.messageId].runIt(jsonBuff);
         // change the jsonBuff in to a reply here
         //exec_out(jsonBuff);
     }
-}
+};
 
 var exec_out = function(jsonBuff){
 
-    if(jsonBuff.command == defs.out.REPLY_FROM_HOST){
+    if(jsonBuff.messageId == defs.out.REPLY_FROM_HOST){
         // just sending a reply
     } else
     {
@@ -48,7 +52,7 @@ var exec_out = function(jsonBuff){
             obj         :   jsonBuff
         })
     }
-}
+};
 
 // the big one
 
@@ -443,151 +447,143 @@ var gloveModel = {
                 }
             }
     }
+};
+
+
+var maxLength = 2^24;
+var warningLength = 10000;
+var waitingForSync = 0;
+
+var sync = function(flag){
+    waitingForSync = flag;
+    if(waitingForSync === 1){
+        console.log("OUT OF SYNC...");
+        //send reset command here
+    } else {
+        console.log("BACK IN SYNC!");
+    }
 }
 
-
-
-//var SP = serialport.SerialPort;
-//var serialPort = new SP("/dev/ttyACM0",
-//	{
-//		baudrate: 115200,
-//		parser: serialport.parsers.readline("\n")
-//	}, false);
+var dataCheck = function(jsonBuff){
+    var buffSum = 0;
+    for(var i = 0; i < jsonBuff.raw.length; i++){
+        buffSum += jsonBuff.raw.readUInt8(i);
+    }
+    buffSum += 0x55;
+    buffSum %= 256;
+    if(jsonBuff.checkSum === buffSum){
+        console.log("Checksum is good!");
+        return 1;
+    } else {
+        console.log("ERROR! Expected checksum: " + jsonBuff.checkSum + " Received: " + buffSum)
+        return 0;
+    }
+};
 
 
 var parser = Dissolve().loop(function(end) {
-    var data_i = 0;
-    this.uint16be("command")
-        .uint16be("commandId")
-        .uint16be("totalLength")
-        .uint8be("argCount")
-        .loop("args", function(end) {
-            if (data_i++ === this.vars.argCount) {
-                return end(true);
-            }
-            var arg_i = 0;
-
-            this.uint8be("argType")
-                .uint8be("argLen")
-                .tap(function() {
-                    switch(this.vars.argType) {
-                        case    0x01:       this.sint8("arg");                              break;
-                        case    0x02:       this.sint16be("arg");                           break;
-                        case    0x03:       this.sint32be("arg");                           break;
-                        case    0x04:       this.sint64be("arg");                           break;
-                        case    0x05:       // sint128be
-                        case    0x06:       this.uint8("arg");                              break;
-                        case    0x07:       this.uint16be("arg");                           break;
-                        case    0x08:       this.uint32be("arg");                           break;
-                        case    0x09:       this.uint64be("arg");                           break;
-                        case    0x10:       // uint128be
-                        case    0x11:       this.uint8("arg");                              break;
-                        case    0x12:       this.floatbe("arg");                            break;
-                        case    0x13:       this.doublebe("arg");                           break;
-                        case    0x14:       this.string("arg", this.vars.argLen);           break;
-                        case    0x15:       // binary buffer
-                        case    0x16:       // audio
-                        case    0x17:       // image
-                        case    0x18:       this.floatbe("x").floatbe("y").floatbe("z");    break;
-                        case    0x19:       this.sint16be("x").sint16be("y").sint16be("z"); break;
-                        case    0x20:       this.uint16be("x").uint16be("y").uint16be("z"); break;
-                        case    0x21:       // pointer type (never see)
-                        case    0xFE:       // reply
-                        case    0xFF:       // THROW THIS AWAY
-                             default:       this.buffer("arg", this.vars.argLen);           break;
+    this.uint32le("temp")
+        .tap(function(){
+            this.vars.totalLength   =   this.vars.temp & 0x00FFFFFF; // converting in to 24 bit integer
+            this.vars.checkSum      =   this.vars.temp >> 24;        // grabbing the checksum
+            delete this.vars.temp;
+            if(waitingForSync === 1){
+                if(this.vars.totalLength === 4 && this.vars.checkSum === 0x55){
+                    sync(0);
+                }
+            } else {
+                if(this.vars.totalLength > 4){
+                    if(this.vars.totalLength >= warningLength && this.vars.totalLength < maxLength){
+                        console.log("I'm getting a big packet of " + this.vars.totalLength + " bytes");
+                        this.buffer("raw", this.vars.totalLength - 4)
+                    } else if(this.vars.totalLength >= maxLength){
+                        // above the maxLength
+                        console.log("Something is WAY too big; attempting to sync again...");
+                        sync(1);
+                    } else {
+                        this.buffer("raw", this.vars.totalLength - 4)
                     }
-                });
+                } else {
+                    if(this.vars.checkSum === 0x55){
+                        //it's a good sync packet but it's not needed...
+                        console.log("...sync only...")
+                    } else {
+                        // something is wrong
+                        sync(1);
+                    }
+
+                }
+            }
+
         })
-        .uint8be("checkSum")
         .tap(function() {
-            this.push(this.vars);
+            if(this.vars.checkSum !== 0x55 || waitingForSync === 0){
+                this.push(this.vars);
+            } else {
+                // got data, but couldn't push it
+            }
             this.vars = Object.create(null);
         });
 });
 
-
 parser.on("readable", function() {
     var e;
     while (e = parser.read()) {
-        jsonBuffArrayIn.push(e);
+        if(dataCheck(e) === 1) {
+            //this is UGLY...
+            //e.data = new rawParser(e.totalLength, e);
+            e.uniqueId = e.raw.readUInt16LE(0);
+            e.messageId = e.raw.readUInt16LE(2);
+            e.raw = e.raw.slice(4);
+            jsonBuffArrayIn.push(e);
+        } else {
+            sync(0);
+        }
     }
 });
 
-// SERIAL PORT ACTIONS
 
-//serialPort.open(function (error) {
-//  if ( error ) {
-//    console.log('failed to open: '+error);
-//  } else {
-//    console.log('open');
-//    serialPort.on('data', function(data) {
-//      console.log('data received: ' + data);
-//      parser.write(data);
-//      io.sockets.emit('serial_update', data);
-//    });
-//    //serialPort.write("ls\n", function(err, results) {
-//    //  console.log('err ' + err);
-//    //  console.log('results ' + results);
-//    //});
-//  }
-//});
+// Test case for the parser
+parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
 
 
-// CONCENTRATE (SENDING BINARY)
+// BLUETOOTH COPYPASTA
 
-var c = Concentrate();
+btSerial.on('found', function(address, name) {
+    btSerial.findSerialPortChannel(address, function(channel) {
+        btSerial.connect(address, channel, function() {
+            console.log('connected');
 
-c.on("end", function() {
-    //run some function to say we successfully sent it... or start a listener for the response?
-    console.log("ended");
+            btSerial.write(new Buffer([01, 02, 03, 04], 'hex'), function(err, bytesWritten) {
+                if (err) console.log(err);
+            });
+
+            btSerial.on('data', function(buffer) {
+                console.log("Getting some BT data...");
+                parser.write(buffer);
+            });
+        }, function () {
+            console.log('cannot connect');
+        });
+
+        // close the connection when you're ready
+        btSerial.close();
+    }, function() {
+        console.log('found nothing');
+    });
 });
 
-c.on("readable", function() {
-    var e;
-    while (e = c.read()) {
-        console.log(e);
-        //spit "e" out to the streamer
-    }
-});
-
-// ghetto incrementor
-var counter = 0;
-var randomID = function(){
-    counter++
-    return counter;
-};
-
-//assemble a "subscribe" message
-c.uint16be(defs.out.SESS_SUBCRIBE)           // command
-    .uint16be(randomID())                    // commandID
-    .uint16be(12)                            // totalLength
-    .uint8(1)                                // argCount
-    .uint8(defs.arg.a_uint16be)              // argType
-    .uint8(2)                                // argLen
-    .uint16le(defs.out.LED_WRIST_ON)         // (specific) command code to subscribe to
-    .uint8(0)                                // checkSum?
-    .flush();                                // what is this doing?
-c.uint16be(defs.out.SESS_SUBCRIBE)
-    .uint16be(randomID())
-    .uint16be(22)
-    .uint8(1)
-    .uint8(defs.arg.a_uint16be)
-    .uint8(2)
-    .uint16le(defs.out.LED_WRIST_OFF)
-    .uint8(0)
-    .flush();
-
-// CONCENTRATE END
-
-
-
-// test case for when serial isn't working...
-parser.write(new Buffer([0xa0, 0x03, 0x4f, 0xe3, 0x00, 0x0e, 0x01, 0x08, 0x04, 0xea, 0x20, 0x67, 0x00, 0xb6, 0x03, 0x01, 0xf9, 0x5c, 0x00, 0x0b, 0x01, 0x06, 0x01, 0x07, 0xc8, 0xa0, 0x03, 0xad, 0x7d, 0x00, 0x08, 0x00, 0x2a ]));
 
 
 // mainloop... convert this to a Node Eventloop later
 
 shutDown = 0;
+inquire = 0;
+
+btSerial.inquire();
+console.log("got past inquire...");
+
+
 
 while(!shutDown) {
     if(null != jsonBuffArrayIn[0]) {
@@ -595,3 +591,4 @@ while(!shutDown) {
         jsonBuffArrayIn.shift();
     }
 }
+

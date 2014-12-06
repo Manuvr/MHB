@@ -29,5 +29,11 @@
   "bugs": {
     "url": "https://github.com/jspark311/DigitabulumHostBridge/issues"
   },
-  "homepage": "https://github.com/jspark311/DigitabulumHostBridge"
+  "homepage": "https://github.com/jspark311/DigitabulumHostBridge",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
 }
