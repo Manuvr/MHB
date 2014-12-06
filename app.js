@@ -617,12 +617,15 @@ parser.write(syncPacket);
 
 btSerial.on('found', function(address, name) {
     btSerial.findSerialPortChannel(address, function(channel) {
+        console.log('Connection at address: ' + address + "\n");
         btSerial.connect(address, channel, function() {
             console.log('connected');
 
-            //btSerial.write(syncPacket, function(err, bytesWritten) {
-            //    if (err) console.log(err);
-            //});
+            setTimeout(function(){
+                btSerial.write(syncPacket, function(err, bytesWritten) {
+                    if (err) console.log(err);
+                });
+            })
 
             btSerial.on('data', function(buffer) {
                 console.log("Getting some BT data...");
@@ -631,9 +634,9 @@ btSerial.on('found', function(address, name) {
         }, function () {
             console.log('cannot connect');
         });
-        console.log("BT closing?")
+        //console.log("BT closing?")
         // close the connection when you're ready
-        btSerial.close();
+        //btSerial.close();
     }, function() {
         console.log('found nothing');
     });
