@@ -616,7 +616,7 @@ parser.write(syncPacket);
 
 
 var btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort();
-
+/* COMMENTED FOR TESTING CLIENT
 btSerial.on('found', function(address, name) {
     btSerial.findSerialPortChannel(address, function(channel) {
         console.log('Connection at address: ' + address + "\n");
@@ -657,3 +657,8 @@ console.log("got past inquire... derp");
 //    console.log("Inquire has ran " + runCount  + " time...");
 //    runCount++;
 //}
+
+*/
+
+
+module.exports.parser = parser;
