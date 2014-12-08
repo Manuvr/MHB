@@ -3,26 +3,20 @@ var Concentrate = require('concentrate');
 var util = require('util');
 var events = require("events");
 
-// this can cause issues if your system isn't configured... remove as necessary
-
 // our libs
 var defs = require("./lib/defs.js");
-
 
 // Pre and post buffers
 // these currently just accumulate, but we'll "process" them in a FIFO queue
 
-// The Dissolve parser will push the values it's converted from the Buffer here.  We will
-// want to have another pass on these values to get "readable" information however...
+// The parser will push the values it's converted from the Buffer here.
 var jsonBuffArrayIn = [];
 
-
 // We will insert readable JSON here to be sent to the glove.
-// A loop will pull the top array object out, convert it to a Buffer object using Concentrate,
-// and ship it out over a serial port
 var jsonBuffArrayOut = [];
 
-// this waits for the replies before executing the relevant command
+// this waits for the replies before executing the relevant command; we don't start anything until a reply
+// is received
 var listenerArray = [];
 
 
@@ -52,399 +46,6 @@ var exec_out = function(jsonBuff){
     }
 };
 
-// the big one
-var gloveModel = {
-    UID         :   0,
-    handedness  :   0,
-    type        :   0,  // kmap or IMUs... dictates types
-    legend      :   {}, // this will contain assignment data to determine what values are "on"
-    timestamp   :   0,
-    ready       :   0,
-    powerMode   :   0,
-    baro        :   0,
-    IMU_set     :
-        {
-            wrist   :   {
-                x       :   0,
-                y       :   0,
-                z       :   0,
-                rx      :   0,
-                ry      :   0,
-                rz      :   0,
-                mx		:   0,
-                my		:   0,
-                mz		:   0,
-                e_x		:   0,
-                e_y		:   0,
-                e_z		:   0,
-                e_rx	:   0,
-                e_ry	:   0,
-                e_rz	:   0,
-                e_mx	:   0,
-                e_my	:   0,
-                e_mz	:   0,
-                temp    :   0
-            },
-            hand   :   {
-                x       :   0,
-                y       :   0,
-                z       :   0,
-                rx      :   0,
-                ry      :   0,
-                rz      :   0,
-                mx		:   0,
-                my		:   0,
-                mz		:   0,
-                e_x		:   0,
-                e_y		:   0,
-                e_z		:   0,
-                e_rx	:   0,
-                e_ry	:   0,
-                e_rz	:   0,
-                e_mx	:   0,
-                e_my	:   0,
-                e_mz	:   0,
-                temp    :   0,
-                LED     :   0,
-                LED_l   :   0
-            },
-            thumb   :   {
-                first  :   {
-                    x       :   0,
-                    y       :   0,
-                    z       :   0,
-                    rx      :   0,
-                    ry      :   0,
-                    rz      :   0,
-                    mx		:   0,
-                    my		:   0,
-                    mz		:   0,
-                    e_x		:   0,
-                    e_y		:   0,
-                    e_z		:   0,
-                    e_rx	:   0,
-                    e_ry	:   0,
-                    e_rz	:   0,
-                    e_mx	:   0,
-                    e_my	:   0,
-                    e_mz	:   0,
-                    temp    :   0
-                },
-                second  :   {
-                    x       :   0,
-                    y       :   0,
-                    z       :   0,
-                    rx      :   0,
-                    ry      :   0,
-                    rz      :   0,
-                    mx		:   0,
-                    my		:   0,
-                    mz		:   0,
-                    e_x		:   0,
-                    e_y		:   0,
-                    e_z		:   0,
-                    e_rx	:   0,
-                    e_ry	:   0,
-                    e_rz	:   0,
-                    e_mx	:   0,
-                    e_my	:   0,
-                    e_mz	:   0,
-                    temp    :   0
-                },
-                third   :   {
-                    x       :   0,
-                    y       :   0,
-                    z       :   0,
-                    rx      :   0,
-                    ry      :   0,
-                    rz      :   0,
-                    mx		:   0,
-                    my		:   0,
-                    mz		:   0,
-                    e_x		:   0,
-                    e_y		:   0,
-                    e_z		:   0,
-                    e_rx	:   0,
-                    e_ry	:   0,
-                    e_rz	:   0,
-                    e_mx	:   0,
-                    e_my	:   0,
-                    e_mz	:   0,
-                    temp    :   0,
-                    LED     :   0,
-                    LED_l   :   0
-                }
-            },
-            index   :   {   //
-                first  :   {
-                    x       :   0,
-                    y       :   0,
-                    z       :   0,
-                    rx      :   0,
-                    ry      :   0,
-                    rz      :   0,
-                    mx		:   0,
-                    my		:   0,
-                    mz		:   0,
-                    e_x		:   0,
-                    e_y		:   0,
-                    e_z		:   0,
-                    e_rx	:   0,
-                    e_ry	:   0,
-                    e_rz	:   0,
-                    e_mx	:   0,
-                    e_my	:   0,
-                    e_mz	:   0,
-                    temp    :   0
-                },
-                second  :   {
-                    x       :   0,
-                    y       :   0,
-                    z       :   0,
-                    rx      :   0,
-                    ry      :   0,
-                    rz      :   0,
-                    mx		:   0,
-                    my		:   0,
-                    mz		:   0,
-                    e_x		:   0,
-                    e_y		:   0,
-                    e_z		:   0,
-                    e_rx	:   0,
-                    e_ry	:   0,
-                    e_rz	:   0,
-                    e_mx	:   0,
-                    e_my	:   0,
-                    e_mz	:   0,
-                    temp    :   0
-                },
-                third   :   {
-                    x       :   0,
-                    y       :   0,
-                    z       :   0,
-                    rx      :   0,
-                    ry      :   0,
-                    rz      :   0,
-                    mx		:   0,
-                    my		:   0,
-                    mz		:   0,
-                    e_x		:   0,
-                    e_y		:   0,
-                    e_z		:   0,
-                    e_rx	:   0,
-                    e_ry	:   0,
-                    e_rz	:   0,
-                    e_mx	:   0,
-                    e_my	:   0,
-                    e_mz	:   0,
-                    temp    :   0,
-                    LED     :   0,
-                    LED_l   :   0
-                }
-            },
-            middle  :   {
-                first  :   {
-                    x       :   0,
-                    y       :   0,
-                    z       :   0,
-                    rx      :   0,
-                    ry      :   0,
-                    rz      :   0,
-                    mx		:   0,
-                    my		:   0,
-                    mz		:   0,
-                    e_x		:   0,
-                    e_y		:   0,
-                    e_z		:   0,
-                    e_rx	:   0,
-                    e_ry	:   0,
-                    e_rz	:   0,
-                    e_mx	:   0,
-                    e_my	:   0,
-                    e_mz	:   0,
-                    temp    :   0
-                },
-                second  :   {
-                    x       :   0,
-                    y       :   0,
-                    z       :   0,
-                    rx      :   0,
-                    ry      :   0,
-                    rz      :   0,
-                    mx		:   0,
-                    my		:   0,
-                    mz		:   0,
-                    e_x		:   0,
-                    e_y		:   0,
-                    e_z		:   0,
-                    e_rx	:   0,
-                    e_ry	:   0,
-                    e_rz	:   0,
-                    e_mx	:   0,
-                    e_my	:   0,
-                    e_mz	:   0,
-                    temp    :   0
-                },
-                third   :   {
-                    x       :   0,
-                    y       :   0,
-                    z       :   0,
-                    rx      :   0,
-                    ry      :   0,
-                    rz      :   0,
-                    mx		:   0,
-                    my		:   0,
-                    mz		:   0,
-                    e_x		:   0,
-                    e_y		:   0,
-                    e_z		:   0,
-                    e_rx	:   0,
-                    e_ry	:   0,
-                    e_rz	:   0,
-                    e_mx	:   0,
-                    e_my	:   0,
-                    e_mz	:   0,
-                    temp    :   0,
-                    LED     :   0,
-                    LED_l   :   0
-                }
-            },
-            ring    :   {
-                first  :   {
-                    x       :   0,
-                    y       :   0,
-                    z       :   0,
-                    rx      :   0,
-                    ry      :   0,
-                    rz      :   0,
-                    mx		:   0,
-                    my		:   0,
-                    mz		:   0,
-                    e_x		:   0,
-                    e_y		:   0,
-                    e_z		:   0,
-                    e_rx	:   0,
-                    e_ry	:   0,
-                    e_rz	:   0,
-                    e_mx	:   0,
-                    e_my	:   0,
-                    e_mz	:   0,
-                    temp    :   0
-                },
-                second  :   {
-                    x       :   0,
-                    y       :   0,
-                    z       :   0,
-                    rx      :   0,
-                    ry      :   0,
-                    rz      :   0,
-                    mx		:   0,
-                    my		:   0,
-                    mz		:   0,
-                    e_x		:   0,
-                    e_y		:   0,
-                    e_z		:   0,
-                    e_rx	:   0,
-                    e_ry	:   0,
-                    e_rz	:   0,
-                    e_mx	:   0,
-                    e_my	:   0,
-                    e_mz	:   0,
-                    temp    :   0
-                },
-                third   :   {
-                    x       :   0,
-                    y       :   0,
-                    z       :   0,
-                    rx      :   0,
-                    ry      :   0,
-                    rz      :   0,
-                    mx		:   0,
-                    my		:   0,
-                    mz		:   0,
-                    e_x		:   0,
-                    e_y		:   0,
-                    e_z		:   0,
-                    e_rx	:   0,
-                    e_ry	:   0,
-                    e_rz	:   0,
-                    e_mx	:   0,
-                    e_my	:   0,
-                    e_mz	:   0,
-                    temp    :   0,
-                    LED     :   0,
-                    LED_l   :   0
-                }
-            },
-            pinky   :   {
-                first  :   {
-                    x       :   0,
-                    y       :   0,
-                    z       :   0,
-                    rx      :   0,
-                    ry      :   0,
-                    rz      :   0,
-                    mx		:   0,
-                    my		:   0,
-                    mz		:   0,
-                    e_x		:   0,
-                    e_y		:   0,
-                    e_z		:   0,
-                    e_rx	:   0,
-                    e_ry	:   0,
-                    e_rz	:   0,
-                    e_mx	:   0,
-                    e_my	:   0,
-                    e_mz	:   0,
-                    temp    :   0
-                },
-                second  :   {
-                    x       :   0,
-                    y       :   0,
-                    z       :   0,
-                    rx      :   0,
-                    ry      :   0,
-                    rz      :   0,
-                    mx		:   0,
-                    my		:   0,
-                    mz		:   0,
-                    e_x		:   0,
-                    e_y		:   0,
-                    e_z		:   0,
-                    e_rx	:   0,
-                    e_ry	:   0,
-                    e_rz	:   0,
-                    e_mx	:   0,
-                    e_my	:   0,
-                    e_mz	:   0,
-                    temp    :   0
-                },
-                third   :   {
-                    x       :   0,
-                    y       :   0,
-                    z       :   0,
-                    rx      :   0,
-                    ry      :   0,
-                    rz      :   0,
-                    mx		:   0,
-                    my		:   0,
-                    mz		:   0,
-                    e_x		:   0,
-                    e_y		:   0,
-                    e_z		:   0,
-                    e_rx	:   0,
-                    e_ry	:   0,
-                    e_rz	:   0,
-                    e_mx	:   0,
-                    e_my	:   0,
-                    e_mz	:   0,
-                    temp    :   0,
-                    LED     :   0,
-                    LED_l   :   0
-                }
-            }
-    }
-};
 
 //
 var EventEmitter = events.EventEmitter;
@@ -580,6 +181,7 @@ parser.on("readable", function() {
     }
 });
 
+module.exports.parser = parser;
 
 
 // Test case for the parser
@@ -616,12 +218,12 @@ parser.write(syncPacket);
 
 
 var btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort();
-/* COMMENTED FOR TESTING CLIENT
+COMMENTED FOR TESTING CLIENT
 btSerial.on('found', function(address, name) {
+    console.log("Found SPP BT connection...")
     btSerial.findSerialPortChannel(address, function(channel) {
-        console.log('Connection at address: ' + address + "\n");
         btSerial.connect(address, channel, function() {
-            console.log('connected');
+            console.log('Connected on address: ' + address + " @ channel: " + channel);
 
             setTimeout(function(){
                 btSerial.write(syncPacket, function(err, bytesWritten) {
@@ -634,31 +236,28 @@ btSerial.on('found', function(address, name) {
                 parser.write(buffer);
             });
         }, function () {
-            console.log('cannot connect');
+            console.log("Can't connect");
         });
         //console.log("BT closing?")
         // close the connection when you're ready
         //btSerial.close();
     }, function() {
-        console.log('found nothing');
+        console.log("Didn't find anything");
     });
 });
 
+function tryInquire() {
+    console.log("Scanning for bluetooth connections.\n(This is blocking, so be patient!))");
+}
+
+// tryInquire();
+
 // mainloop... convert this to a Node Eventloop later
-
-var shutDown = 0;
-var runCount = 0;
-btSerial.inquire();
-console.log("got past inquire... derp");
-
+//
+//var shutDown = 0;
+//var runCount = 0;
+//
 //while(!shutDown) {
-//    //sit and don't close
-//    btSerial.inquire();
-//    console.log("Inquire has ran " + runCount  + " time...");
+//
 //    runCount++;
 //}
-
-*/
-
-
-module.exports.parser = parser;
