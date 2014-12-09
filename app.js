@@ -1,7 +1,13 @@
+// core packages
+var util = require('util');
+var events = require('events');
+
+// deoxxa libraries
 var Dissolve = require('dissolve');
 var Concentrate = require('concentrate');
-var util = require('util');
-var events = require("events");
+
+// 24 bit numbers!
+var int24 = require('int24')
 
 // our libs
 var defs = require("./lib/defs.js");
@@ -181,38 +187,39 @@ parser.on("readable", function() {
     }
 });
 
+// Just so this can be called as a require... but we REALLY need to clean things before then
 module.exports.parser = parser;
 
-
-// Test case for the parser
-parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-parser.write(new Buffer([0x22, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-parser.write(syncPacket);
-parser.write(syncPacket);
-parser.write(syncPacket);
-parser.write(syncPacket);
-parser.write(syncPacket);
-parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-parser.write(syncPacket);
-parser.write(syncPacket);
-parser.write(syncPacket);
-parser.write(syncPacket);
-parser.write(syncPacket);
-parser.write(syncPacket);
-parser.write(syncPacket);
-parser.write(syncPacket);
-parser.write(syncPacket);
-parser.write(syncPacket);
-parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-parser.write(syncPacket);
-parser.write(syncPacket);
-parser.write(syncPacket);
-parser.write(syncPacket);
-parser.write(syncPacket);
-
+// run this to send test data to the parser
+function testParser() {
+    parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
+    parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
+    parser.write(new Buffer([0x22, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
+    parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
+    parser.write(syncPacket);
+    parser.write(syncPacket);
+    parser.write(syncPacket);
+    parser.write(syncPacket);
+    parser.write(syncPacket);
+    parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
+    parser.write(syncPacket);
+    parser.write(syncPacket);
+    parser.write(syncPacket);
+    parser.write(syncPacket);
+    parser.write(syncPacket);
+    parser.write(syncPacket);
+    parser.write(syncPacket);
+    parser.write(syncPacket);
+    parser.write(syncPacket);
+    parser.write(syncPacket);
+    parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
+    parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
+    parser.write(syncPacket);
+    parser.write(syncPacket);
+    parser.write(syncPacket);
+    parser.write(syncPacket);
+    parser.write(syncPacket);
+}
 
 // BLUETOOTH COPYPASTA
 
@@ -238,19 +245,68 @@ btSerial.on('found', function(address, name) {
         }, function () {
             console.log("Can't connect");
         });
-        //console.log("BT closing?")
-        // close the connection when you're ready
         //btSerial.close();
     }, function() {
         console.log("Didn't find anything");
     });
 });
 
-function tryInquire() {
+// build this in to an express call to do your bluetooth connection initiation
+function connectBT() {
     console.log("Scanning for bluetooth connections.\n(This is blocking, so be patient!))");
+    btSerial.inquire();
 }
 
-// tryInquire();
+function disconnectBT(){
+    console.log("Closing BT connection...");
+    btSerial.close();
+}
+
+// Buffer generation
+
+var builder = function(messageID, uniqueID, argBuffObj){
+    //  Binary Model:
+    //  uint24le        uint8       uint16le    uint16le    (buffer)
+    //  totalLength     checkSum    uniqueID    checkSum    raw
+    //  total bytes   uID to end
+
+    if(command !== 0xFFFF){
+        // add something to the listener array if we're not sending a reply
+    }
+
+    var buffSum;
+    var checkBuf;
+    var headBuf = new Buffer(4);
+    var midBuf = new Buffer(4);
+
+    if(undefined !== argBuffObj && argBuffObj.length){
+
+        int24.writeUInt24LE(headBuf, 0, argBuffObj.length + 6);
+        midBuf.writeUInt16LE(uniqueID, 0);
+        midBuf.writeUInt16LE(messageID,2);
+        checkBuf = Buffer.concat([midBuf, argBuffObj]);
+
+    } else {
+
+        int24.writeUInt24LE(headBuf, 0, 6);
+        checkBuf = new Buffer(4);
+        checkBuf.writeUInt16LE(uniqueID, 0);
+        checkBuf.writeUInt16LE(messageID,2);
+
+    }
+
+    // calculate the checksum, and then add them together
+    for(var i = 0; i < checkBuf.length; i++){
+        buffSum += checkBuf.readUInt8(i);
+    }
+    buffSum += 0x55;
+    buffSum %= 256;
+    headBuf.writeUInt8(buffSum, 3);
+
+    return Buffer.concat([headBuf, checkBuf])
+
+}
+
 
 // mainloop... convert this to a Node Eventloop later
 //
