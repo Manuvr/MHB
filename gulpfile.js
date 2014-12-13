@@ -17,7 +17,6 @@ var embedlr = require('gulp-embedlr'),
 var glove = require('./app.js');
 
 
-
 // tasks
 gulp.task('lint', function() {
     gulp.src(['./app/**/*.js', '!./app/bower_components/**'])
@@ -75,6 +74,7 @@ gulp.task('express', function() {
     app.use(require('connect-livereload')({port:4002}));
     app.use(express.static(__dirname + '/app'));
 
+
     // ROUTES FOR API
     // ========================
     var router = express.Router();
@@ -96,7 +96,11 @@ gulp.task('express', function() {
     });
 
     app.use('/api', router);
-    app.listen(4000);
+    var server = app.listen(4000);
+
+    // Set up socket.io
+    var io = require('socket.io').listen(server);
+    
     console.log('Express running');
 });
 

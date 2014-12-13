@@ -22,7 +22,8 @@
     "int24": "0.0.1",
     "node-serial": "^0.1.1",
     "serialport": "^1.4.6",
-    "socket.io": "^1.2.0"
+    "socket.io": "^1.2.0",
+    "socket.io-client": "~1.2.1"
   },
   "repository": {
     "type": "git",

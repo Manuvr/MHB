@@ -15,19 +15,37 @@
     <body ng-app="ManusDebug" ng-controller="MainCtrl">
         <div class="container">
             <h1>Manus Debug</h1>
-            <!-- views -->
-            <div ng-repeat="post in posts | orderBy: '-upvotes'">
-                <span ng-click="incrementUpvotes(post)">^</span>
-                {{post.title}} - upvotes: {{post.upvotes}}
-             </div> 
-             <form ng-submit="sendTestData()">
-                 <input type="text" ng-model="title"></input>
-                 <button type="submit">Send Test Data</button>
-             </form>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-6">
+                        <!-- views -->
+                        <h3>Status</h3>
+
+                        <h3>Console</h3>
+                        <div ng-repeat="message in messages">
+                            {{ message }}
+                        </div>
+
+                        <h3>Glove Emulator</h3>
+                        <div ng-repeat="post in posts | orderBy: '-upvotes'">
+                            <span ng-click="incrementUpvotes(post)">^</span>
+                            {{post.title}} - upvotes: {{post.upvotes}}
+                         </div> 
+                         <form ng-submit="sendTestData()">
+                             <input type="text" ng-model="title"></input>
+                             <button type="submit">Send Test Data</button>
+                         </form>
+                    </div>
+                    <div class="col-md-6">
+                        Glove Display
+                    </div>
+                </div>
+            </div>
         </div>
         <!-- scripts -->
         <script src="bower_components/jquery/dist/jquery.js"></script>
         <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="bower_components/socket.io-client/socket.io.js"></script>
         <script src="js/bundled.js"></script>
     </body>
 </html>

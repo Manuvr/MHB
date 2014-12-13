@@ -1,3 +1,4 @@
+
 // core packages
 var util = require('util');
 var events = require('events');
@@ -225,7 +226,7 @@ function testParser() {
 
 
 var btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort();
-COMMENTED FOR TESTING CLIENT
+//COMMENTED FOR TESTING CLIENT
 btSerial.on('found', function(address, name) {
     console.log("Found SPP BT connection...")
     btSerial.findSerialPortChannel(address, function(channel) {
@@ -307,7 +308,6 @@ var builder = function(messageID, uniqueID, argBuffObj){
 
 }
 
-
 // mainloop... convert this to a Node Eventloop later
 //
 //var shutDown = 0;
@@ -317,3 +317,4 @@ var builder = function(messageID, uniqueID, argBuffObj){
 //
 //    runCount++;
 //}
+
