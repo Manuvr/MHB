@@ -1,3 +1,4 @@
+var glove = function(io) {
 
 // core packages
 var util = require('util');
@@ -11,7 +12,7 @@ var Concentrate = require('concentrate');
 var int24 = require('int24')
 
 // our libs
-var defs = require("./lib/defs.js");
+var defs = require("./lib/defs.js")(io);
 
 // Pre and post buffers
 // these currently just accumulate, but we'll "process" them in a FIFO queue
@@ -27,11 +28,14 @@ var jsonBuffArrayOut = [];
 var listenerArray = [];
 
 
+// test on socket.io
+console.log('Running glove host...');
+
 var exec_in = function(jsonBuff){
-    if(jsonBuff.messageId == defs.out.REPLY_FROM_HOST){
-        defs.in[jsonBuff.messageId].runIt(jsonBuff);
+    if(jsonBuff.messageId == defs.outCommand.REPLY_FROM_HOST){
+        defs.inCommand[jsonBuff.messageId].runIt(jsonBuff);
     } else {
-        defs.in[jsonBuff.messageId].runIt(jsonBuff);
+        defs.inCommand[jsonBuff.messageId].runIt(jsonBuff);
         // change the jsonBuff in to a reply here
         //exec_out(jsonBuff);
     }
@@ -39,7 +43,7 @@ var exec_in = function(jsonBuff){
 
 var exec_out = function(jsonBuff){
 
-    if(jsonBuff.messageId == defs.out.REPLY_FROM_HOST){
+    if(jsonBuff.messageId == defs.outCommand.REPLY_FROM_HOST){
         // just sending a reply
     } else
     {
@@ -317,4 +321,9 @@ var builder = function(messageID, uniqueID, argBuffObj){
 //
 //    runCount++;
 //}
+
+};
+
+module.exports = glove;
+
 

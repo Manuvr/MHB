@@ -14,6 +14,7 @@
     function runSocket() {
         socket.on('message_update', function(data) {
             console.log(data);
+            $scope.messages.push(data);
         });
     }
 

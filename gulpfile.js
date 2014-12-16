@@ -102,6 +102,9 @@ gulp.task('express', function() {
     var io = require('socket.io').listen(server);
     
     console.log('Express running');
+    
+    // Run the glove, pass in socket.io reference
+    glove(io);
 });
 
 var tinylr;
@@ -115,6 +118,4 @@ gulp.task('default',
     ['express', 'livereload', 'browserify', 'watch'] , function() {
 
 });
-
-
 
