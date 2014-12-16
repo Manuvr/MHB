@@ -20,9 +20,9 @@
                     <div class="col-md-6">
                         <!-- views -->
                         <h3>Status</h3>
-
+                            {{ gloveStatus }}
                         <h3>Console</h3>
-                        <div ng-repeat="message in messages">
+                        <div ng-repeat="message in messages track by $index">
                             {{ message }}
                         </div>
 
@@ -31,13 +31,16 @@
                             <span ng-click="incrementUpvotes(post)">^</span>
                             {{post.title}} - upvotes: {{post.upvotes}}
                          </div> 
-                         <form ng-submit="sendTestData()">
-                             <input type="text" ng-model="title"></input>
-                             <button type="submit">Send Test Data</button>
+                         <form role="form" ng-submit="sendTestData()">
+                             <div class="form-group">
+                                <input type="text" class="form-control" ng-model="title" placeholder="Arguments"></input>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Send Glove Message</button>
                          </form>
+                         <br /><br />
                     </div>
                     <div class="col-md-6">
-                        Glove Display
+                        <h3>Glove Display</h3>
                     </div>
                 </div>
             </div>
