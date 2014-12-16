@@ -1,42 +1,38 @@
 // gulp
 var gulp = require('gulp');
 
-// plugins
-var connect = require('gulp-connect');
-var jshint = require('gulp-jshint');
-var uglify = require('gulp-uglify');
-var minifyCSS = require('gulp-minify-css');
-var clean = require('gulp-clean');
-var browserify = require('gulp-browserify');
-var concat = require('gulp-concat');
-var embedlr = require('gulp-embedlr'),
-    refresh = require('gulp-livereload'),
-    livereloadport = 35729,
-    serverport = 5000;
+// ports
+var livereloadport = 35729;
+var serverport = 5000;
 
+// reqs
 var glove = require('./app.js');
 
 
 // tasks
 gulp.task('lint', function() {
+    var jshint = require('gulp-jshint');
     gulp.src(['./app/**/*.js', '!./app/bower_components/**'])
         .pipe(jshint())
         .pipe(jshint.reporter('default'))
         .pipe(jshint.reporter('fail'));
 });
 gulp.task('clean', function() {
+    var clean = require('gulp-clean');
     gulp.src('./dist/*')
         .pipe(clean({force: true}));
     gulp.src('./app/js/bundled.js')
         .pipe(clean({force:true}));
 });
 gulp.task('minify-css', function() {
+    var minifyCSS = require('gulp-minify-css');
     var opts = {comments:true,spare:true};
     gulp.src(['./app/**/*.css', '!./app/bower_components/**'])
         .pipe(minifyCSS(opts))
         .pipe(gulp.dest('./dist/'))
 });
 gulp.task('minify-js', function() {
+    var uglify = require('gulp-uglify');
     gulp.src(['./app/**/*.js', '!./app/bower_components/**'])
         .pipe(uglify({
             // inSourceMap:
@@ -53,6 +49,8 @@ gulp.task('copy-html-files', function() {
         .pipe(gulp.dest('dist/'));
 });
 gulp.task('browserify', function() {
+    var concat = require('gulp-concat');
+    var browserify = require('gulp-browserify');
     gulp.src(['app/js/main.js'])
         .pipe(browserify({
             insertGlobals: true,
@@ -109,6 +107,7 @@ gulp.task('express', function() {
 
 var tinylr;
 gulp.task('livereload', function() {
+    var refresh = require('gulp-livereload');
     tinylr = require('tiny-lr')();
     tinylr.listen(4002);
 });

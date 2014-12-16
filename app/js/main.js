@@ -13,7 +13,6 @@
     angular.module('ManusDebug', [])
     .controller('MainCtrl', [
         '$scope',
-        'posts',
         //'socket',
         function($scope, posts){
             $scope.gloveStatus = "Not Connected";
@@ -25,8 +24,9 @@
             };
             socket.on('message_update', function(data) {
                 console.log(data);
-                $scope.messages.unshift(data);
-                $scope.$apply();
+                $scope.$apply(function() {
+                    $scope.messages.unshift(data);
+                });
             });
                 
         }
