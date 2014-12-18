@@ -34,8 +34,10 @@ console.log('Running glove host...');
 var exec_in = function(jsonBuff){
     if(jsonBuff.messageId == defs.outCommand.REPLY_FROM_HOST){
         defs.inCommand[jsonBuff.messageId].runIt(jsonBuff);
+        defs.runIt(jsonBuff);
     } else {
-        defs.inCommand[jsonBuff.messageId].runIt(jsonBuff);
+        defs.runIt(jsonBuff);
+        //defs.inCommand[jsonBuff.messageId].runIt(jsonBuff);
         // change the jsonBuff in to a reply here
         //exec_out(jsonBuff);
     }

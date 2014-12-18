@@ -7,6 +7,7 @@ var serverport = 5000;
 
 // reqs
 var glove = require('./app.js');
+var defs = require('./lib/defs.js');
 
 
 // tasks
@@ -68,6 +69,7 @@ gulp.task('watch', ['lint'], function() {
 
 gulp.task('express', function() {
     var express = require('express');
+    var refresh = require('gulp-livereload');
     var app = express();
     app.use(require('connect-livereload')({port:4002}));
     app.use(express.static(__dirname + '/app'));
@@ -89,8 +91,13 @@ gulp.task('express', function() {
     });
 
     router.get('/sendTestData', function(req, res) {
+    //router.get('/sendTestData/:messageId', function(req, res) {
         glove.parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
+        //sendTest(req.params.messageId, "host");
         res.json({ message: 'test data sent' });
+    });
+    router.get('/getCommands', function(req, res) {
+        res.json(defs.outCommand);
     });
 
     app.use('/api', router);
@@ -107,7 +114,6 @@ gulp.task('express', function() {
 
 var tinylr;
 gulp.task('livereload', function() {
-    var refresh = require('gulp-livereload');
     tinylr = require('tiny-lr')();
     tinylr.listen(4002);
 });
@@ -118,3 +124,14 @@ gulp.task('default',
 
 });
 
+
+
+var sendTest = function(messageId, dest) {
+    var uniqueId = Math.floor((Math.random() * 2^15) + 1);
+    var argBuffObj = undefined;
+    if (dest === "host") {
+        glove.parser.write(
+            glove.builder(messageId, uniqueId, argBuffObj)
+        );
+    };
+};

@@ -28,6 +28,8 @@
                     $scope.messages.unshift(data);
                 });
             });
+            $scope.gloveRequests = $.get('/getCommands', function(data) {
+            });
                 
         }
     ]);
