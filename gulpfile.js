@@ -7,8 +7,9 @@ var serverport = 5000;
 
 // reqs
 var glove = require('./app.js');
-var defs = require('./lib/defs.js');
+var defs = require('./lib/defs.js')();
 
+console.log("defs: " + defs.outCommand);
 
 // tasks
 gulp.task('lint', function() {
@@ -90,13 +91,15 @@ gulp.task('express', function() {
         res.json({ message:'api is up' });
     });
 
-    router.get('/sendTestData', function(req, res) {
-    //router.get('/sendTestData/:messageId', function(req, res) {
-        glove.parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-        //sendTest(req.params.messageId, "host");
+    //router.get('/sendTestData', function(req, res) {
+    router.get('/sendTestData/:messageId', function(req, res) {
+        //glove.parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
+        console.log(req.params.messageId);
+        sendTest(defs.outCommand[req.params.messageId], "host");
         res.json({ message: 'test data sent' });
     });
-    router.get('/getCommands', function(req, res) {
+    router.get('/commands', function(req, res) {
+        //res.json({ message: 'test data' });
         res.json(defs.outCommand);
     });
 
@@ -110,6 +113,7 @@ gulp.task('express', function() {
     
     // Run the glove, pass in socket.io reference
     glove(io);
+    glove.parser.write(new Buffer([0x06, 0x00, 0x00, 0xfc, 0xa5, 0x01, 0x01, 0x00]));
 });
 
 var tinylr;
@@ -124,14 +128,18 @@ gulp.task('default',
 
 });
 
-
-
 var sendTest = function(messageId, dest) {
-    var uniqueId = Math.floor((Math.random() * 2^15) + 1);
+    var uniqueId = Math.floor((Math.random() * 1000) + 1);
     var argBuffObj = undefined;
     if (dest === "host") {
+        console.log(uniqueId + " BLAH " + messageId);
+        var msg = glove.builder(messageId, uniqueId, argBuffObj);
+        console.log(msg);
+        glove.parser.write(glove.syncPacket);
+        glove.parser.write(glove.syncPacket);
         glove.parser.write(
-            glove.builder(messageId, uniqueId, argBuffObj)
+            msg
+            //new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0])
         );
     };
 };

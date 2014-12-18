@@ -11,15 +11,38 @@
     console.log('socket connected to: ' + serverIP);
 
     angular.module('ManusDebug', [])
+    .factory('commands', ['$http', function($http){
+        var o = {
+            commands: []
+        };
+        o.getAll = function() {
+            console.log('in getAll');
+            return $http.get('/api/commands').success(function(data){
+                var getKeys = function(obj){
+                    var keys = [];
+                    for(var key in obj){
+                        keys.push(key);
+                    }
+                    return keys;
+                };
+                angular.copy(getKeys(data), o.commands);
+            });
+        };
+        return o;
+    }])
     .controller('MainCtrl', [
         '$scope',
+        'commands',
         //'socket',
-        function($scope, posts){
+        function($scope, commands){
+            commands.getAll();
+            $scope.commands = commands.commands;
+            $scope.myCommand = null;
             $scope.gloveStatus = "Not Connected";
             $scope.messages = [];
             $scope.messages.push("Logging...");
             $scope.sendTestData = function() {
-               $.get('/api/sendTestData', function(res) {
+               $.get('/api/sendTestData/' + $scope.myCommand, function(res) {
                 });
             };
             socket.on('message_update', function(data) {
@@ -28,9 +51,7 @@
                     $scope.messages.unshift(data);
                 });
             });
-            $scope.gloveRequests = $.get('/getCommands', function(data) {
-            });
-                
+            
         }
     ]);
 }());
