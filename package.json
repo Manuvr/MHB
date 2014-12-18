@@ -43,6 +43,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Zone-Ghost, drquinn, jspark311",
   "license": "ISC"
 }

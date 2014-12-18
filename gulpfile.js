@@ -98,10 +98,17 @@ gulp.task('express', function() {
         sendTest(defs.outCommand[req.params.messageId], "host");
         res.json({ message: 'test data sent' });
     });
+
     router.get('/commands', function(req, res) {
         //res.json({ message: 'test data' });
         res.json(defs.outCommand);
     });
+
+    router.get('/sendSync', function(req, res){
+        glove.parser.write(glove.syncPacket);
+        res.json({ message: 'sync packet sent'})
+    })
+
 
     app.use('/api', router);
     var server = app.listen(4000);
@@ -113,7 +120,7 @@ gulp.task('express', function() {
     
     // Run the glove, pass in socket.io reference
     glove(io);
-    glove.parser.write(new Buffer([0x06, 0x00, 0x00, 0xfc, 0xa5, 0x01, 0x01, 0x00]));
+    //glove.parser.write(new Buffer([0x06, 0x00, 0x00, 0xfc, 0xa5, 0x01, 0x01, 0x00]));
 });
 
 var tinylr;
@@ -132,11 +139,10 @@ var sendTest = function(messageId, dest) {
     var uniqueId = Math.floor((Math.random() * 1000) + 1);
     var argBuffObj = undefined;
     if (dest === "host") {
-        console.log(uniqueId + " BLAH " + messageId);
+        //console.log("uID: " + uniqueId + " mID: " + messageId);
         var msg = glove.builder(messageId, uniqueId, argBuffObj);
-        console.log(msg);
-        glove.parser.write(glove.syncPacket);
-        glove.parser.write(glove.syncPacket);
+        //glove.parser.write(glove.syncPacket);
+        //glove.parser.write(glove.syncPacket);
         glove.parser.write(
             msg
             //new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0])

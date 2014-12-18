@@ -130,9 +130,8 @@ var parser = Dissolve().loop(function(end) {
     } else {
         this.uint32le("temp")
             .tap(function () {
-                this.vars.totalLength   = this.vars.temp & 0x00FFFFFF;      // converting in to 24 bit integer
-                this.vars.checkSum      = this.vars.temp >> 24;             // grabbing the checksum
-                console.log("len and check: " + this.vars.totalLength + " " + this.vars.checkSum);
+                this.vars.totalLength   = this.vars.temp & 0x00FFFFFF; // converting in to 24 bit integer
+                this.vars.checkSum      = this.vars.temp >>> 24;             // grabbing the checksum
                 delete this.vars.temp;
                 if (this.vars.totalLength > 4) {
                     if (this.vars.totalLength >= warningLength && this.vars.totalLength < maxLength) {
@@ -148,7 +147,7 @@ var parser = Dissolve().loop(function(end) {
                     }
                 } else {
                     if (this.vars.checkSum === 0x55) {
-                        console.log("...sync...")
+                        console.log("sync...")
                     } else {
                         // something is very wrong...
                         sync(1);
@@ -167,7 +166,6 @@ var parser = Dissolve().loop(function(end) {
 });
 
 ee.on("addedToBufferIn", function () {
-    console.log("event has occured");
     if(null != jsonBuffArrayIn[0]) {
         exec_in(jsonBuffArrayIn[0]);
         jsonBuffArrayIn.shift();
@@ -187,7 +185,7 @@ parser.on("readable", function() {
             jsonBuffArrayIn.push(e);
             ee.emit("addedToBufferIn");
         } else {
-            sync(0);
+            sync(1);
         }
     }
 });
@@ -220,9 +218,9 @@ function testParser() {
 }
 
 // BLUETOOTH COPYPASTA
+/*
 
 var btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort();
-//COMMENTED FOR TESTING CLIENT
 btSerial.on('found', function(address, name) {
     console.log("Found SPP BT connection...")
     btSerial.findSerialPortChannel(address, function(channel) {
@@ -258,6 +256,7 @@ function disconnectBT(){
     console.log("Closing BT connection...");
     btSerial.close();
 }
+*/
 
 // Buffer generation
 
@@ -271,6 +270,12 @@ var builder = function(messageID, uniqueID, argBuffObj){
         // add something to the listener array if we're not sending a reply
     }
 
+    if(!messageID || !uniqueID){
+        console.log("Malformed builder: mID: " + messageID + " uID: " + uniqueID);
+        console.log("Feeding a sync packet!")
+        return (syncPacket);
+    }
+
     var buffSum = 0;
     var checkBuf;
     var headBuf = new Buffer(4);
@@ -278,7 +283,7 @@ var builder = function(messageID, uniqueID, argBuffObj){
 
     if(undefined !== argBuffObj && argBuffObj.length){
 
-        int24.writeUInt24LE(headBuf, 0, argBuffObj.length + 6);
+        int24.writeUInt24LE(headBuf, 0, argBuffObj.length + 8);
         midBuf.writeUInt16LE(uniqueID, 0);
         midBuf.writeUInt16LE(messageID,2);
         checkBuf = Buffer.concat([midBuf, argBuffObj]);
@@ -296,10 +301,8 @@ var builder = function(messageID, uniqueID, argBuffObj){
     for(var i = 0; i < checkBuf.length; i++){
         buffSum += checkBuf.readUInt8(i);
     }
-    console.log(buffSum);
     buffSum += 0x55;
     buffSum %= 256;
-    console.log(buffSum);
     headBuf.writeUInt8(buffSum, 3);
 
     return Buffer.concat([headBuf, checkBuf])

@@ -45,6 +45,12 @@
                $.get('/api/sendTestData/' + $scope.myCommand, function(res) {
                 });
             };
+            $scope.sendSync = function() {
+                $.get('/api/sendSync', function(res){
+
+                });
+            };
+
             socket.on('message_update', function(data) {
                 console.log(data);
                 $scope.$apply(function() {
