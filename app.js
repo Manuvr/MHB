@@ -59,8 +59,6 @@ var exec_out = function(jsonBuff){
     }
 };
 
-
-//
 var EventEmitter = events.EventEmitter;
 var ee = new EventEmitter();
 
@@ -111,7 +109,6 @@ var dataCheck = function(jsonBuff){
         return 0;
     }
 };
-
 
 var parser = Dissolve().loop(function(end) {
     if(waitingForSync === 1 ){
@@ -207,21 +204,13 @@ function testParser() {
     parser.write(syncPacket);
     parser.write(syncPacket);
     parser.write(syncPacket);
-    parser.write(syncPacket);
     parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-    parser.write(syncPacket);
-    parser.write(syncPacket);
-    parser.write(syncPacket);
-    parser.write(syncPacket);
-    parser.write(syncPacket);
-    parser.write(syncPacket);
     parser.write(syncPacket);
     parser.write(syncPacket);
     parser.write(syncPacket);
     parser.write(syncPacket);
     parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
     parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-    parser.write(syncPacket);
     parser.write(syncPacket);
     parser.write(syncPacket);
     parser.write(syncPacket);
@@ -229,7 +218,6 @@ function testParser() {
 }
 
 // BLUETOOTH COPYPASTA
-
 
 var btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort();
 //COMMENTED FOR TESTING CLIENT
