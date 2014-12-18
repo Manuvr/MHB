@@ -132,6 +132,7 @@ var parser = Dissolve().loop(function(end) {
             .tap(function () {
                 this.vars.totalLength   = this.vars.temp & 0x00FFFFFF;      // converting in to 24 bit integer
                 this.vars.checkSum      = this.vars.temp >> 24;             // grabbing the checksum
+                console.log("len and check: " + this.vars.totalLength + " " + this.vars.checkSum);
                 delete this.vars.temp;
                 if (this.vars.totalLength > 4) {
                     if (this.vars.totalLength >= warningLength && this.vars.totalLength < maxLength) {
@@ -193,6 +194,7 @@ parser.on("readable", function() {
 
 // Just so this can be called as a require... but we REALLY need to clean things before then
 module.exports.parser = parser;
+module.exports.syncPacket = syncPacket;
 
 // run this to send test data to the parser
 function testParser() {
@@ -262,14 +264,14 @@ function disconnectBT(){
 var builder = function(messageID, uniqueID, argBuffObj){
     //  Binary Model:
     //  uint24le        uint8       uint16le    uint16le    (buffer)
-    //  totalLength     checkSum    uniqueID    checkSum    raw
+    //  totalLength     checkSum    uniqueID    messageId    raw
     //  total bytes   uID to end
 
-    if(command !== 0xFFFF){
+    if(messageID !== 0xFFFF){
         // add something to the listener array if we're not sending a reply
     }
 
-    var buffSum;
+    var buffSum = 0;
     var checkBuf;
     var headBuf = new Buffer(4);
     var midBuf = new Buffer(4);
@@ -283,7 +285,7 @@ var builder = function(messageID, uniqueID, argBuffObj){
 
     } else {
 
-        int24.writeUInt24LE(headBuf, 0, 6);
+        int24.writeUInt24LE(headBuf, 0, 8);
         checkBuf = new Buffer(4);
         checkBuf.writeUInt16LE(uniqueID, 0);
         checkBuf.writeUInt16LE(messageID,2);
@@ -294,13 +296,17 @@ var builder = function(messageID, uniqueID, argBuffObj){
     for(var i = 0; i < checkBuf.length; i++){
         buffSum += checkBuf.readUInt8(i);
     }
+    console.log(buffSum);
     buffSum += 0x55;
     buffSum %= 256;
+    console.log(buffSum);
     headBuf.writeUInt8(buffSum, 3);
 
     return Buffer.concat([headBuf, checkBuf])
 
 }
+
+module.exports.builder = builder;
 
 // mainloop... convert this to a Node Eventloop later
 //
@@ -312,7 +318,8 @@ var builder = function(messageID, uniqueID, argBuffObj){
 //    runCount++;
 //}
 
-};
+
+}
 
 module.exports = glove;
 
