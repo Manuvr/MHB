@@ -36,13 +36,15 @@
         //'socket',
         function($scope, commands){
             commands.getAll();
+            $scope.mode = "host";
+            $scope.modeOptions = [ "host", "glove"];
             $scope.commands = commands.commands;
             $scope.myCommand = null;
             $scope.gloveStatus = "Not Connected";
             $scope.messages = [];
             $scope.messages.push("Logging...");
             $scope.sendTestData = function() {
-               $.get('/api/sendTestData/' + $scope.myCommand, function(res) {
+               $.get('/api/sendTestData/'+ $scope.mode + "/" + $scope.myCommand, function(res) {
                 });
             };
             $scope.sendSync = function() {

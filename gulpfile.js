@@ -83,7 +83,7 @@ gulp.task('express', function() {
     // middleware to use for all requests
     router.use(function(req,res, next) {
         // logging
-        console.log('api working...');
+        //console.log('api working...');
         next(); // move to next routes
     });
 
@@ -92,10 +92,9 @@ gulp.task('express', function() {
     });
 
     //router.get('/sendTestData', function(req, res) {
-    router.get('/sendTestData/:messageId', function(req, res) {
-        //glove.parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-        console.log(req.params.messageId);
-        sendTest(defs.outCommand[req.params.messageId], "host");
+    router.get('/sendTestData/:mode/:messageId', function(req, res) {
+
+        sendTest(defs.outCommand[req.params.messageId], req.params.mode);
         res.json({ message: 'test data sent' });
     });
 
@@ -138,14 +137,13 @@ gulp.task('default',
 var sendTest = function(messageId, dest) {
     var uniqueId = Math.floor((Math.random() * 1000) + 1);
     var argBuffObj = undefined;
+    var msg = glove.builder(messageId, uniqueId, argBuffObj);
+
     if (dest === "host") {
-        //console.log("uID: " + uniqueId + " mID: " + messageId);
-        var msg = glove.builder(messageId, uniqueId, argBuffObj);
-        //glove.parser.write(glove.syncPacket);
-        //glove.parser.write(glove.syncPacket);
-        glove.parser.write(
-            msg
-            //new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0])
-        );
-    };
+        glove.parser.write(msg);
+    } else if (dest === "glove") {
+        if(glove.btSerial !== undefined) {
+            glove.btSerial.write(msg)
+        }
+    }
 };

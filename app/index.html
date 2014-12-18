@@ -23,6 +23,12 @@
                             {{ gloveStatus }}
 
                         <h3>Glove Emulator</h3>
+                        <div>
+                            <select ng-model="mode"
+                                    ng-options="m for m in modeOptions">
+                                <option value="">-- choose command --</option>
+                            </select>
+                        </div>
                          
                          <form role="form" ng-submit="sendTestData()">
                              <div class="form-group">

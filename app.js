@@ -27,6 +27,8 @@ var jsonBuffArrayOut = [];
 // is received
 var listenerArray = [];
 
+var btSerial;
+
 
 // test on socket.io
 console.log('Running glove host...');
@@ -102,7 +104,7 @@ var dataCheck = function(jsonBuff){
     buffSum += 0x55;
     buffSum %= 256;
     if(jsonBuff.checkSum === buffSum){
-        console.log("Checksum is good!");
+        //console.log("Checksum is good!");
         return 1;
     } else {
         console.log("ERROR! Expected checksum: " + jsonBuff.checkSum + " Received: " + buffSum)
@@ -193,6 +195,9 @@ parser.on("readable", function() {
 // Just so this can be called as a require... but we REALLY need to clean things before then
 module.exports.parser = parser;
 module.exports.syncPacket = syncPacket;
+if(btSerial === undefined) {
+    module.exports.btSerial = btSerial;
+};
 
 // run this to send test data to the parser
 function testParser() {
@@ -220,7 +225,7 @@ function testParser() {
 // BLUETOOTH COPYPASTA
 /*
 
-var btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort();
+btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort();
 btSerial.on('found', function(address, name) {
     console.log("Found SPP BT connection...")
     btSerial.findSerialPortChannel(address, function(channel) {
