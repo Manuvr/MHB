@@ -107,7 +107,7 @@ var dataCheck = function(jsonBuff){
         //console.log("Checksum is good!");
         return 1;
     } else {
-        console.log("ERROR! Expected checksum: " + jsonBuff.checkSum + " Received: " + buffSum)
+        console.log("ERROR! Expected checksum: " + jsonBuff.checkSum + " Received: " + buffSum);
         return 0;
     }
 };
@@ -191,13 +191,6 @@ parser.on("readable", function() {
         }
     }
 });
-
-// Just so this can be called as a require... but we REALLY need to clean things before then
-module.exports.parser = parser;
-module.exports.syncPacket = syncPacket;
-if(btSerial === undefined) {
-    module.exports.btSerial = btSerial;
-};
 
 // run this to send test data to the parser
 function testParser() {
@@ -324,9 +317,13 @@ module.exports.builder = builder;
 //    runCount++;
 //}
 
+    module.exports.parser = parser;
+    module.exports.syncPacket = syncPacket;
+    module.exports.btSerial = btSerial;
+    module.exports.connectBT = connectBT;
+    module.exports.disconnectBT = disconnectBT;
+
 
 }
 
 module.exports = glove;
-
-
