@@ -54,13 +54,13 @@
             };
 
             $scope.connectBT = function() {
-                $.get('/connectBT', function(res){
+                $.get('/api/connectBT', function(res){
 
                 });
             };
 
             $scope.disconnectBT = function() {
-                $.get('/disconnectBT', function(res){
+                $.get('/api/disconnectBT', function(res){
 
                 });
             };

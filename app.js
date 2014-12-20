@@ -320,8 +320,8 @@ module.exports.builder = builder;
     module.exports.parser = parser;
     module.exports.syncPacket = syncPacket;
     module.exports.btSerial = btSerial;
-    module.exports.connectBT = connectBT;
-    module.exports.disconnectBT = disconnectBT;
+    module.exports.connectBT = connectBT();
+    module.exports.disconnectBT = disconnectBT();
 }
 
 module.exports = glove;
