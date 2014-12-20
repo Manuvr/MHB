@@ -244,12 +244,12 @@ btSerial.on('found', function(address, name) {
 });
 
 // build this in to an express call to do your bluetooth connection initiation
-var connectBT = function() {
+function connectBT() {
     console.log("Scanning for bluetooth connections.\n(This is blocking, so be patient!))");
     btSerial.inquire();
 }
 
-var disconnectBT = function(){
+function disconnectBT() {
     console.log("Closing BT connection...");
     btSerial.close();
 }
@@ -320,8 +320,8 @@ module.exports.builder = builder;
     module.exports.parser = parser;
     module.exports.syncPacket = syncPacket;
     module.exports.btSerial = btSerial;
-    module.exports.connectBT = connectBT();
-    module.exports.disconnectBT = disconnectBT();
+    module.exports.connectBT = connectBT;
+    module.exports.disconnectBT = disconnectBT;
 }
 
 module.exports = glove;
