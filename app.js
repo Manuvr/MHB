@@ -223,7 +223,6 @@ function testParser() {
 }
 
 // BLUETOOTH COPYPASTA
-/*
 
 btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort();
 btSerial.on('found', function(address, name) {
@@ -261,7 +260,6 @@ function disconnectBT(){
     console.log("Closing BT connection...");
     btSerial.close();
 }
-*/
 
 // Buffer generation
 
