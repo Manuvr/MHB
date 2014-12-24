@@ -48,6 +48,10 @@
                         <br /><br />
                         <button ng-click="sendSync()" class="btn btn-primary">Send Sync Packet</button>
                          <br /><br />
+                        <button ng-click="connectBT()" class="btn btn-primary">Connect to Bluetooth</button>
+                        <br /><br />
+                        <button ng-click="disconnectBT()" class="btn btn-primary">Close Bluetooth connection</button>
+                        <br /><br />
                         <h3>Console</h3>
                         <div>
                         <span ng-repeat="message in messages track by $index | limitTo: 10">

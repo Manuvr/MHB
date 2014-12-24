@@ -53,6 +53,18 @@
                 });
             };
 
+            $scope.connectBT = function() {
+                $.get('/api/connectBT', function(res){
+
+                });
+            };
+
+            $scope.disconnectBT = function() {
+                $.get('/api/disconnectBT', function(res){
+
+                });
+            };
+
             socket.on('message_update', function(data) {
                 console.log(data);
                 $scope.$apply(function() {

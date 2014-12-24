@@ -108,6 +108,15 @@ gulp.task('express', function() {
         res.json({ message: 'sync packet sent'})
     })
 
+    router.get('/connectBT', function(req, res){
+        glove.connectBT();
+        res.json({ message: 'connecting to BT'})
+    })
+
+    router.get('/disconnectBT', function(req, res){
+        glove.disconnectBT();
+        res.json({ message: 'disconnecting from BT'})
+    })
 
     app.use('/api', router);
     var server = app.listen(4000);
