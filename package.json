@@ -38,7 +38,8 @@
     "gulp-embedlr": "~0.5.2",
     "gulp-livereload": "~2.1.1",
     "express": "~4.10.4",
-    "tiny-lr": "~0.1.4"
+    "tiny-lr": "~0.1.4",
+    "chai": "~1.10.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
