@@ -65,7 +65,7 @@ var EventEmitter = events.EventEmitter;
 var ee = new EventEmitter();
 
 var syncPacket = Buffer([0x04, 0x00, 0x00, 0x55], 'hex');
-var maxLength = 2^24;
+var maxLength = 32000;
 var warningLength = 10000;
 var waitingForSync = 0;
 
