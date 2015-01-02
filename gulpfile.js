@@ -151,8 +151,11 @@ var sendTest = function(messageId, dest) {
     if (dest === "host") {
         glove.parser.write(msg);
     } else if (dest === "glove") {
-        if(glove.btSerial !== undefined) {
-            glove.btSerial.write(msg)
+        if (glove.btSerial !== undefined) {
+            glove.btSerial.write(msg, function(err, bytesWritten) {
+                if (err) console.log(err);
+                console.log("sent " + bytesWritten + " to the BT connection");
+            });
         }
     }
 };

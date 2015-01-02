@@ -224,12 +224,6 @@ btSerial.on('found', function(address, name) {
         btSerial.connect(address, channel, function() {
             console.log('Connected on address: ' + address + " @ channel: " + channel);
 
-            setTimeout(function(){
-                btSerial.write(syncPacket, function(err, bytesWritten) {
-                    if (err) console.log(err);
-                });
-            }, 10000);
-
             btSerial.on('data', function(buffer) {
                 console.log("Getting some BT data...");
                 parser.write(buffer);
