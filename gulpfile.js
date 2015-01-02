@@ -103,8 +103,8 @@ gulp.task('express', function() {
         res.json(defs.outCommand);
     });
 
-    router.get('/sendSync', function(req, res){
-        glove.parser.write(glove.syncPacket);
+    router.get('/sendSync/:mode', function(req, res){
+        sendSync(req.params.mode);
         res.json({ message: 'sync packet sent'})
     })
 
@@ -155,6 +155,23 @@ var sendTest = function(messageId, dest) {
             glove.btSerial.write(msg, function(err, bytesWritten) {
                 if (err) console.log(err);
                 console.log("sent " + bytesWritten + " to the BT connection");
+            });
+        }
+    }
+};
+
+
+var sendSync = function(dest) {
+    var argBuffObj = undefined;
+    var msg = glove.syncPacket;
+
+    if (dest === "host") {
+        glove.parser.write(msg);
+    } else if (dest === "glove") {
+        if (glove.btSerial !== undefined) {
+            glove.btSerial.write(msg, function(err, bytesWritten) {
+                if (err) console.log(err);
+                console.log("sync packet sent to glove");
             });
         }
     }

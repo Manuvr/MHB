@@ -48,8 +48,7 @@
                 });
             };
             $scope.sendSync = function() {
-                $.get('/api/sendSync', function(res){
-
+                $.get('/api/sendSync/' + $scope.mode, function(res){
                 });
             };
 
