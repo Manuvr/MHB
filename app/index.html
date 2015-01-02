@@ -12,64 +12,22 @@
         <link rel="stylesheet" href="bower_components/animate.css/animate.css"/>
         <link rel="stylesheet" href="css/main.css"/>
     </head>
-    <body ng-app="ManusDebug" ng-controller="MainCtrl">
+    <body ng-app="ManusDebug">
         <div class="container">
-            <h1>Manus Debug</h1>
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-6">
-                        <!-- views -->
-                        <h3>Status</h3>
-                            {{ gloveStatus }}
+            <div ui-view></div>
 
-                        <h3>Glove Emulator</h3>
-                        <div>
-                            <select ng-model="mode"
-                                    ng-options="m for m in modeOptions">
-                                <option value="">-- choose command --</option>
-                            </select>
-                        </div><br />
-                         
-                         <form role="form" ng-submit="sendTestData()">
-                             <div class="form-group">
-                                 <select ng-model="myCommand" 
-                                     ng-options="command for command in commands">
-                                     <option value="">-- choose command --</option>
-                                 </select>
-                                 <br />
-                                 <!--Currently selected: {{ myCommand }}-->
-                             </div>
-                             <div class="form-group">
-                                <input type="text" class="form-control" ng-model="title" placeholder="Args... but this isn't working yet!"></input>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Send Glove Message</button>
-
-                         </form>
-                        <br /><br />
-                        <button ng-click="sendSync()" class="btn btn-primary">Send Sync Packet</button>
-                         <br /><br />
-                        <button ng-click="connectBT()" class="btn btn-primary">Connect to Bluetooth</button>
-                        <br /><br />
-                        <button ng-click="disconnectBT()" class="btn btn-primary">Close Bluetooth connection</button>
-                        <br /><br />
-                        <h3>Console</h3>
-                        <div>
-                        <span ng-repeat="message in messages track by $index | limitTo: 10">
-                            {{ message.name }}<br/>
-                        </span></div>
-
-                    </div>
-
-                    <div class="col-md-6">
-                        <h3>Glove Display</h3>
-                    </div>
-                </div>
-            </div>
+            
         </div>
         <!-- scripts -->
-        <script src="bower_components/jquery/dist/jquery.js"></script>
-        <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="bower_components/jquery/dist/jquery.min.js"></script>
+        <script src="bower_components/angular/angular.min.js"></script>
+        <script src="bower_components/ui-router/release/angular-ui-router.min.js"></script>
+        <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
         <script src="bower_components/socket.io-client/socket.io.js"></script>
-        <script src="js/bundled.js"></script>
+        <script src="js/main.js"></script>
+        <script src="bower_components/three.min.js"></script>
+        <script src="bower_components/Projector.js"></script>
+        <script src="bower_components/CanvasRenderer.js"></script>
+
     </body>
 </html>

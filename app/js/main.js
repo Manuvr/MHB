@@ -1,16 +1,29 @@
 (function() {
 'use strict';
 
-    require('angular');
-    require('angular-route');
-    require('angular-animate');
+    //require('angular');
     //require('socket.io-client');
     
     var serverIP = "localhost";
     var socket = io.connect(serverIP + ':4000');
     console.log('socket connected to: ' + serverIP);
 
-    angular.module('ManusDebug', [])
+    angular.module('ManusDebug', ['ui.router'])
+    .config(function ($stateProvider, $urlRouterProvider) {
+
+        $urlRouterProvider.otherwise('/');
+
+        $stateProvider
+            .state('home', {
+                url: '/',
+                templateUrl: 'partials/partial-home.html',
+                controller: 'MainCtrl'
+            })
+            .state('glove', {
+                url: '/glove',
+                templateUrl: 'partials/partial-glove.html'
+            });
+    })
     .factory('commands', ['$http', function($http){
         var o = {
             commands: []
@@ -30,19 +43,33 @@
         };
         return o;
     }])
+    .factory('gloveModel', ['$http', function($http){
+        var o = {
+        };
+        o.getAll = function() {
+            return $http.get('/api/gloveModel').success(function(data){
+                console.log(data);
+                angular.copy(data, o);
+            });
+        };
+        return o;
+    }])
     .controller('MainCtrl', [
         '$scope',
         'commands',
+        'gloveModel',
         //'socket',
-        function($scope, commands){
+        function($scope, commands, gloveModel){
             commands.getAll();
+            gloveModel.getAll();
             $scope.mode = "host";
             $scope.modeOptions = [ "host", "glove"];
             $scope.commands = commands.commands;
-            $scope.myCommand = null;
+            $scope.myCommand = "";
             $scope.gloveStatus = "Not Connected";
             $scope.messages = [];
             $scope.messages.push("Logging...");
+            $scope.gloveModel = gloveModel;         
             $scope.sendTestData = function() {
                $.get('/api/sendTestData/'+ $scope.mode + "/" + $scope.myCommand, function(res) {
                 });
