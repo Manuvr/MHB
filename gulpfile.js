@@ -63,7 +63,6 @@ gulp.task('browserify', function() {
 });
 gulp.task('watch', ['lint'], function() {
     gulp.watch(['./app/js/*.js', './app/js/**/*.js'], [
-        'browserify'
     ]);
 });
 
@@ -93,7 +92,7 @@ gulp.task('express', function() {
 
     //router.get('/sendTestData', function(req, res) {
     router.get('/sendTestData/:mode/:messageId', function(req, res) {
-
+        console.log(req.params.messageId);
         sendTest(defs.outCommand[req.params.messageId], req.params.mode);
         res.json({ message: 'test data sent' });
     });
@@ -101,6 +100,15 @@ gulp.task('express', function() {
     router.get('/commands', function(req, res) {
         //res.json({ message: 'test data' });
         res.json(defs.outCommand);
+    });
+
+    router.get('/gloveModel', function(req, res) {
+        res.json(defs.gloveModel);
+    });
+    
+    router.get('/updateGloveModel', function(req, res) {
+        updateGloveModel();
+        res.json(defs.gloveModel);
     });
 
     router.get('/sendSync/:mode', function(req, res){
@@ -139,7 +147,7 @@ gulp.task('livereload', function() {
 
 // default task
 gulp.task('default',
-    ['express', 'livereload', 'browserify', 'watch'] , function() {
+    ['express'] , function() {
 
 });
 
@@ -175,4 +183,7 @@ var sendSync = function(dest) {
             });
         }
     }
+};
+
+var updateGloveModel = function() {
 };
