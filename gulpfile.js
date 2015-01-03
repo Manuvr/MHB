@@ -124,6 +124,11 @@ gulp.task('express', function() {
         res.json({ message: 'sync packet sent'})
     })
 
+    router.get('/testLegend', function(req, res){
+        glove.parser.write(glove.testLegend);
+        res.json({ message: 'legend packet sent'})
+    })
+
     router.get('/connectBT', function(req, res){
         glove.connectBT();
         res.json({ message: 'connecting to BT'})
@@ -192,6 +197,7 @@ var sendSync = function(dest) {
         }
     }
 };
+
 
 var updateGloveModel = function() {
 };
