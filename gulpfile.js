@@ -77,9 +77,7 @@ gulp.task('develop', function() {
 
 gulp.task('express', function() {
     var express = require('express');
-    var refresh = require('gulp-livereload');
     var app = express();
-    app.use(require('connect-livereload')({port:4002}));
     app.use(express.static(__dirname + '/app'));
 
 
@@ -150,12 +148,6 @@ gulp.task('express', function() {
     // Run the glove, pass in socket.io reference
     glove(io);
     //glove.parser.write(new Buffer([0x06, 0x00, 0x00, 0xfc, 0xa5, 0x01, 0x01, 0x00]));
-});
-
-var tinylr;
-gulp.task('livereload', function() {
-    tinylr = require('tiny-lr')();
-    tinylr.listen(4002);
 });
 
 // default task

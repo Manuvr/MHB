@@ -1,6 +1,6 @@
 (function() {
 'use strict';
-
+ 
     //require('angular');
     //require('socket.io-client');
     
@@ -29,7 +29,7 @@
             commands: []
         };
         o.getAll = function() {
-            console.log('in getAll');
+            console.log('in getAll funcshn');
             return $http.get('/api/commands').success(function(data){
                 var getKeys = function(obj){
                     var keys = [];
