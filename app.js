@@ -1,5 +1,4 @@
-var glove = function(io) {
-
+var glove = function(io, defs) {
 // core packages
 var util = require('util');
 var events = require('events');
@@ -12,7 +11,7 @@ var Dissolve = require('dissolve');
 var int24 = require('int24')
 
 // our libs
-var defs = require("./lib/defs.js")(io);
+//var defs = require("./lib/defs.js")(io);
 
 // Pre and post buffers
 // these currently just accumulate, but we'll "process" them in a FIFO queue
@@ -337,6 +336,7 @@ btSerial.on('found', function(address, name) {
 
             btSerial.on('data', function(buffer) {
                 console.log("Getting some BT data...");
+                console.log(buffer);
                 parser.write(buffer);
             });
         }, function () {

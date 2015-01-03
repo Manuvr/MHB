@@ -88,11 +88,11 @@
 
             $scope.testLegend = function() {
                 $.get('/api/testLegend', function(res){
-                    setTimeout(function(){
-                        commands.getAll();
-                        $scope.commands = commands.commands;
-                        console.log($scope.commands);
-                    }, 2000);
+                    //setTimeout(function(){
+                    //    commands.getAll();
+                    //    $scope.commands = commands.commands;
+                    //    console.log($scope.commands);
+                    //}, 2000);
 
                 });
             };
@@ -107,6 +107,26 @@
                 console.log(data);
                 $scope.$apply(function() {
                     $scope.messages.unshift(data);
+                });
+            });
+
+            socket.on('outCommand', function(data) {
+                console.log(data);
+                $scope.$apply(function() {
+                    console.log($scope.commands);
+                    console.log(data);
+                    var getKeys = function(obj){
+                        var keys = [];
+                        for(var key in obj){
+                            keys.push(key);
+                        }
+                        return keys;
+                    };
+
+                    $scope.commands = getKeys(data);
+
+
+
                 });
             });
             

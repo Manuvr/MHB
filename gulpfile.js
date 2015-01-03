@@ -7,7 +7,9 @@ var serverport = 5000;
 
 // reqs
 var glove = require('./app.js');
-var defs = require('./lib/defs.js')();
+var defs = require('./lib/defs.js');
+
+var digitabulum
 
 console.log("defs: " + defs.outCommand);
 
@@ -146,7 +148,8 @@ gulp.task('express', function() {
     console.log('Express running');
     
     // Run the glove, pass in socket.io reference
-    glove(io);
+    defs(io);
+    glove(io, defs);
     //glove.parser.write(new Buffer([0x06, 0x00, 0x00, 0xfc, 0xa5, 0x01, 0x01, 0x00]));
 });
 
