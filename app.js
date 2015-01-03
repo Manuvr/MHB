@@ -29,7 +29,6 @@ var listenerArray = [];
 
 var btSerial;
 
-
 // test on socket.io
 console.log('Running glove host...');
 

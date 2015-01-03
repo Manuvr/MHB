@@ -65,6 +65,14 @@ gulp.task('watch', ['lint'], function() {
     gulp.watch(['./app/js/*.js', './app/js/**/*.js'], [
     ]);
 });
+gulp.task('develop', function() {
+    var nodemon = require('gulp-nodemon');
+    nodemon({ script: 'app.js', ext: 'html js' })
+        .on('change', ['lint'])
+        .on('restart', function() {
+            console.log('restarted node')
+        })
+});
 
 
 gulp.task('express', function() {
@@ -147,7 +155,7 @@ gulp.task('livereload', function() {
 
 // default task
 gulp.task('default',
-    ['express'] , function() {
+    ['express', 'develop'] , function() {
 
 });
 
