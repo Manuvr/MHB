@@ -62,6 +62,7 @@
         function($scope, commands, gloveModel){
             commands.getAll();
             gloveModel.getAll();
+            $scope.btToggle = false;
             $scope.mode = "host";
             $scope.modeOptions = [ "host", "glove"];
             $scope.commands = commands.commands;
@@ -80,14 +81,25 @@
             };
 
             $scope.connectBT = function() {
+                $scope.btToggle = true;
                 $.get('/api/connectBT', function(res){
+                });
+            };
+
+            $scope.testLegend = function() {
+                $.get('/api/testLegend', function(res){
+                    setTimeout(function(){
+                        commands.getAll();
+                        $scope.commands = commands.commands;
+                        console.log($scope.commands);
+                    }, 2000);
 
                 });
             };
 
             $scope.disconnectBT = function() {
+                $scope.btToggle = false;
                 $.get('/api/disconnectBT', function(res){
-
                 });
             };
 
