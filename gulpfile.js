@@ -101,6 +101,7 @@ gulp.task('express', function() {
     //router.get('/sendTestData', function(req, res) {
     router.get('/sendTestData/:mode/:messageId/:args', function(req, res) {
         console.log(req.params.messageId);
+        console.log('arg' + req.params.args);
         sendTest(defs.outCommand[req.params.messageId], req.params.mode, req.params.args);
         res.json({ message: 'test data sent' });
     });
@@ -161,7 +162,12 @@ gulp.task('default',
 
 var sendTest = function(messageId, dest, args) {
     var uniqueId = Math.floor((Math.random() * 1000) + 1);
-    var argBuffObj = new Buffer(args, "hex");
+    if (args == 0) {
+        argBuffObj = undefined;
+    }
+    else {
+        var argBuffObj = new Buffer(args, "hex");
+    }
     console.log(argBuffObj);
     var msg = glove.builder(messageId, uniqueId, argBuffObj);
 

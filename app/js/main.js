@@ -57,21 +57,21 @@
     .controller('MainCtrl', [
         '$scope',
         'commands',
-        'gloveModel',
+        //'gloveModel',
         //'socket',
-        function($scope, commands, gloveModel){
+        function($scope, commands){
             commands.getAll();
-            gloveModel.getAll();
+            //gloveModel.getAll();
             $scope.btToggle = false;
             $scope.mode = "host";
             $scope.modeOptions = [ "host", "glove"];
             $scope.commands = commands.commands;
             $scope.myCommand = "";
-            $scope.msgArgs = "";
+            $scope.msgArgs = 0;
             $scope.gloveStatus = "Not Connected";
             $scope.messages = [];
             $scope.messages.push("Logging...");
-            $scope.gloveModel = gloveModel;         
+            $scope.gloveModel = "";         
             $scope.sendTestData = function() {
                $.get('/api/sendTestData/'+ $scope.mode + "/" + $scope.myCommand + "/" + $scope.msgArgs, function(res) {
                 });
@@ -105,9 +105,16 @@
             };
 
             socket.on('message_update', function(data) {
-                console.log(data);
                 $scope.$apply(function() {
+                    console.log(data);
                     $scope.messages.unshift(data);
+                });
+            });
+
+            socket.on('glove_update', function(data) {
+                $scope.$apply(function() {
+                    $scope.messages = data;
+                    console.log($scope.messages);
                 });
             });
 
