@@ -281,7 +281,6 @@ var builder = function(messageID, uniqueID, argBuffObj){
         midBuf.writeUInt16LE(uniqueID, 0);
         midBuf.writeUInt16LE(messageID,2);
         checkBuf = Buffer.concat([midBuf, argBuffObj]);
-
     } else {
 
         int24.writeUInt24LE(headBuf, 0, 8);
@@ -299,8 +298,11 @@ var builder = function(messageID, uniqueID, argBuffObj){
     buffSum %= 256;
     headBuf.writeUInt8(buffSum, 3);
 
-    return Buffer.concat([headBuf, checkBuf])
+    var fullBuffer = Buffer.concat([headBuf, checkBuf]);
+    console.log('Full Buffer: ');
+    console.log(fullBuffer);
 
+    return fullBuffer
 }
 
 module.exports.builder = builder;

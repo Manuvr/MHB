@@ -67,12 +67,13 @@
             $scope.modeOptions = [ "host", "glove"];
             $scope.commands = commands.commands;
             $scope.myCommand = "";
+            $scope.msgArgs = "";
             $scope.gloveStatus = "Not Connected";
             $scope.messages = [];
             $scope.messages.push("Logging...");
             $scope.gloveModel = gloveModel;         
             $scope.sendTestData = function() {
-               $.get('/api/sendTestData/'+ $scope.mode + "/" + $scope.myCommand, function(res) {
+               $.get('/api/sendTestData/'+ $scope.mode + "/" + $scope.myCommand + "/" + $scope.msgArgs, function(res) {
                 });
             };
             $scope.sendSync = function() {
