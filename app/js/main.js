@@ -70,7 +70,6 @@
             $scope.msgArgs = 0;
             $scope.gloveStatus = "Not Connected";
             $scope.messages = [];
-            $scope.messages.push("Logging...");
             $scope.gloveModel = "";         
             $scope.sendTestData = function() {
                $.get('/api/sendTestData/'+ $scope.mode + "/" + $scope.myCommand + "/" + $scope.msgArgs, function(res) {
@@ -113,8 +112,8 @@
 
             socket.on('glove_update', function(data) {
                 $scope.$apply(function() {
-                    $scope.messages = data;
-                    console.log($scope.messages);
+                    $scope.gloveModel = data;
+                    console.log($scope.gloveModel);
                 });
             });
 
