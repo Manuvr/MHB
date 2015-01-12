@@ -22,18 +22,26 @@ var targetRotationOnMouseDown = 0;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 
+var arrow1 = null;
+var vx = 0, vy = 0, vz = 0;
+var dirNew = null;
+var originNew = null;
+
 //Connect to socket.io
 var serverIP = "localhost";
 var socket = io.connect(serverIP + ':4000');
 console.log('socket connected to: ' + serverIP);
 
 // Start reading IMU data
-//runSocket();
+runSocket();
 init();
 animate();
 
 function runSocket() {
-        socket.on('serial_update', function(data) {
+        socket.on('glove_update', function(data) {
+            console.log(data);
+            //data.IMU_set.CARPALS.mx: 
+            /*
             if (data.charAt(0) === 'O') {
                 console.log(data);
                 var dataArray = data.split(/ /);
@@ -49,6 +57,7 @@ function runSocket() {
 
                 console.log(dataRollx + "," + dataRolly + "," + dataRollz);
             }
+            */
         });
 }
 
@@ -69,9 +78,10 @@ function init() {
     $("#pourHeading").append("<div id='subHeading'></div>");
 
     // Set up camera
-    camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
-    camera.position.y = 150;
-    camera.position.z = 500;
+    camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 10000 );
+    
+    camera.position.y = 50;
+    camera.position.z = 1500;
 
     scene = new THREE.Scene();
 
@@ -116,7 +126,16 @@ function init() {
             sphere7, sphere8, sphere9, sphere10, sphere11, sphere12,
            sphere13, sphere14, sphere15, sphere16, sphere17 );
 
+    // Axis Helper
+    var axisHelper = new THREE.AxisHelper( 200 );
+    scene.add(axisHelper);
 
+    // helper arrow
+    var origin1 = new THREE.Vector3(-300, 300, 0);
+    var direction1 = new THREE.Vector3(-12, -20, 0);
+    arrow1 = new THREE.ArrowHelper(direction1.normalize(), origin1, 100, 0x884400);
+
+    scene.add(arrow1);
 
     renderer = new THREE.CanvasRenderer();
     renderer.setClearColor( 0xf0f0f0 );
@@ -137,12 +156,18 @@ function onWindowResize() {
 }
 
 function animate() {
+
         requestAnimationFrame( animate );
+        
+        var time = Date.now();
+        var windForce = new THREE.Vector3();
+        directionUpdate.set( Math.sin( time / 2000 ), Math.cos( time / 3000 ), Math.sin( time / 1000 ) ).normalize().multiplyScalar( 40 );
+        arrow1.setDirection( directionUpdate );
+
         render();
 }
 
 function render() {
-    //cube.rotation.y = -dataRollz;
-    renderer.render( scene, camera );
+        renderer.render( scene, camera );
 }
 

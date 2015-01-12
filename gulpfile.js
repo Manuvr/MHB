@@ -69,15 +69,17 @@ gulp.task('watch', ['lint'], function() {
 });
 gulp.task('develop', function() {
     var nodemon = require('gulp-nodemon');
-    nodemon({ script: 'app.js', ext: 'html js' })
-        .on('change', ['lint'])
-        .on('restart', function() {
-            console.log('restarted node')
-        })
+    nodemon({ 
+        script: 'app.js', 
+        ignore: ['app/**/*.js'] 
+    })
+    .on('change', ['lint'])
+    .on('restart', function() {
+        console.log('restarted node')
+    })
 });
 
-
-gulp.task('express', function() {
+gulp.task('express' , function() {
     var express = require('express');
     var app = express();
     app.use(express.static(__dirname + '/app'));

@@ -26,6 +26,7 @@ var jsonBuffArrayOut = [];
 // is received
 var listenerArray = [];
 
+
 var btSerial;
 
 // test on socket.io

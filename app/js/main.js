@@ -1,9 +1,6 @@
 (function() {
 'use strict';
  
-    //require('angular');
-    //require('socket.io-client');
-    
     var serverIP = "localhost";
     var socket = io.connect(serverIP + ':4000');
     console.log('socket connected to: ' + serverIP);
