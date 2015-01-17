@@ -1,11 +1,11 @@
 /*
 
-Generate 3D render using serial data from IMU
+Generate 3D render using data from IMU.
 
 */
 
 
-// Declare required variables
+// Declare required variables.
 var container;
 var camera, scene, renderer;
 var cube, plane;
@@ -17,12 +17,12 @@ var windowHalfY = window.innerHeight / 2;
 var imuSet = null;
 var vec = new THREE.Vector3(1,0,0);
 
-//Connect to socket.io
+//Connect to socket.io.
 var serverIP = "localhost";
 var socket = io.connect(serverIP + ':4000');
 console.log('socket connected to: ' + serverIP);
 
-// Start reading IMU data
+// Start reading IMU data.
 runSocket();
 init();
 animate();
@@ -36,6 +36,7 @@ function runSocket() {
 
 function init() {
 
+    // IMU positions on scene.
     imus = { 
         DP_1: new THREE.Vector3(-300, 300, 0),
         IP_1: new THREE.Vector3(-280, 200, 0),
@@ -127,6 +128,8 @@ function init() {
             sphere_CARPALS, sphere_METACARPALS
             );
     
+
+
     // Axis Helper.
     var axisHelper = new THREE.AxisHelper( 200 );
     scene.add(axisHelper);
