@@ -79,7 +79,6 @@ var bufferCompare = function (a, b) {
     for (var i = 0; i < a.length; i++) {
         if (a[i] !== b[i]) return false;
     }
-
     return true;
 };
 
@@ -91,7 +90,7 @@ var sync = function(flag){
     } else {
         console.log("BACK IN SYNC!");
     }
-}
+};
 
 var dataCheck = function(jsonBuff){
     var buffSum = 0;
@@ -175,7 +174,6 @@ ee.on("addedToBufferIn", function () {
     }
 });
 
-
 parser.on("readable", function() {
     var e;
     while (e = parser.read()) {
@@ -193,38 +191,16 @@ parser.on("readable", function() {
     }
 });
 
-/* old tests.... not needed unless the parser breaks hard.  Use the builder instead
-function testParser() {
-    parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-    parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-    parser.write(new Buffer([0x22, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-    parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-    parser.write(syncPacket);
-    parser.write(syncPacket);
-    parser.write(syncPacket);
-    parser.write(syncPacket);
-    parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-    parser.write(syncPacket);
-    parser.write(syncPacket);
-    parser.write(syncPacket);
-    parser.write(syncPacket);
-    parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-    parser.write(new Buffer([0x08, 0x00, 0x00, 0x22, 0x20, 0x0a, 0x03, 0xa0]));
-    parser.write(syncPacket);
-    parser.write(syncPacket);
-    parser.write(syncPacket);
-    parser.write(syncPacket);
-}
-*/
-
 // BLUETOOTH COPYPASTA
 
 btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort();
 
-
+// We're not scanning anymore... Connection parameters need to be set in the "connectBT" function
 btSerial.on('found', function(address, name) {
-    console.log("Found SPP BT connection...")
+    console.log("Found SPP BT connection...");
     btSerial.findSerialPortChannel(address, function(channel) {
+
+
         btSerial.connect(address, channel, function() {
             console.log('Connected on address: ' + address + " @ channel: " + channel);
 
@@ -244,8 +220,21 @@ btSerial.on('found', function(address, name) {
 
 // build this in to an express call to do your bluetooth connection initiation
 function connectBT() {
+	var address = "";
+	var channel = "";
+
     console.log("Scanning for bluetooth connections.\n(This is blocking, so be patient!))");
-    btSerial.inquire();
+	btSerial.connect(address, channel, function() {
+		console.log('Connected on address: ' + address + " @ channel: " + channel);
+
+		btSerial.on('data', function(buffer) {
+			console.log("Getting some BT data...");
+			console.log(buffer);
+			parser.write(buffer);
+		});
+	}, function () {
+		console.log("Can't connect");
+	});
 }
 
 function disconnectBT() {
