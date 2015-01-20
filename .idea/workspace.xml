@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e46d19ee-159e-4d75-acfc-0bae68d9cd72" name="Default" comment="Hax">
+    <list default="true" id="e46d19ee-159e-4d75-acfc-0bae68d9cd72" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/js/generateThree.js" afterPath="$PROJECT_DIR$/app/js/generateThree.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="DigitabulumHostBridge.iws" />
@@ -46,11 +47,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="bluetooth.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="bluetooth.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/new_structure/bluetooth.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.10798122" vertical-offset="156" max-vertical-offset="795">
-              <caret line="15" column="24" selection-start-line="15" selection-start-column="24" selection-end-line="15" selection-end-column="24" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="156" max-vertical-offset="795">
+              <caret line="33" column="1" selection-start-line="33" selection-start-column="1" selection-end-line="33" selection-end-column="1" />
               <folding />
             </state>
           </provider>
@@ -117,6 +118,23 @@
               <folding>
                 <marker date="1421732416000" expanded="true" signature="2054:2203" placeholder="{...}" />
                 <marker date="1421732416000" expanded="true" signature="2138:2173" placeholder="{...}" />
+                <marker date="1421732416000" expanded="true" signature="2394:4930" placeholder="{...}" />
+                <marker date="1421732416000" expanded="true" signature="4206:4224" placeholder="{...}" />
+                <marker date="1421732416000" expanded="true" signature="4292:4340" placeholder="{...}" />
+                <marker date="1421732416000" expanded="true" signature="4437:4518" placeholder="{...}" />
+                <marker date="1421732416000" expanded="true" signature="4568:4602" placeholder="{...}" />
+                <marker date="1421732416000" expanded="true" signature="5108:5180" placeholder="{...}" />
+                <marker date="1421732416000" expanded="true" signature="5321:5737" placeholder="{...}" />
+                <marker date="1421732416000" expanded="true" signature="5304:5364" placeholder="{...}" />
+                <marker date="1421732416000" expanded="true" signature="5477:5536" placeholder="{...}" />
+                <marker date="1421732416000" expanded="true" signature="5564:5740" placeholder="{...}" />
+                <marker date="1421732416000" expanded="true" signature="5641:5741" placeholder="{...}" />
+                <marker date="1421732416000" expanded="true" signature="5708:5739" placeholder="{...}" />
+                <marker date="1421732416000" expanded="true" signature="5802:6210" placeholder="{...}" />
+                <marker date="1421732416000" expanded="true" signature="5966:5998" placeholder="{...}" />
+                <marker date="1421732416000" expanded="true" signature="6026:6194" placeholder="{...}" />
+                <marker date="1421732416000" expanded="true" signature="6074:6173" placeholder="{...}" />
+                <marker date="1421732416000" expanded="true" signature="6124:6171" placeholder="{...}" />
               </folding>
             </state>
           </provider>
@@ -132,13 +150,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="generateThree.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="generateThree.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/js/generateThree.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-10.555555" vertical-offset="9840" max-vertical-offset="13110">
-              <caret line="675" column="0" selection-start-line="675" selection-start-column="0" selection-end-line="675" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.36764705" vertical-offset="690" max-vertical-offset="4080">
+              <caret line="664" column="53" selection-start-line="664" selection-start-column="53" selection-end-line="664" selection-end-column="53" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
+                <element signature="e#106#12897#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -157,7 +176,6 @@
     </leaf>
   </component>
   <component name="Git.Settings">
-    <option name="UPDATE_TYPE" value="REBASE" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -177,11 +195,11 @@
         <option value="$PROJECT_DIR$/dhb-parser.js" />
         <option value="$PROJECT_DIR$/lib/defs.js" />
         <option value="$PROJECT_DIR$/app/js/main.js" />
-        <option value="$PROJECT_DIR$/app/js/generateThree.js" />
         <option value="$PROJECT_DIR$/app.js" />
         <option value="$PROJECT_DIR$/new_structure/dhb-parser.js" />
         <option value="$PROJECT_DIR$/new_structure/dhb.js" />
         <option value="$PROJECT_DIR$/new_structure/bluetooth.js" />
+        <option value="$PROJECT_DIR$/app/js/generateThree.js" />
       </list>
     </option>
   </component>
@@ -801,7 +819,13 @@
       <option name="project" value="LOCAL" />
       <updated>1421732407913</updated>
     </task>
-    <option name="localTasksCounter" value="41" />
+    <task id="LOCAL-00041" summary="ThreeJS changes, BT static address, and some updates to &quot;new structure&quot;">
+      <created>1421732589621</created>
+      <option name="number" value="00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1421732589621</updated>
+    </task>
+    <option name="localTasksCounter" value="42" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -867,7 +891,6 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
-    <MESSAGE value="Moar stuffs" />
     <MESSAGE value="New glove model" />
     <MESSAGE value="New communication rigging and bluetooth added" />
     <MESSAGE value="Additional changes to sync checking and events" />
@@ -892,7 +915,8 @@
     <MESSAGE value="updated the outCommand generator" />
     <MESSAGE value="incommand deprecated" />
     <MESSAGE value="Hax" />
-    <option name="LAST_COMMIT_MESSAGE" value="Hax" />
+    <MESSAGE value="ThreeJS changes, BT static address, and some updates to &quot;new structure&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="ThreeJS changes, BT static address, and some updates to &quot;new structure&quot;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -924,6 +948,23 @@
           <folding>
             <marker date="1421732416000" expanded="true" signature="2054:2203" placeholder="{...}" />
             <marker date="1421732416000" expanded="true" signature="2138:2173" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="2394:4930" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="4206:4224" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="4292:4340" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="4437:4518" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="4568:4602" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5108:5180" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5321:5737" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5304:5364" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5477:5536" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5564:5740" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5641:5741" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5708:5739" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5802:6210" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5966:5998" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="6026:6194" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="6074:6173" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="6124:6171" placeholder="{...}" />
           </folding>
         </state>
       </provider>
@@ -935,6 +976,23 @@
           <folding>
             <marker date="1421732416000" expanded="true" signature="2054:2203" placeholder="{...}" />
             <marker date="1421732416000" expanded="true" signature="2138:2173" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="2394:4930" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="4206:4224" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="4292:4340" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="4437:4518" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="4568:4602" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5108:5180" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5321:5737" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5304:5364" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5477:5536" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5564:5740" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5641:5741" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5708:5739" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5802:6210" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5966:5998" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="6026:6194" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="6074:6173" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="6124:6171" placeholder="{...}" />
           </folding>
         </state>
       </provider>
@@ -1469,6 +1527,23 @@
           <folding>
             <marker date="1421732416000" expanded="true" signature="2054:2203" placeholder="{...}" />
             <marker date="1421732416000" expanded="true" signature="2138:2173" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="2394:4930" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="4206:4224" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="4292:4340" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="4437:4518" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="4568:4602" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5108:5180" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5321:5737" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5304:5364" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5477:5536" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5564:5740" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5641:5741" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5708:5739" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5802:6210" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="5966:5998" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="6026:6194" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="6074:6173" placeholder="{...}" />
+            <marker date="1421732416000" expanded="true" signature="6124:6171" placeholder="{...}" />
           </folding>
         </state>
       </provider>
@@ -1536,16 +1611,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/js/generateThree.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-10.555555" vertical-offset="9840" max-vertical-offset="13110">
-          <caret line="675" column="0" selection-start-line="675" selection-start-column="0" selection-end-line="675" selection-end-column="0" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/new_structure/dhb-parser.js">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="1656" max-vertical-offset="2295">
@@ -1564,9 +1629,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/new_structure/bluetooth.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.10798122" vertical-offset="156" max-vertical-offset="795">
-          <caret line="15" column="24" selection-start-line="15" selection-start-column="24" selection-end-line="15" selection-end-column="24" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="156" max-vertical-offset="795">
+          <caret line="33" column="1" selection-start-line="33" selection-start-column="1" selection-end-line="33" selection-end-column="1" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/js/generateThree.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.36764705" vertical-offset="690" max-vertical-offset="4080">
+          <caret line="664" column="53" selection-start-line="664" selection-start-column="53" selection-end-line="664" selection-end-column="53" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+            <element signature="e#106#12897#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
