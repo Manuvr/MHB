@@ -121,6 +121,10 @@ gulp.task('express' , function() {
         updateGloveModel();
         res.json(defs.gloveModel);
     });
+    
+    router.get('/updateGloveModelFakeData', function(req, res) {
+        fakeGloveModel();
+    });
 
     router.get('/sendSync/:mode', function(req, res){
         sendSync(req.params.mode);
@@ -203,5 +207,25 @@ var sendSync = function(dest) {
 };
 
 
-var updateGloveModel = function() {
+
+var fakeGloveModel = function() {
+    // generate fake data 
+    var args = {};
+    var time = Date.now();
+    var fakeData = [Math.sin( time / 2000 ), Math.cos( time / 3000 ), Math.sin( time / 1000 )];
+    var sets = 51;
+    var reads = ['x', 'y', 'z'];
+    for (var i = 0; i <= sets; i++) { 
+            args[i] = {};
+        for (j = 0; j < reads.length; j++) {
+            args[i][reads[j]] = fakeData[j];
+        }
+    }
+    var fakeJsonBuff = {
+        args : args
+    };
+    defs.execute_IMU_MAP_STATE(fakeJsonBuff); 
+
+    setTimeout(fakeGloveModel, 50);
 };
+

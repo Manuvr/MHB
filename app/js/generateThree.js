@@ -620,7 +620,7 @@ var targetRotationOnMouseDown = 0;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 
-var imuSet = null;
+var gm = null;
 var vec = new THREE.Vector3(1,0,0);
 
 //Connect to socket.io.
@@ -634,9 +634,11 @@ init();
 animate();
 
 function runSocket() {
+
+
         socket.on('glove_update', function(data) {
             console.log(data);
-            imuSet = data.IMU_set;
+            gm = data.IMU_set;
         });
 }
 
@@ -660,7 +662,7 @@ function init() {
         IP_5: new THREE.Vector3(90, 20, 0),
         PP_5: new THREE.Vector3(170, 40, 0),
         CARPALS: new THREE.Vector3(-130, -60, 0),
-        METACARPALS: new THREE.Vector3(-130, -150, 0)
+        METACARPALS: new THREE.Vector3(-130, -150, 0),
     };
 
     container = document.createElement( 'div' );
@@ -675,7 +677,11 @@ function init() {
     info.setAttribute('id', 'pourHeading');
     container.appendChild( info );
 
-    $("#pourHeading").append("<div id='subHeading'></div>");
+    $("#pourHeading").append("<div id='subHeading'>FAKE</div>");
+    $( "#subHeading" ).on("click", function() {
+        $.get('/api/updateGloveModelFakeData', function(res){
+        });
+    });
 
     // Set up camera.
     camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 10000 );
@@ -807,28 +813,9 @@ function animate() {
 
         requestAnimationFrame( animate );
         
-        var time = Date.now();
-        var directionUpdate = new THREE.Euler(Math.sin( time / 2000 ), Math.cos( time / 3000 ), Math.sin( time / 1000 ), 'XYZ' );
+        if (gm)
+            updateMagArrows();
 
-        // Update direction on mag arrows.
-        arrow_DP_1.setDirection( directionUpdate );
-        arrow_IP_1.setDirection ( directionUpdate );
-        arrow_PP_1.setDirection ( directionUpdate );
-        arrow_DP_2.setDirection ( directionUpdate );
-        arrow_IP_2.setDirection ( directionUpdate );
-        arrow_PP_2.setDirection ( directionUpdate );
-        arrow_DP_3.setDirection ( directionUpdate );
-        arrow_IP_3.setDirection ( directionUpdate );
-        arrow_PP_3.setDirection ( directionUpdate );
-        arrow_DP_4.setDirection ( directionUpdate );
-        arrow_IP_4.setDirection ( directionUpdate );
-        arrow_PP_4.setDirection ( directionUpdate );
-        arrow_DP_5.setDirection ( directionUpdate );
-        arrow_IP_5.setDirection ( directionUpdate );
-        arrow_PP_5.setDirection ( directionUpdate );
-        arrow_CARPALS.setDirection ( directionUpdate );
-        arrow_METACARPALS.setDirection ( directionUpdate );
-		controls.update();
         render();
 }
 
@@ -836,3 +823,46 @@ function render() {
         renderer.render( scene, camera );
 }
 
+
+function updateMagArrows() {
+        
+    //var time = Date.now();
+    //var directionUpdate = new THREE.Euler(Math.sin( time / 2000 ), Math.cos( time / 3000 ), Math.sin( time / 1000 ), 'XYZ' );
+    var updDP_1 = new THREE.Euler(gm.DP_1.mx, gm.DP_1.my, gm.DP_1.mz);
+    var updIP_1 = new THREE.Euler(gm.IP_1.mx, gm.IP_1.my, gm.IP_1.mz);
+    var updPP_1 = new THREE.Euler(gm.PP_1.mx, gm.PP_1.my, gm.PP_1.mz);
+    var updDP_2 = new THREE.Euler(gm.DP_2.mx, gm.DP_2.my, gm.DP_2.mz);
+    var updIP_2 = new THREE.Euler(gm.IP_2.mx, gm.IP_2.my, gm.IP_2.mz);
+    var updPP_2 = new THREE.Euler(gm.PP_2.mx, gm.PP_2.my, gm.PP_2.mz);
+    var updDP_3 = new THREE.Euler(gm.DP_3.mx, gm.DP_3.my, gm.DP_3.mz);
+    var updIP_3 = new THREE.Euler(gm.IP_3.mx, gm.IP_3.my, gm.IP_3.mz);
+    var updPP_3 = new THREE.Euler(gm.PP_3.mx, gm.PP_3.my, gm.PP_3.mz);
+    var updDP_4 = new THREE.Euler(gm.DP_4.mx, gm.DP_4.my, gm.DP_4.mz);
+    var updIP_4 = new THREE.Euler(gm.IP_4.mx, gm.IP_4.my, gm.IP_4.mz);
+    var updPP_4 = new THREE.Euler(gm.PP_4.mx, gm.PP_4.my, gm.PP_4.mz);
+    var updDP_5 = new THREE.Euler(gm.DP_5.mx, gm.DP_5.my, gm.DP_5.mz);
+    var updIP_5 = new THREE.Euler(gm.IP_5.mx, gm.IP_5.my, gm.IP_5.mz);
+    var updPP_5 = new THREE.Euler(gm.PP_5.mx, gm.PP_5.my, gm.PP_5.mz);
+    var updCARPALS = new THREE.Euler(gm.CARPALS.mx, gm.CARPALS.my, gm.CARPALS.mz);
+    var updMETACARPALS = new THREE.Euler(gm.METACARPALS.mx, gm.METACARPALS.my, gm.METACARPALS.mz);
+
+    // Update direction on mag arrows.
+    arrow_DP_1.setDirection ( updDP_1 );
+    arrow_IP_1.setDirection ( updIP_1 );
+    arrow_PP_1.setDirection ( updPP_1 );
+    arrow_DP_2.setDirection ( updDP_2 );
+    arrow_IP_2.setDirection ( updIP_2 );
+    arrow_PP_2.setDirection ( updPP_2 );
+    arrow_DP_3.setDirection ( updDP_3 );
+    arrow_IP_3.setDirection ( updIP_3 );
+    arrow_PP_3.setDirection ( updPP_3 );
+    arrow_DP_4.setDirection ( updDP_4 );
+    arrow_IP_4.setDirection ( updIP_4 );
+    arrow_PP_4.setDirection ( updPP_4 );
+    arrow_DP_5.setDirection ( updDP_5 );
+    arrow_IP_5.setDirection ( updIP_5 );
+    arrow_PP_5.setDirection ( updPP_5 );
+    arrow_CARPALS.setDirection ( updCARPALS );
+    arrow_METACARPALS.setDirection ( updMETACARPALS );
+
+}
