@@ -623,7 +623,7 @@ var windowHalfY = window.innerHeight / 2;
 var gm = null;
 var vec = new THREE.Vector3(1,0,0);
 
-//Connect to socket.io.
+//Connect to socket.io
 var serverIP = "localhost";
 var socket = io.connect(serverIP + ':4000');
 console.log('socket connected to: ' + serverIP);
@@ -637,7 +637,6 @@ function runSocket() {
 
 
         socket.on('glove_update', function(data) {
-            console.log(data);
             gm = data.IMU_set;
         });
 }
@@ -663,6 +662,46 @@ function init() {
         PP_5: new THREE.Vector3(170, 40, 0),
         CARPALS: new THREE.Vector3(-130, -60, 0),
         METACARPALS: new THREE.Vector3(-130, -150, 0)
+    };
+
+    // store each joint object for armature
+    var jointMap = {};
+
+    function GLTransform () {
+        this.position = THREE.Vector3();
+        this.rotation = THREE.Vector3();
+        this.scale = THREE.Vector3();
+    };
+
+    function Joint (jname) {
+        this.inverseBindPose = [];
+        this.bindPose = [];
+        // starts with initial matrix, builds with each multiplication
+        this.currentPose = [];
+        this.jointTransform = new GLTransform();
+        // matrix after all multiplations
+        this.finalPose = [];
+        this.localBindPose = [];
+
+        this.jointParent = null; 
+
+        this.name = jname;
+        this.addChild = function(j) {
+            j.jointParent = this;
+            return j;
+        }
+        this.getParent = function() {
+            return jointParent;
+        };
+    };
+
+    function Armature () {
+        // keep track of the root joint for ease,
+        // can be derived from other joints
+        this.rootJoint = null;
+
+
+
     };
 
     container = document.createElement( 'div' );
