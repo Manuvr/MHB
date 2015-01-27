@@ -671,7 +671,7 @@ function init() {
         this.position = THREE.Vector3();
         this.rotation = THREE.Vector3();
         this.scale = THREE.Vector3();
-    };
+    }
 
     function Joint (jname) {
         this.inverseBindPose = [];
@@ -689,11 +689,11 @@ function init() {
         this.addChild = function(j) {
             j.jointParent = this;
             return j;
-        }
+        };
         this.getParent = function() {
             return jointParent;
         };
-    };
+    }
 
     function Armature () {
         // keep track of the root joint for ease,
@@ -702,7 +702,7 @@ function init() {
 
 
 
-    };
+    }
 
     container = document.createElement( 'div' );
     document.body.appendChild( container );

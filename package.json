@@ -25,7 +25,8 @@
     "socket.io": "^1.2.0",
     "socket.io-client": "~1.2.1",
     "gulp-nodemon": "~1.0.4",
-    "util": "~0.10.3"
+    "util": "~0.10.3",
+    "browser-sync": "~1.9.1"
   },
   "repository": {
     "type": "git",
