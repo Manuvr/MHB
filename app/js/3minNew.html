@@ -1,0 +1,331 @@
+<html>
+ <head>
+ <style>
+    body {margin: 0px; padding: 0px;}
+</style>
+ <title>
+  Glove Viewer
+</title>
+ </head>
+ 
+ <body>
+	<div align="center"><canvas id="threeCanvas" width="640" height="480" style="margin: 0 auto;">Unsupported</canvas></div>
+	<div align="center" id="frameCount">t</div>
+	<div align="center" border="1"><textarea style="height: 200;" id="hierarchy" value="tesT">
+{
+    "HIERARCHY":{
+        "CARPALS":{
+            "METACARPALS":{
+                "PP1":{
+                    "IP1":{
+                        "DP1":""
+                    }
+                },
+                "PP2":{
+                    "IP2":{
+                        "DP2":""
+                    }
+                },
+                "PP3":{
+                    "IP3":{
+                        "DP3":""
+                    }
+                },
+                "PP4":{
+                    "IP4":{
+                        "DP4":""
+                    }
+                },
+                "PP5":{
+                    "IP5":{
+                        "DP5":""
+                    }
+                }
+            }
+        }
+    }
+}
+	</textarea></div>
+	<div align="center"><textarea style="width: 100%; height: 25%" id="ta1"></textarea></div>
+	
+
+ 
+<script src="js/three.min.js"></script>
+<script src="js/OBJMTLLoader.js"></script>
+<script src="js/MTLLoader.js"></script>
+<script src="js/ColladaLoader.js"></script>
+
+
+<script>
+	// Our Javascript will go here. 
+	var width = 640;
+	var height = 480;
+	var ratio = width / height;
+	var zoom = 5;
+	// Our render target
+	var depth = 0;
+	var canvas = document.getElementById("threeCanvas");
+	// Simple text area for logging/debugging
+	var tarea1 = document.getElementById("ta1");
+	
+	var taHierarchy = document.getElementById("hierarchy");
+	var boneArray = new Array();
+	var armObj = new THREE.Object3D();
+	var rootArm = new THREE.Object3D();
+	var lastObj = null;
+
+	
+	var frameCountElement = document.getElementById("frameCount");
+	var frameCount = 0;
+	var scene = new THREE.Scene(); 
+	// Ortho camera
+	// var camera = new THREE.OrthographicCamera( -ratio * zoom, ratio * zoom, 1 * zoom, -1 * zoom, 1, 1000 );
+	// Perspective camera
+	var camera = new THREE.PerspectiveCamera( 60, width / height, 0.1, 1000 ); 
+	// Render context
+	var renderer = new THREE.WebGLRenderer({canvas: threeCanvas}); 
+
+	renderer.autoClear = true;
+	renderer.autoClearColor = 0xaaaaaa;
+	var manager = new THREE.LoadingManager();
+
+	manager.onProgress = function ( item, loaded, total ) {
+		console.log( item, loaded, total );
+	};
+
+	var onProgress = function ( xhr ) {
+		if ( xhr.lengthComputable ) {
+			var percentComplete = xhr.loaded / xhr.total * 100;
+			console.log( Math.round(percentComplete, 2) + '% downloaded' );
+		}
+	};
+
+	var onError = function ( xhr ) {
+	};
+	
+	
+	// This is where we read in the joint hierarchy and offset information relating to the armatures "BIND POSE"
+	// Once built, the object3d's will be attached in the internal parenting model allowing for compound rotations during traverse.
+	// WORK IN PROGRESS
+	function initBones() {
+		var hObj = JSON.parse(taHierarchy.value);
+		rootArm.name = "_ROOT_";
+		boneArray.push(rootArm);
+		depth = 0;
+		console.log(hObj);
+		js_traverse(hObj.HIERARCHY);
+		log("BONEARRAY", "BONEARRAY");
+		console.log(tempArray);
+		console.log(rootArm);
+		scene.add(rootArm);
+
+	}
+	var tempArray = new Array();
+	function js_traverse(o) {
+		var type = typeof o;
+		if (type == "object") {
+			for (var key in o) {
+				var newJoint = lastObj.clone();
+				newJoint.position.y = 1;
+				var parentJoint = boneArray[boneArray.length - 1];
+				parentJoint.add(newJoint);
+				newJoint.name = key;
+				console.log("C " + newJoint.name + " ->  P " + parentJoint.name)				
+				
+				//log("key: ", key + " " + o[key].constructor + "DEPTH: " + depth);
+				boneArray.push(newJoint);
+				tempArray.push(newJoint);
+				depth++;
+				js_traverse(o[key]);
+			}
+		} else {
+			//boneArray.pop();
+			log("Parse", o);
+		}
+		boneArray.pop();
+		depth--;
+	}
+	
+	
+	// Websockets stuff
+	var socket = null;
+	var geometry = new THREE.BoxGeometry( 1, 1, 1 ); 
+	var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } ); 
+	var cube = new THREE.Mesh( geometry, material ); 
+	//scene.add( cube ); 
+	camera.position.z = 10;
+	var directionalLight1 = new THREE.DirectionalLight( 0xffffff );
+	var directionalLight2 = new THREE.DirectionalLight( 0xffffff );
+	var directionalLight3 = new THREE.DirectionalLight( 0xffffff );
+	directionalLight1.position.set( 0, 1, 0 );
+	directionalLight2.position.set( 1, 0, 0 );
+	directionalLight3.position.set( 0, 0, 1 );
+	scene.add( directionalLight1 );
+	scene.add( directionalLight2 );
+	scene.add( directionalLight3 );
+
+	armObj.matrixAutoUpdate = true;
+	//scene.add(armObj);
+	var y = 0;
+	var z = 0;
+
+	var axisModel = null;
+	loadModel('models/3axis.obj', 'models/3axis.mtl');
+	
+
+	//loadCollada('models/untitled.dae');
+
+	function render() { 
+		requestAnimationFrame( render ); 
+
+		// Traverse Ancestors traverses backwards down the parental chain to the root node.
+		// IMPORTANT NOTE: The traversal callback starts off from the callers parent, NOT THE CALLER.  NOT ACCURATE ???????????????
+		// As such, the caller will not get updated in the recursion, so update it first before traversal.
+		// SIDE NOTE: Updates should not happen in traversal and should be done in a separate function prior to traversal.
+		// Traversal should simply call updateMatrix(), but the caller will still need to update its own matrix prior unless matrixAutoUpdate is true.
+		//lastObj.rotation.z += 0.01;
+		//lastObj.updateMatrix();
+
+		for (var boneIdx in tempArray) {
+			
+			//console.log(bone);
+			tempArray[boneIdx].traverseAncestors(processJoints);
+//			console.log(bone);
+		}
+		//var metaJoint = rootArm.getObjectByName("CARPALS", false);
+		//metaJoint.traverse(processJoints);
+		//rootArm.traverse(processJoints);
+
+
+		renderer.render( scene, camera ); 
+		frameCountElement.value = "" + frameCount++;
+	} 
+
+	// Temporary method to created a linear linked set of joints without arbitrary heirarchy.
+	// Each object added is added as a child of the previously added object.  DEMO purposes only.
+	function addObject(object) {
+		object.position.y = 1;
+		object.matrixAutoUpdate = false;
+		if (lastObj != null) {
+			object.position.y = 1;
+			lastObj.add(object);
+		} else {
+			object.position.y = 0;
+			armObj.add(object);
+		}
+	//	log("Armature", armObj.children.length);
+		lastObj = object;
+		initBones();
+	}
+
+
+	function updateJoints() {
+		// Loop through keys of gm object.
+		// bone to update = rootArm.getObjectByName(gm.id, true)
+		// boneToUpdate.rotation.x = gm.id.rx
+		// STUB Method.  All joint updates in rotation should happen here, not in the Object3d traverse method.
+	}
+	
+	
+	// Here we should only be updating the matrix as part of the Object3d traversal.
+	function processJoints(obj) {
+		var rnd = 0.01;
+		var rnd = ((Math.random() * 2) - 1.1) * 0.01;
+		obj.rotation.x += rnd;
+//		obj.rotation.y += 0.01;
+		obj.rotation.z += rnd;
+		obj.updateMatrix();
+		//obj.matrix.multiply(obj.parent.matrix);
+		//log("ProcessJoints", "" + obj.id);
+		//obj.matrix.multiply(obj.parent.matrix);
+
+	}
+
+	function log(tag, data) {
+		tarea1.value += tag + " - " + data + "\n";
+	}
+
+	// This is supposed to load a file exported from blender using the three.js blender addon, but something with the export isnt working.
+	// Coming back to this one later.
+	function loadJSON(path) {
+		log("LoadJSON", path);
+		var jsonLoader = new THREE.JSONLoader();
+		log("LoadJSON", "Loader");
+		
+		var retval = jsonLoader.load(path, function( geometry, materials ) {
+			//var material = new THREE.MeshFaceMaterial( materials ); 
+	//		var originalMaterial = materials[ 0 ];
+	//		originalMaterial.skinning = true;
+	//		originalMaerial.transparent = true;
+	//		originalMaterial.alphaTest = 0.75;
+			log("JSONLoader", "Begin");
+
+	//		THREE.AnimationHandler.add( geometry.animation );
+			log("JSONLoader", "animationhandler");
+			var skinnedMesh = new THREE.Mesh(geometry, new THREE.MeshNormalMaterial());
+			log("JSONLoader", "skinned mesh");
+			scene.add( skinnedMesh ); 
+			log("JSONLoader", "scene add");
+		});
+		alert(jsonLoader);
+	}
+
+	function loadCollada(path) {
+		log("LoadJSON", path);
+		var colladaLoader = new THREE.ColladaLoader();
+		log("LoadJSON", "Loader");
+		
+		var retval = colladaLoader.load(path, function( collada ) {
+			//var material = new THREE.MeshFaceMaterial( materials ); 
+	//		var originalMaterial = materials[ 0 ];
+	//		originalMaterial.skinning = true;
+	//		originalMaerial.transparent = true;
+	//		originalMaterial.alphaTest = 0.75;
+			log("JSONLoader", "Begin");
+
+	//		THREE.AnimationHandler.add( geometry.animation );
+			log("JSONLoader", "animationhandler");
+	//		var skinnedMesh = new THREE.Mesh(geometry, new THREE.MeshNormalMaterial());
+			log("JSONLoader", "skinned mesh");
+			scene.add( collada.scene ); 
+			log("JSONLoader", "scene add");
+		});
+	}
+
+	// Loads a model in OBJ+MTL format.  the addObject callback will append it to our scene, but in a static linear fashion.
+	// Refactor this once initBones is working().
+	function loadModel(objPath, mtlPath) {
+		log("LoadModel", objPath);
+		var objmtlloader = new THREE.OBJMTLLoader();
+		objmtlloader.load(objPath, mtlPath, addObject, onProgress, onError);
+	}
+	
+	// DUNNO WTF on this one.  Need to get a better grasp of websockets and Node in general.
+	function initListener() {
+		socket = new WebSocket('ws://localhost:13000');
+		// Open the socket
+		socket.onopen = function(event) {
+		
+			// Send an initial message
+			socket.send('I am the client and I\'m listening!');
+			
+			// Listen for messages
+			socket.onmessage = function(event) {
+				console.log('Client received a message',event);
+			};
+			
+			// Listen for socket closes
+			socket.onclose = function(event) {
+				console.log('Client notified socket has closed',event);
+			};
+		}	
+	}
+	// Call to setup the initial hierarchy and offsets.
+	//initBones();
+
+	initListener();
+	render();
+ </script>
+ </body> 
+
+ </html>

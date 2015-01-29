@@ -19,6 +19,10 @@
             .state('glove', {
                 url: '/glove',
                 templateUrl: 'partials/partial-glove.html'
+            })
+            .state('hand', {
+                url: '/hand',
+                templateUrl: 'js/3minNew.html'
             });
     })
     .factory('commands', ['$http', function($http){

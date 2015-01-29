@@ -45,7 +45,7 @@
     "chai": "~1.10.0"
   },
   "scripts": {
-    "start": "node main.js",
+    "start": "node lib/server.js",
     "test": "gulp test"
   },
   "author": "Zone-Ghost, drquinn, jspark311",
