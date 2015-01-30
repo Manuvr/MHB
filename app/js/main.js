@@ -141,7 +141,7 @@
 
             $scope.randomIMUmag = function() {
                 // Generate random hex string
-                var totalBytes = 616 * 2;
+                var totalBytes = 680 * 2;
                 var builtArg = "";
                 var randOpts = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
                 for (var i = 0; i < totalBytes; i++) { 
