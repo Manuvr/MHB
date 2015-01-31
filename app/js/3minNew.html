@@ -51,9 +51,14 @@
 <script src="js/OBJMTLLoader.js"></script>
 <script src="js/MTLLoader.js"></script>
 <script src="js/ColladaLoader.js"></script>
+<script src="../bower_components/socket.io-client/socket.io.js"></script>
+
+
 
 <script>
 	// Our Javascript will go here. 
+    var gm = {};
+
 	var width = 640;
 	var height = 480;
 	var ratio = width / height;
@@ -79,8 +84,20 @@
 	var camera = null; 
 	var renderer = null; 
 
+    //Connect to socket.io
+    var serverIP = "localhost";
+    var socket = io.connect(serverIP + ':4000');
+    console.log('socket connected to: ' + serverIP);
+
 	// Initialize.
+    runSocket();
 	initScene();
+    function runSocket() {
+        socket.on('glove_update', function(data) {
+            gm = data.IMU_set;
+            console.log(gm);
+        });
+    }
 
 	var manager = new THREE.LoadingManager();
 	manager.onProgress = function ( item, loaded, total ) {
@@ -185,11 +202,26 @@
 	// Perform any updates to joints here.  Called once per frame.
 	function updateJoints() {
 		// STUB Method.  All joint updates in rotation should happen here, not in the Object3d traverse method.
-
 		// Loop through keys of gm object.
+        /* Updated 1/31/14 - needs testing
+        for (var bone in gm) {
+            if (object.hasOwnProperty(bone)) {
+                var boneToUpdate = getByValue(boneArray, bone); 
+                console.log(boneToUpdate, gm[property].rx);
+                boneToUpdate.rotation.x = gm[property].rx;
+                boneToUpdate.rotation.y = gm[property].ry;
+                boneToUpdate.rotation.z = gm[property].rz;
+            }
+        }
+        function getByValue (arr, value) {
+           for (var i=0; i < arr.length; i++) {
+               if (arr[i].name == value) return arr[i];
+           }
+        }
+        */
+
 		// bone to update = rootArm.getObjectByName(gm.id, true)
 		// boneToUpdate.rotation.x = gm.id.rx
-		
 		// Temporary update loop
 		for (var boneIdx in boneArray) {
 			var val = ((Math.random() * 2) - 1.2) * 0.025;
