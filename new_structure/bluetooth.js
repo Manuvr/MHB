@@ -1,24 +1,17 @@
-btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort();
+var EventEmitter = require('events').EventEmitter;
+var btSerial = new (require('bluetooth-serial-port')).BluetoothSerialPort();
+
+var ee = new EventEmitter();
 
 btSerial.on('found', function(address, name) {
 	console.log("Found '" + name + "' Bluetooth device at " + address);
+	ee.emit('btListAdd', address, name);
+});
 
-	btSerial.findSerialPortChannel(address, function(channel) {
-		console.log("Found open channel: " + channel);
-		btSerial.connect(address, channel, function() {
-			console.log('Connected!");
-
-			btSerial.on('data', function(buffer) {
-				console.log("Getting some BT data...");
-				console.log(buffer);
-				parser.write(buffer);
-			});
-		}, function () {
-			console.log("Connection failed");
-		});
-	}, function() {
-		console.log("No Bluetooth devices found");
-	});
+btSerial.on('data', function(buffer) {
+	console.log("Getting some BT data...");
+	console.log(buffer);
+	parser.write(buffer);
 });
 
 var dhbBT = function(options){
@@ -29,20 +22,29 @@ var dhbBT = function(options){
 		options = {};
 	}
 
-	// declare "public" variables here or execute stuffs
+	this.scan = function() {
+		console.log("Scanning for BT connections...");
+		btSerial.inquire();
+	};
 
-}
+	this.connect = function(address){
+		btSerial.findSerialPortChannel(address, function(channel) {
+			btSerial.connect(address, channel, function() {
+				console.log("Connected on channel " + channel + ".");
+			}, function () {
+				console.log("Connection failed");
+			});
+		}, function() {
+			console.log("No Bluetooth devices found");
+		})
+	};
 
-// prototype functions
+	this.disconnect  = function() {
+		console.log("Closing BT connection...");
+		btSerial.close();
+	};
 
-dhbBT.prototype.connect = function() {
-	console.log("Scanning for bluetooth connections.\n(This is blocking, so be patient!))");
-	btSerial.inquire();
-}
+};
 
-dhbBT.prototype.disconnect = function() {
-	console.log("Closing BT connection...");
-	btSerial.close();
-}
 
 module.exports = dhbBT;

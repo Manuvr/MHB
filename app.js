@@ -241,7 +241,7 @@ function disconnectBT() {
     console.log("Closing BT connection...");
     btSerial.close();
 }
-
+	
 // Buffer generation
 
 var builder = function(messageID, uniqueID, argBuffObj){
@@ -252,6 +252,7 @@ var builder = function(messageID, uniqueID, argBuffObj){
 
     if(messageID !== 0xFFFF){
         // add something to the listener array if we're not sending a reply
+
     }
 
     if(!messageID || !uniqueID){

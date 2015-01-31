@@ -1,6 +1,5 @@
 // node modules
-var util = require('util');
-var EventEmitter = require('events').EventEmitter;
+//var util = require('util');
 
 // npm modules
 var Dissolve = require('dissolve');
@@ -26,12 +25,12 @@ var bufferCompare = function (a, b) {
 };
 
 var sync = function(flag){
-	waitingForSync = flag;
-	if(waitingForSync === 1){
+	if(flag){
 		console.log("OUT OF SYNC");
-		//send reset command here
+		// add code here for the reset command
 	} else {
 		console.log("BACK IN SYNC");
+		// this will set us back
 	}
 };
 
@@ -56,16 +55,16 @@ var dataCheck = function(jsonBuff){
 };
 
 // this will be exposed
-function initParser(config) {
+function dhbParser(config) {
 
-	if (!(this instanceof initParser)) return new initParser(config);
+	//if (!(this instanceof dhbParser)) return new dhbParser(config);
 
-	EventEmitter.call(this);
+	//EventEmitter.call(this);
 
 	this.config = config;
 	this.connected = false;
 
-	var parser = Dissolve().loop(function(end) {
+	this.parser = Dissolve().loop(function(end) {
 		if(waitingForSync === 1 ){
 			this.uint8("wait")
 				.tap(function(){
@@ -126,23 +125,16 @@ function initParser(config) {
 		}
 	});
 
-	//parser.on("readable", function() {
+	// This should likely be how we poll in the parent...
+	//
+	//dhbParser.on("readable", function() {
 	//	var e;
 	//	while (e = parser.read()) {
 	//		//stream this somewhere
-	//		// this should likely go in the parent;
 	//	}
 	//});
 
-	ee.on("addedToBufferIn", function() {
-		if(null != jsonBuffArrayIn[0]) {
-			exec_in(jsonBuffArrayIn[0]);
-			jsonBuffArrayIn.shift();
-		}
-	});
-
-
 }
 
-
-module.exports = initParser;
+// kind of ugly... but?
+module.exports = new dhbParser({}).parser;

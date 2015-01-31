@@ -24,19 +24,15 @@ var builder = function(messageID, uniqueID, argBuffObj){
 	var midBuf = new Buffer(4);
 
 	if(undefined !== argBuffObj && argBuffObj.length){
-
 		int24.writeUInt24LE(headBuf, 0, argBuffObj.length + 8);
 		midBuf.writeUInt16LE(uniqueID, 0);
 		midBuf.writeUInt16LE(messageID,2);
 		checkBuf = Buffer.concat([midBuf, argBuffObj]);
-
 	} else {
-
 		int24.writeUInt24LE(headBuf, 0, 8);
 		checkBuf = new Buffer(4);
 		checkBuf.writeUInt16LE(uniqueID, 0);
 		checkBuf.writeUInt16LE(messageID,2);
-
 	}
 
 	// calculate the checksum, and then add them together
@@ -50,3 +46,5 @@ var builder = function(messageID, uniqueID, argBuffObj){
 	return Buffer.concat([headBuf, checkBuf])
 
 };
+
+module.exports = builder;
