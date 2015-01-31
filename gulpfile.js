@@ -26,6 +26,6 @@ gulp.task('nodemon', function (cb) {
     });
 });
 
-gulp.task('default',['lint', 'browser-sync'] , function() {
+gulp.task('default',['browser-sync'] , function() {
 });
 

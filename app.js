@@ -229,7 +229,6 @@ function connectBT() {
 
 		btSerial.on('data', function(buffer) {
 			console.log("Getting some BT data...");
-			console.log(buffer);
 			parser.write(buffer);
 		});
 	}, function () {
@@ -290,8 +289,6 @@ var builder = function(messageID, uniqueID, argBuffObj){
     headBuf.writeUInt8(buffSum, 3);
 
     var fullBuffer = Buffer.concat([headBuf, checkBuf]);
-    console.log('Full Buffer: ');
-    console.log(fullBuffer);
 
     return fullBuffer
 }
