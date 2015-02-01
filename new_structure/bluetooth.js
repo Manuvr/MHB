@@ -14,6 +14,11 @@ btSerial.on('data', function(buffer) {
 	parser.write(buffer);
 });
 
+btSerial.on('close', function(){
+	console.log("Lost BT connection. :(");
+	btSerial.close();
+})
+
 var dhbBT = function(options){
 
 	if (!(this instanceof dhbBT)) { return new dhbBT(); }
@@ -26,6 +31,8 @@ var dhbBT = function(options){
 		console.log("Scanning for BT connections...");
 		btSerial.inquire();
 	};
+
+	this.ee = ee;
 
 	this.connect = function(address){
 		btSerial.findSerialPortChannel(address, function(channel) {
@@ -45,6 +52,5 @@ var dhbBT = function(options){
 	};
 
 };
-
 
 module.exports = dhbBT;

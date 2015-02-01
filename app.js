@@ -204,11 +204,11 @@ btSerial.on('found', function(address, name) {
         btSerial.connect(address, channel, function() {
             console.log('Connected on address: ' + address + " @ channel: " + channel);
 
-            btSerial.on('data', function(buffer) {
-                console.log("Getting some BT data...");
-                console.log(buffer);
-                parser.write(buffer);
-            });
+            //btSerial.on('data', function(buffer) {
+            //    console.log("Getting some BT data...");
+            //    console.log(buffer);
+            //    parser.write(buffer);
+            //});
         }, function () {
             console.log("Can't connect");
         });
@@ -220,21 +220,26 @@ btSerial.on('found', function(address, name) {
 
 // build this in to an express call to do your bluetooth connection initiation
 function connectBT() {
-	var address = "";
-	var channel = "";
+	var address = "00:06:66:61:32:b8";
+	var channel = "1";
 
     console.log("Scanning for bluetooth connections.\n(This is blocking, so be patient!))");
 	btSerial.connect(address, channel, function() {
 		console.log('Connected on address: ' + address + " @ channel: " + channel);
 
-		btSerial.on('data', function(buffer) {
-			console.log("Getting some BT data...");
-			parser.write(buffer);
-		});
+		//btSerial.on('data', function(buffer) {
+		//	console.log("Getting some BT data...");
+		//	parser.write(buffer);
+		//});
 	}, function () {
 		console.log("Can't connect");
 	});
 }
+
+btSerial.on('data', function(buffer) {
+	console.log("Getting some BT data...");
+	parser.write(buffer);
+});
 
 function disconnectBT() {
     console.log("Closing BT connection...");

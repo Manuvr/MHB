@@ -125,16 +125,6 @@ function dhbParser(config) {
 		}
 	});
 
-	// This should likely be how we poll in the parent...
-	//
-	//dhbParser.on("readable", function() {
-	//	var e;
-	//	while (e = parser.read()) {
-	//		//stream this somewhere
-	//	}
-	//});
-
 }
 
-// kind of ugly... but?
-module.exports = new dhbParser({}).parser;
+module.exports = new dhbParser().parser;
