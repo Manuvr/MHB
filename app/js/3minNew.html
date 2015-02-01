@@ -47,11 +47,11 @@
 }
 	</textarea></div>
  
-<script src="js/three.min.js"></script>
-<script src="js/OBJMTLLoader.js"></script>
-<script src="js/MTLLoader.js"></script>
-<script src="js/ColladaLoader.js"></script>
-<script src="../bower_components/socket.io-client/socket.io.js"></script>
+<script src="bower_components/three.min.js"></script>
+<script src="js/js/OBJMTLLoader.js"></script>
+<script src="js/js/MTLLoader.js"></script>
+<script src="js/js/ColladaLoader.js"></script>
+<script src="bower_components/socket.io-client/socket.io.js"></script>
 
 
 
@@ -138,9 +138,9 @@
 
 		// Load our model instances.  
 		// Each one of these will be pushed into the "models" object with the first argument as the key to that object, which can then be cloned.
-		loadModel("axis", 'models/3axis.obj', 'models/3axis.mtl');
-		loadModel("xyzbone", 'models/xyzbone.obj', 'models/xyzbone.mtl');
-		loadModel("suzanne", 'models/suzanne.obj', 'models/suzanne.mtl');
+		loadModel("axis", 'js/models/3axis.obj', 'models/3axis.mtl');
+		loadModel("xyzbone", 'js/models/xyzbone.obj', 'models/xyzbone.mtl');
+		loadModel("suzanne", 'js/models/suzanne.obj', 'models/suzanne.mtl');
 	}
 	
 	// This is where we read in the joint hierarchy and offset information relating to the armatures "BIND POSE"
