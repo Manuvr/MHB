@@ -43,6 +43,93 @@
                 }
             }
         }
+    },
+    "OFFSETS":{
+        "CARPALS":[
+            0,
+            0,
+            0
+        ],
+        "METACARPALS":[
+            0,
+            0,
+            1.0
+        ],
+        "PP1":[
+            0,
+            0,
+            0.5
+        ],
+        "IP1":[
+            1.2,
+            0,
+            1
+        ],
+        "DP1":[
+            0.0,
+            0,
+            0.6
+        ],
+        "PP2":[
+            0.6,
+            0,
+            2.7
+        ],
+        "IP2":[
+            0,
+            0,
+            0.7
+        ],
+        "DP2":[
+            0,
+            0,
+            0.6
+        ],
+        "PP3":[
+            0.1,
+            0,
+            2.8
+        ],
+        "IP3":[
+            0,
+            0,
+            0.9
+        ],
+        "DP3":[
+            0,
+            0,
+            0.7
+        ],
+        "PP4":[
+            -0.4,
+            0,
+            2.6
+        ],
+        "IP4":[
+            0,
+            0,
+            0.8
+        ],
+        "DP4":[
+            0,
+            0,
+            0.6
+        ],
+        "PP5":[
+            -0.9,
+            0,
+            2.4
+        ],
+        "IP5":[
+            0,
+            0,
+            0.6
+        ],
+        "DP5":[
+            0,
+            0,
+            0.5
+        ]
     }
 }
 	</textarea></div>
@@ -70,7 +157,7 @@
 	// Holds our model instances by name key
 	var models = {};
 	// name of the model to use when rendering bones.
-	var displayModel = "suzanne";
+	var displayModel = "axis";
 
 	var rootArm = new THREE.Object3D();
 	var parentStack = new Array();
@@ -79,6 +166,7 @@
 
 	var frameCountElement = document.getElementById("frameCount");
 	var frameCount = 0;
+	var angle = 0;
 	
 	var scene = null; 
 	var camera = null; 
@@ -121,7 +209,7 @@
 		// camera = new THREE.OrthographicCamera( -ratio * zoom, ratio * zoom, 1 * zoom, -1 * zoom, 1, 1000 );
 		camera = new THREE.PerspectiveCamera( 60, width / height, 0.1, 1000 ); 
 		scene.add(camera);
-		camera.position.z = 7;
+		camera.position.z = 10;
 		camera.position.y = 2.5;
 
 		renderer = new THREE.WebGLRenderer({canvas: threeCanvas}); 
@@ -153,7 +241,18 @@
 		rootArm.name = "_ROOT_";
 		parentStack.push(rootArm);
 		console.log(hObj);
+		// Recursively traverse the hierarchy node to set up the ordered structure
 		js_traverse(hObj.HIERARCHY);
+		// Now loop through the offsets and set each bones relative offset
+		for (var key in hObj.OFFSETS) {
+			// Fetch the bone in the rootArm matching the name of the offset key and update its relative position.
+			var bone = rootArm.getObjectByName(key, true);
+			bone.position.x = hObj.OFFSETS[key][0];
+			bone.position.z = hObj.OFFSETS[key][1];		// Y and Z are flipped from the offset export data.
+			bone.position.y = hObj.OFFSETS[key][2];
+			console.log(key, hObj.OFFSETS[key]);
+		}
+		
 		console.log(boneArray);
 		console.log(rootArm);
 		scene.add(rootArm);
@@ -223,11 +322,14 @@
 		// bone to update = rootArm.getObjectByName(gm.id, true)
 		// boneToUpdate.rotation.x = gm.id.rx
 		// Temporary update loop
+		rootArm.rotation.y = angle;
+		angle += Math.PI / 180;
 		for (var boneIdx in boneArray) {
-			var val = ((Math.random() * 2) - 1.2) * 0.025;
-			boneArray[boneIdx].rotation.x += val;
-			boneArray[boneIdx].rotation.y += val;
-			boneArray[boneIdx].rotation.z += val;
+//			val = Math.sin(angle * .1);
+//			var val = ((Math.random() * 2) - 1.2) * 0.025;
+//			boneArray[boneIdx].rotation.x += val;
+			//boneArray[boneIdx].rotation.y = angle;
+//			boneArray[boneIdx].rotation.z += val;
 		}
 	}
 	
