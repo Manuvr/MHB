@@ -116,8 +116,6 @@ function dhbParser(config) {
 						} else {
 							sync(1);
 						}
-						// this will emit "readable"
-						this.push(this.vars);
 					}
 					// clear the variables
 					this.vars = Object.create(null);
