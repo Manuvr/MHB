@@ -46,6 +46,7 @@
   },
   "scripts": {
     "start": "node lib/server.js",
+    "refactor": "node lib/new_server.js",
     "test": "gulp test"
   },
   "author": "Zone-Ghost, drquinn, jspark311",
