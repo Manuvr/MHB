@@ -1,6 +1,26 @@
 (function() {
 'use strict';
- 
+
+    var remove = {
+			CARPALS    : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			METACARPALS: [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			PP_1       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			IP_1       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			DP_1       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			PP_2       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			IP_2       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			DP_2       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			PP_3       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			IP_3       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			DP_3       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			PP_4       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			IP_4       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			DP_4       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			PP_5       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			IP_5       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			DP_5       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1']
+		};
+
     var serverIP = "localhost";
     var socket = io.connect(serverIP + ':4000');
     console.log('socket connected to: ' + serverIP);
@@ -71,8 +91,11 @@
             $scope.msgArgs = 0;
             $scope.gloveStatus = "Not Connected";
             $scope.messages = [];
-            $scope.gloveModel = "";         
-            
+            $scope.gloveModel = {};
+            $scope.gloveModel2 = {};
+            $scope.btAddress = "00:06:66:61:32:B8";
+            $scope.btAddressList = [];
+
             $scope.sendTestData = function() {
                $.get('/api/sendTestData/'+ $scope.mode + "/" + $scope.myCommand + "/" + $scope.msgArgs, function(res) {
                 });
@@ -82,20 +105,14 @@
                 });
             };
 
-            $scope.connectBT = function() {
+            $scope.scanBT = function() {
+              $.get('/api/scanBT', function(res){
+              })
+            }
+
+            $scope.connectBT = function(address) {
                 $scope.btToggle = true;
-                $.get('/api/connectBT', function(res){
-                });
-            };
-
-            $scope.testLegend = function() {
-                $.get('/api/testLegend', function(res){
-                    //setTimeout(function(){
-                    //    commands.getAll();
-                    //    $scope.commands = commands.commands;
-                    //    console.log($scope.commands);
-                    //}, 2000);
-
+                $.get('/api/connectBT/' + address, function(res){
                 });
             };
 
@@ -104,6 +121,13 @@
                 $.get('/api/disconnectBT', function(res){
                 });
             };
+
+            socket.on('btFound', function(address, name) {
+              $scope.$apply(function() {
+                console.log(address + " " + name);
+                $scope.btAddressList.push( { address: address, name: name})
+              })
+            })
 
             socket.on('message_update', function(data) {
                 $scope.$apply(function() {
@@ -115,6 +139,7 @@
             socket.on('glove_update', function(data) {
                 $scope.$apply(function() {
                     $scope.gloveModel = data;
+                    $scope.gloveModel2 = _.omitRecursive(data, remove);
                     console.log($scope.gloveModel);
                 });
             });
@@ -144,15 +169,14 @@
                 var totalBytes = 680 * 2;
                 var builtArg = "";
                 var randOpts = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
-                for (var i = 0; i < totalBytes; i++) { 
+                for (var i = 0; i < totalBytes; i++) {
                     var rand = Math.floor((Math.random() * 15) + 1);
                     var hexNum = randOpts[rand];
                     builtArg += hexNum;
                 }
                 $scope.msgArgs = builtArg;
             };
-            
+
         }
     ]);
 }());
-

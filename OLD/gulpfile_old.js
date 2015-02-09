@@ -5,7 +5,7 @@ var livereloadport = 35729;
 var serverport = 5000;
 
 // reqs
-var glove = require('./app.js');
+var glove = require('./../app.js');
 var defs = require('./lib/defs.js');
 
 var digitabulum
