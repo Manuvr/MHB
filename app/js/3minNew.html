@@ -16,29 +16,29 @@
     "HIERARCHY":{
         "CARPALS":{
             "METACARPALS":{
-                "PP1":{
-                    "IP1":{
-                        "DP1":""
+                "PP_1":{
+                    "IP_1":{
+                        "DP_1":""
                     }
                 },
-                "PP2":{
-                    "IP2":{
-                        "DP2":""
+                "PP_2":{
+                    "IP_2":{
+                        "DP_2":""
                     }
                 },
-                "PP3":{
-                    "IP3":{
-                        "DP3":""
+                "PP_3":{
+                    "IP_3":{
+                        "DP_3":""
                     }
                 },
-                "PP4":{
-                    "IP4":{
-                        "DP4":""
+                "PP_4":{
+                    "IP_4":{
+                        "DP_4":""
                     }
                 },
-                "PP5":{
-                    "IP5":{
-                        "DP5":""
+                "PP_5":{
+                    "IP_5":{
+                        "DP_5":""
                     }
                 }
             }
@@ -55,77 +55,77 @@
             0,
             1.0
         ],
-        "PP1":[
+        "PP_1":[
             0,
             0,
             0.5
         ],
-        "IP1":[
+        "IP_1":[
             1.2,
             0,
             1
         ],
-        "DP1":[
+        "DP_1":[
             0.0,
             0,
             0.6
         ],
-        "PP2":[
+        "PP_2":[
             0.6,
             0,
             2.7
         ],
-        "IP2":[
+        "IP_2":[
             0,
             0,
             0.7
         ],
-        "DP2":[
+        "DP_2":[
             0,
             0,
             0.6
         ],
-        "PP3":[
+        "PP_3":[
             0.1,
             0,
             2.8
         ],
-        "IP3":[
+        "IP_3":[
             0,
             0,
             0.9
         ],
-        "DP3":[
+        "DP_3":[
             0,
             0,
             0.7
         ],
-        "PP4":[
+        "PP_4":[
             -0.4,
             0,
             2.6
         ],
-        "IP4":[
+        "IP_4":[
             0,
             0,
             0.8
         ],
-        "DP4":[
+        "DP_4":[
             0,
             0,
             0.6
         ],
-        "PP5":[
+        "PP_5":[
             -0.9,
             0,
             2.4
         ],
-        "IP5":[
+        "IP_5":[
             0,
             0,
             0.6
         ],
-        "DP5":[
+        "DP_5":[
             0,
             0,
             0.5
@@ -226,9 +226,9 @@
 
 		// Load our model instances.  
 		// Each one of these will be pushed into the "models" object with the first argument as the key to that object, which can then be cloned.
-		loadModel("axis", 'js/models/3axis.obj', 'models/3axis.mtl');
-		loadModel("xyzbone", 'js/models/xyzbone.obj', 'models/xyzbone.mtl');
-		loadModel("suzanne", 'js/models/suzanne.obj', 'models/suzanne.mtl');
+		loadModel("axis", 'js/models/3axis.obj', 'js/models/3axis.mtl');
+		loadModel("xyzbone", 'js/models/xyzbone.obj', 'js/models/xyzbone.mtl');
+		loadModel("suzanne", 'js/models/suzanne.obj', 'js/models/suzanne.mtl');
 	}
 	
 	// This is where we read in the joint hierarchy and offset information relating to the armatures "BIND POSE"
@@ -302,35 +302,28 @@
 	function updateJoints() {
 		// STUB Method.  All joint updates in rotation should happen here, not in the Object3d traverse method.
 		// Loop through keys of gm object.
-        /* Updated 1/31/14 - needs testing
-        for (var bone in gm) {
-            if (object.hasOwnProperty(bone)) {
-                var boneToUpdate = getByValue(boneArray, bone); 
-                console.log(boneToUpdate, gm[property].rx);
-                boneToUpdate.rotation.x = gm[property].rx;
-                boneToUpdate.rotation.y = gm[property].ry;
-                boneToUpdate.rotation.z = gm[property].rz;
+        
+        for (var boneKey in gm) {
+            if (gm.hasOwnProperty(boneKey)) {
+                var boneToUpdate = rootArm.getObjectByName(boneKey, true);
+                boneToUpdate.rotation.x = gm[boneKey].rx;
+                boneToUpdate.rotation.y = gm[boneKey].ry;
+                boneToUpdate.rotation.z = gm[boneKey].rz;
             }
         }
-        function getByValue (arr, value) {
-           for (var i=0; i < arr.length; i++) {
-               if (arr[i].name == value) return arr[i];
-           }
-        }
-        */
 
 		// bone to update = rootArm.getObjectByName(gm.id, true)
 		// boneToUpdate.rotation.x = gm.id.rx
 		// Temporary update loop
-		rootArm.rotation.y = angle;
-		angle += Math.PI / 180;
-		for (var boneIdx in boneArray) {
-//			val = Math.sin(angle * .1);
-//			var val = ((Math.random() * 2) - 1.2) * 0.025;
-//			boneArray[boneIdx].rotation.x += val;
-			//boneArray[boneIdx].rotation.y = angle;
-//			boneArray[boneIdx].rotation.z += val;
-		}
+		//rootArm.rotation.y = angle;
+		//angle += Math.PI / 180;
+		//for (var boneIdx in boneArray) {
+//		  val = Math.sin(angle * .1);
+//		  var val = ((Math.random() * 2) - 1.2) * 0.025;
+//		  boneArray[boneIdx].rotation.x += val;
+		  //boneArray[boneIdx].rotation.y = angle;
+//		  boneArray[boneIdx].rotation.z += val;
+		//}
 	}
 	
 	// Stub if recursive traversal is needed.
