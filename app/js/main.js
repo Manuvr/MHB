@@ -2,24 +2,26 @@
 'use strict';
 
     var remove = {
-			CARPALS    : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			METACARPALS: [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			PP_1       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			IP_1       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			DP_1       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			PP_2       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			IP_2       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			DP_2       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			PP_3       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			IP_3       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			DP_3       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			PP_4       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			IP_4       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			DP_4       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			PP_5       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			IP_5       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			DP_5       : [ "e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1']
-		};
+		IMU_set: {
+			CARPALS    : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			METACARPALS: ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			PP_1       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			IP_1       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			DP_1       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			PP_2       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			IP_2       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			DP_2       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			PP_3       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			IP_3       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			DP_3       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			PP_4       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			IP_4       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			DP_4       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			PP_5       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			IP_5       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
+			DP_5       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1']
+		}
+	};
 
     var serverIP = "localhost";
     var socket = io.connect(serverIP + ':4000');
