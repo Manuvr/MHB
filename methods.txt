@@ -1,0 +1,49 @@
+
+
+METHODS:
+
+bluetooth():
+  MUST INSTANTIATE
+
+  #no_returns
+  scan
+  connect(address)
+  disconnect
+  write(buffer)
+
+  #events
+  ee
+    btClosed
+    btData(buffer)
+    btListAdd(address, name)
+
+argParser(dhb-models):
+  MUST INSTANTIATE
+
+  #has_returns
+  getArgs: jsonBuff
+
+builder(messageID, uniqueID, argBuffObj):
+  RETURNS buffer
+
+exec(models, argParser):
+  MUST INSTANTIATE
+
+  #has_returns
+  runIt(jsonBuff): metaObj
+
+models:
+  OBJECT
+  gloveModel
+  commands
+  outCommand
+  argRef
+
+argParser:
+  NO RETURN
+
+  #no_returns
+  write(buffer)
+
+  #events
+    readable
