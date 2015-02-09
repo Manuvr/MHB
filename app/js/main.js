@@ -131,8 +131,9 @@
               })
             })
 
-            socket.on('message_update', function(data) {
+            socket.on('message_update', function(data, def) {
                 $scope.$apply(function() {
+					data.name = def;
                     console.log(data);
                     $scope.messages.unshift(data);
                 });

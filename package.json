@@ -10,19 +10,14 @@
     "bluetooth-serial-port": "^1.2.1",
     "bower": "*",
     "browser-sync": "^2.0.0-rc10",
+    "dissolve": "https://github.com/Zone-Ghost/dissolve/tarball/5644fd8a70d4ecda3a362755ec00814e9e6c0f4a",
+    "bl": "*",
+    "readable-stream": "*",
     "gulp": "*",
-    "gulp-clean": "*",
-    "gulp-concat": "*",
-    "gulp-jshint": "*",
-    "gulp-minify-css": "*",
     "gulp-nodemon": "*",
-    "gulp-uglify": "*",
     "int24": "*",
-    "node-serial": "*",
-    "serialport": "*",
     "socket.io": "*",
-    "socket.io-client": "*",
-    "util": "*"
+    "socket.io-client": "*"
   },
   "repository": {
     "type": "git",
@@ -42,7 +37,6 @@
   },
   "scripts": {
     "start": "node lib/server.js",
-    "refactor": "node lib/new_server.js",
     "test": "gulp test"
   },
   "author": "Zone-Ghost, drquinn, jspark311",
