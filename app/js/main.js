@@ -90,7 +90,7 @@
             $scope.modeOptions = [ "host", "glove"];
             $scope.commands = commands.commands;
             $scope.myCommand = "";
-            $scope.msgArgs = 0;
+            $scope.msgArgs = "";
             $scope.gloveStatus = "Not Connected";
             $scope.messages = [];
             $scope.gloveModel = {};
@@ -99,7 +99,8 @@
             $scope.btAddressList = [];
 
             $scope.sendTestData = function() {
-               $.get('/api/sendTestData/'+ $scope.mode + "/" + $scope.myCommand + "/" + $scope.msgArgs, function(res) {
+                $.get('/api/sendTestData/'+ $scope.mode +"/" + $scope.myCommand + "/" + 
+                        ($scope.msgArgs ? $scope.msgArgs : 0), function(res) {
                 });
             };
             $scope.sendSync = function() {
