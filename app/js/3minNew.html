@@ -171,9 +171,7 @@
     var renderer = null;
 
     //Connect to socket.io
-    var serverIP = "localhost";
-    var socket = io.connect(serverIP + ':4000');
-    console.log('socket connected to: ' + serverIP);
+    var socket = io.connect();
 
     // Initialize.
     runSocket();

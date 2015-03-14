@@ -23,9 +23,7 @@
 		}
 	};
 
-    var serverIP = "localhost";
-    var socket = io.connect(serverIP + ':4000');
-    console.log('socket connected to: ' + serverIP);
+    var socket = io.connect();
 
     angular.module('ManusDebug', ['ui.router'])
     .config(function ($stateProvider, $urlRouterProvider) {
