@@ -69,7 +69,7 @@
         };
         o.getAll = function() {
             return $http.get('/api/gloveModel').success(function(data){
-                console.log(data);
+                //console.log(data);
                 angular.copy(data, o);
             });
         };
@@ -133,7 +133,7 @@
             socket.on('message_update', function(data, def) {
                 $scope.$apply(function() {
 					          data.name = def;
-                    console.log(data);
+                    //console.log(data);
                     $scope.messages.unshift(data);
                 });
             });
@@ -142,7 +142,7 @@
                 $scope.$apply(function() {
                     $scope.gloveModel = data;
                     $scope.gloveModel2 = _.omitRecursive(data, remove);
-                    console.log($scope.gloveModel);
+                    //console.log($scope.gloveModel);
                 });
             });
 
