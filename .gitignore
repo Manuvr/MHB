@@ -8,3 +8,5 @@ node_modules
 temp.js
 .idea/workspace.xml
 .idea/scopes/scope_settings.xml
+.swp
+.swo
