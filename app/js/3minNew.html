@@ -302,9 +302,14 @@
         for (var boneKey in gm) {
             if (gm.hasOwnProperty(boneKey)) {
                 var boneToUpdate = rootArm.getObjectByName(boneKey, true);
-                boneToUpdate.rotation.x = gm[boneKey].rx;
-                boneToUpdate.rotation.y = gm[boneKey].ry;
-                boneToUpdate.rotation.z = gm[boneKey].rz;
+
+                // Josh T edit
+                // Changed the model to match the quaternion data...
+
+                //boneToUpdate.rotation.x = gm[boneKey].rx;
+                //boneToUpdate.rotation.y = gm[boneKey].ry;
+                //boneToUpdate.rotation.z = gm[boneKey].rz;
+                boneToUpdate.quaternion.set(gm[boneKey].quat.x, gm[boneKey].quat.y, gm[boneKey].quat.z, gm[boneKey].quat.w);
             }
         }
 
