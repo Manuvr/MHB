@@ -185,7 +185,8 @@
             $scope.randomIMUmag = function() {
                 // Generate random hex string
                 // 680 + (4 floats * 17 * 4 bytes per float = 272) + 8 
-                var totalBytes = 680 * 2;
+              // 952
+                var totalBytes = 952 * 2;
                 var builtArg = "";
                 var randOpts = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
                 for (var i = 0; i < totalBytes; i++) {
@@ -193,6 +194,7 @@
                     var hexNum = randOpts[rand];
                     builtArg += hexNum;
                 }
+
                 $scope.msgArgs = builtArg;
             };
         }
