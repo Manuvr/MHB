@@ -43,6 +43,8 @@
             <button ng-click="connectBT(btAddress)" class="btn btn-primary label-success" ng-hide="btToggle">Connect to Bluetooth</button>
             <button ng-click="disconnectBT()" class="btn btn-primary label-danger" ng-show="btToggle">Close Bluetooth connection</button>
             <br /><br />
+            <button  class="btn btn-primary" onclick="window.open('/#/hand')">Open Hand Visualizer</button>
+            <br /><br />
             <h3>Console</h3>
             <div>
             <span ng-repeat="message in messages track by $index | limitTo: 10">
