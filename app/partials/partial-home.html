@@ -67,28 +67,28 @@
           </tr>
         </thead>
         <tbody>
-          <tr data-ng-repeat="bone in gloveModel.IMU_set">
-            <td>{{boneList[$index]}}</td>
+        <tr data-ng-repeat="bone in boneList">
+            <td>{{bone}}</td>
             <td>
-              w:{{(bone.quat.x)}}<br />
-              x:{{(bone.quat.y)}}<br />
-              y:{{(bone.quat.z)}}<br />
-              z:{{(bone.quat.w)}}<br />
+              w:{{(gloveModel.IMU_set[bone].quat.x)}}<br />
+              x:{{(gloveModel.IMU_set[bone].quat.y)}}<br />
+              y:{{(gloveModel.IMU_set[bone].quat.z)}}<br />
+              z:{{(gloveModel.IMU_set[bone].quat.w)}}<br />
             </td>
             <td>
-              x:{{(bone.acc.x)}}<br />
-              y:{{(bone.acc.y)}}<br />
-              z:{{(bone.acc.z)}}<br />
+              x:{{(gloveModel.IMU_set[bone].acc.x)}}<br />
+              y:{{(gloveModel.IMU_set[bone].acc.y)}}<br />
+              z:{{(gloveModel.IMU_set[bone].acc.z)}}<br />
             </td>
             <td>
-              x:{{(bone.gyro.x)}}<br />
-              y:{{(bone.gyro.y)}}<br />
-              z:{{(bone.gyro.z)}}<br />
+              x:{{(gloveModel.IMU_set[bone].gyro.x)}}<br />
+              y:{{(gloveModel.IMU_set[bone].gyro.y)}}<br />
+              z:{{(gloveModel.IMU_set[bone].gyro.z)}}<br />
             </td>
             <td>
-              x:{{(bone.mag.x)}}<br />
-              y:{{(bone.mag.y)}}<br />
-              z:{{(bone.mag.z)}}<br />
+              x:{{(gloveModel.IMU_set[bone].mag.x)}}<br />
+              y:{{(gloveModel.IMU_set[bone].mag.y)}}<br />
+              z:{{(gloveModel.IMU_set[bone].mag.z)}}<br />
             </td>
           </tr>
       </table>
