@@ -1,28 +1,7 @@
 (function() {
 'use strict';
 
-    var remove = {
-		IMU_set: {
-			CARPALS    : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			METACARPALS: ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			PP_1       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			IP_1       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			DP_1       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			PP_2       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			IP_2       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			DP_2       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			PP_3       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			IP_3       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			DP_3       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			PP_4       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			IP_4       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			DP_4       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			PP_5       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			IP_5       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			DP_5       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1']
-		}
-	};
-
+    
     var socket = io.connect();
 
     angular.module('ManusDebug', ['ui.router'])
@@ -95,6 +74,12 @@
             $scope.gloveModel2 = {};
             $scope.btAddress = "00:06:66:61:32:B8";
             $scope.btAddressList = [];
+            $scope.boneList = [
+              'CARPALS', 'METACARPALS', 'PP_1',
+              'IP_1', 'DP_1', 'PP_2', 'IP_2',
+              'DP_2', 'PP_3', 'IP_3', 'DP_3', 
+              'PP_4', 'IP_4', 'DP_4', 'PP_5',
+              'IP_5', 'DP_5'];
 
             $scope.sendTestData = function() {
                 $.get('/api/sendTestData/'+ $scope.mode +"/" + $scope.myCommand + "/" + 
@@ -141,7 +126,6 @@
             socket.on('glove_update', function(data) {
                 $scope.$apply(function() {
                     $scope.gloveModel = data;
-                    $scope.gloveModel2 = _.omitRecursive(data, remove);
                     //console.log($scope.gloveModel);
                 });
             });
