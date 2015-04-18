@@ -17,7 +17,8 @@
             })
             .state('glove', {
                 url: '/glove',
-                templateUrl: 'partials/partial-glove.html'
+                templateUrl: 'partials/partial-glove.html',
+                controller: 'MainCtrl'
             })
             .state('hand', {
                 url: '/hand',
@@ -29,6 +30,7 @@
             commands: []
         };
         o.getAll = function() {
+            console.log('in getAll funcshn');
             return $http.get('/api/commands').success(function(data){
                 var getKeys = function(obj){
                     var keys = [];
@@ -76,12 +78,15 @@
             $scope.boneList = [
               'CARPALS', 'METACARPALS', 'PP_1',
               'IP_1', 'DP_1', 'PP_2', 'IP_2',
-              'DP_2', 'PP_3', 'IP_3', 'DP_3', 
+              'DP_2', 'PP_3', 'IP_3', 'DP_3',
               'PP_4', 'IP_4', 'DP_4', 'PP_5',
               'IP_5', 'DP_5'];
 
+            $scope.measure = "gyro";
+            $scope.measureOptions = ["acceleration", "gyro", "mag"];
+
             $scope.sendTestData = function() {
-                $.get('/api/sendTestData/'+ $scope.mode +"/" + $scope.myCommand + "/" + 
+                $.get('/api/sendTestData/'+ $scope.mode +"/" + $scope.myCommand + "/" +
                         ($scope.msgArgs ? $scope.msgArgs : 0), function(res) {
                 });
             };
@@ -149,7 +154,7 @@
 			});
 
             socket.on('outCommand', function(data) {
-                //console.log(data);
+                console.log(data);
                 $scope.$apply(function() {
                     console.log($scope.commands);
                     console.log(data);
@@ -167,7 +172,7 @@
 
             $scope.randomIMUmag = function() {
                 // Generate random hex string
-                // 680 + (4 floats * 17 * 4 bytes per float = 272) + 8 
+                // 680 + (4 floats * 17 * 4 bytes per float = 272) + 8
               // 952
                 var totalBytes = 952 * 2;
                 var builtArg = "";

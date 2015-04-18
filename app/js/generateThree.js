@@ -619,6 +619,7 @@ var targetRotation = 0;
 var targetRotationOnMouseDown = 0;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
+var showVector 'acc';
 
 var gm = null;
 var vec = new THREE.Vector3(1,0,0);
@@ -720,6 +721,20 @@ function init() {
     $( "#subHeading" ).on("click", function() {
         $.get('/api/updateGloveModelFakeData', function(res){
         });
+    });
+    $("#pourHeading").append("<div id='vectorDrop'>" +
+        "<span id='vacc'>acceleration</span>&nbsp;&nbsp;" +
+        "<span id='vgyro'>gyro</span>&nbsp;&nbsp;" +
+        "<span id='vmag'>mag</span>&nbsp;&nbsp;" +
+      "</div>");
+    $( "#vacc" ).on("click", function() {
+      showVector = 'acc';
+    });
+    $( "#vmag" ).on("click", function() {
+      showVector = 'mag';
+    });
+    $( "#vgyro" ).on("click", function() {
+      showVector = 'gyro';
     });
 
     // Set up camera.
@@ -851,9 +866,17 @@ function onWindowResize() {
 function animate() {
 
         requestAnimationFrame( animate );
-        
-        if (gm)
-            updateMagArrows();
+        if (gm) {
+          if (showVector = 'accel') {
+            updateArrows('acc');
+          }
+          else if (showVector = 'mag') {
+            updateArrows('mag');
+          }
+          else if (showVector = 'gyro') {
+            updateArrows('gyro');
+          }
+        }
 
 		controls.update();
         render();
@@ -864,27 +887,27 @@ function render() {
 }
 
 
-function updateMagArrows() {
-        
+function updateArrows(vecToUp) {
+
     //var time = Date.now();
     //var directionUpdate = new THREE.Euler(Math.sin( time / 2000 ), Math.cos( time / 3000 ), Math.sin( time / 1000 ), 'XYZ' );
-    var updDP_1 = new THREE.Euler(gm.DP_1.mag.x, gm.DP_1.mag.y, gm.DP_1.mag.z);
-    var updIP_1 = new THREE.Euler(gm.IP_1.mag.x, gm.IP_1.mag.y, gm.IP_1.mag.z);
-    var updPP_1 = new THREE.Euler(gm.PP_1.mag.x, gm.PP_1.mag.y, gm.PP_1.mag.z);
-    var updDP_2 = new THREE.Euler(gm.DP_2.mag.x, gm.DP_2.mag.y, gm.DP_2.mag.z);
-    var updIP_2 = new THREE.Euler(gm.IP_2.mag.x, gm.IP_2.mag.y, gm.IP_2.mag.z);
-    var updPP_2 = new THREE.Euler(gm.PP_2.mag.x, gm.PP_2.mag.y, gm.PP_2.mag.z);
-    var updDP_3 = new THREE.Euler(gm.DP_3.mag.x, gm.DP_3.mag.y, gm.DP_3.mag.z);
-    var updIP_3 = new THREE.Euler(gm.IP_3.mag.x, gm.IP_3.mag.y, gm.IP_3.mag.z);
-    var updPP_3 = new THREE.Euler(gm.PP_3.mag.x, gm.PP_3.mag.y, gm.PP_3.mag.z);
-    var updDP_4 = new THREE.Euler(gm.DP_4.mag.x, gm.DP_4.mag.y, gm.DP_4.mag.z);
-    var updIP_4 = new THREE.Euler(gm.IP_4.mag.x, gm.IP_4.mag.y, gm.IP_4.mag.z);
-    var updPP_4 = new THREE.Euler(gm.PP_4.mag.x, gm.PP_4.mag.y, gm.PP_4.mag.z);
-    var updDP_5 = new THREE.Euler(gm.DP_5.mag.x, gm.DP_5.mag.y, gm.DP_5.mag.z);
-    var updIP_5 = new THREE.Euler(gm.IP_5.mag.x, gm.IP_5.mag.y, gm.IP_5.mag.z);
-    var updPP_5 = new THREE.Euler(gm.PP_5.mag.x, gm.PP_5.mag.y, gm.PP_5.mag.z);
-    var updCARPALS = new THREE.Euler(gm.CARPALS.mag.x, gm.CARPALS.mag.y, gm.CARPALS.mag.z);
-    var updMETACARPALS = new THREE.Euler(gm.METACARPALS.mag.x, gm.METACARPALS.mag.y, gm.METACARPALS.mag.z);
+    var updDP_1 = new THREE.Euler(gm.DP_1.vecToUp.x, gm.DP_1.vecToUp.y, gm.DP_1.vecToUp.z);
+    var updIP_1 = new THREE.Euler(gm.IP_1.vecToUp.x, gm.IP_1.vecToUp.y, gm.IP_1.vecToUp.z);
+    var updPP_1 = new THREE.Euler(gm.PP_1.vecToUp.x, gm.PP_1.vecToUp.y, gm.PP_1.vecToUp.z);
+    var updDP_2 = new THREE.Euler(gm.DP_2.vecToUp.x, gm.DP_2.vecToUp.y, gm.DP_2.vecToUp.z);
+    var updIP_2 = new THREE.Euler(gm.IP_2.vecToUp.x, gm.IP_2.vecToUp.y, gm.IP_2.vecToUp.z);
+    var updPP_2 = new THREE.Euler(gm.PP_2.vecToUp.x, gm.PP_2.vecToUp.y, gm.PP_2.vecToUp.z);
+    var updDP_3 = new THREE.Euler(gm.DP_3.vecToUp.x, gm.DP_3.vecToUp.y, gm.DP_3.vecToUp.z);
+    var updIP_3 = new THREE.Euler(gm.IP_3.vecToUp.x, gm.IP_3.vecToUp.y, gm.IP_3.vecToUp.z);
+    var updPP_3 = new THREE.Euler(gm.PP_3.vecToUp.x, gm.PP_3.vecToUp.y, gm.PP_3.vecToUp.z);
+    var updDP_4 = new THREE.Euler(gm.DP_4.vecToUp.x, gm.DP_4.vecToUp.y, gm.DP_4.vecToUp.z);
+    var updIP_4 = new THREE.Euler(gm.IP_4.vecToUp.x, gm.IP_4.vecToUp.y, gm.IP_4.vecToUp.z);
+    var updPP_4 = new THREE.Euler(gm.PP_4.vecToUp.x, gm.PP_4.vecToUp.y, gm.PP_4.vecToUp.z);
+    var updDP_5 = new THREE.Euler(gm.DP_5.vecToUp.x, gm.DP_5.vecToUp.y, gm.DP_5.vecToUp.z);
+    var updIP_5 = new THREE.Euler(gm.IP_5.vecToUp.x, gm.IP_5.vecToUp.y, gm.IP_5.vecToUp.z);
+    var updPP_5 = new THREE.Euler(gm.PP_5.vecToUp.x, gm.PP_5.vecToUp.y, gm.PP_5.vecToUp.z);
+    var updCARPALS = new THREE.Euler(gm.CARPALS.vecToUp.x, gm.CARPALS.vecToUp.y, gm.CARPALS.vecToUp.z);
+    var updMETACARPALS = new THREE.Euler(gm.METACARPALS.vecToUp.x, gm.METACARPALS.vecToUp.y, gm.METACARPALS.vecToUp.z);
 
     // Update direction on mag arrows.
     arrow_DP_1.setDirection ( updDP_1 );
@@ -904,5 +927,5 @@ function updateMagArrows() {
     arrow_PP_5.setDirection ( updPP_5 );
     arrow_CARPALS.setDirection ( updCARPALS );
     arrow_METACARPALS.setDirection ( updMETACARPALS );
-
 }
+
