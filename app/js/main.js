@@ -29,7 +29,6 @@
             commands: []
         };
         o.getAll = function() {
-            console.log('in getAll funcshn');
             return $http.get('/api/commands').success(function(data){
                 var getKeys = function(obj){
                     var keys = [];
@@ -150,7 +149,7 @@
 			});
 
             socket.on('outCommand', function(data) {
-                console.log(data);
+                //console.log(data);
                 $scope.$apply(function() {
                     console.log($scope.commands);
                     console.log(data);
