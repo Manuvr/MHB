@@ -1,7 +1,6 @@
 (function() {
 'use strict';
 
-    
     var socket = io.connect();
 
     angular.module('ManusDebug', ['ui.router'])
