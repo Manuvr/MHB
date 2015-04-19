@@ -3,7 +3,6 @@ var browserSync = require('browser-sync');
 var reload = browserSync.reload;
 var nodemon = require('gulp-nodemon');
 
-
 // tasks
 gulp.task('lint', function() {
     var jshint = require('gulp-jshint');
