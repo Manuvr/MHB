@@ -158,24 +158,24 @@
                 });
             });
 
-			socket.on('bt_connection', function(data) {
-				$scope.$apply(function() {
-					switch (data) {
-						case 1:
-							$scope.gloveStatus = "Connected via Bluetooth.";
-							$scope.btToggle = true;
-							break;
-						case 0:
-							$scope.gloveStatus = "Not Connected";
-							$scope.btToggle = false;
-							break;
-						case -1:
-							$scope.gloveStatus = "Pending Connection...";
-							$scope.btToggle = true;
-							break;
-					}
-				});
-			});
+            socket.on('bt_connection', function(data) {
+              $scope.$apply(function() {
+                switch (data) {
+                  case 1:
+                    $scope.gloveStatus = "Connected via Bluetooth.";
+                    $scope.btToggle = true;
+                    break;
+                  case 0:
+                    $scope.gloveStatus = "Not Connected";
+                    $scope.btToggle = false;
+                    break;
+                  case -1:
+                    $scope.gloveStatus = "Pending Connection...";
+                    $scope.btToggle = true;
+                    break;
+                }
+              });
+            });
 
             socket.on('outCommand', function(data) {
                 console.log(data);

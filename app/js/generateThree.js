@@ -661,9 +661,7 @@ var arrow_CARPALS;
 var arrow_METACARPALS;
 
 //Connect to socket.io
-var serverIP = "localhost";
-var socket = io.connect(serverIP + ':4000');
-console.log('socket connected to: ' + serverIP);
+var socket = io.connect();
 
 // Start reading IMU data.
 runSocket();
