@@ -26,19 +26,31 @@
     })
     .factory('commands', ['$http', function($http){
         var o = {
-            commands: []
+            commands: {}
         };
         o.getAll = function() {
-            console.log('in getAll funcshn');
+            //console.log('in getAll function');
             return $http.get('/api/commands').success(function(data){
-                var getKeys = function(obj){
-                    var keys = [];
-                    for(var key in obj){
-                        keys.push(key);
-                    }
-                    return keys;
-                };
-                angular.copy(getKeys(data), o.commands);
+
+                //var getKeys = function(obj){
+                //    var keys = [];
+                //    for(var key in obj){
+                //        keys.push(key);
+                //    }
+                //    return keys;
+                //};
+                angular.copy(data, o.commands);
+            });
+        };
+        return o;
+    }])
+    .factory('argRef', ['$http', function($http){
+        var o = {
+        };
+        o.getAll = function() {
+            return $http.get('/api/argRef').success(function(data){
+
+                angular.copy(data, o);
             });
         };
         return o;
@@ -57,22 +69,26 @@
     .controller('MainCtrl', [
         '$scope',
         'commands',
+         'argRef',
         //'gloveModel',
         //'socket',
-        function($scope, commands){
+        function($scope, commands, argRef){
             commands.getAll();
+            argRef.getAll();
+            $scope.argRef = argRef;
             //gloveModel.getAll();
             $scope.btToggle = false;
             $scope.mode = "host";
             $scope.modeOptions = [ "host", "glove"];
             $scope.commands = commands.commands;
             $scope.myCommand = "";
-            $scope.msgArgs = "";
+            $scope.msgArgs = [];
+            $scope.myArgForms = "";
             $scope.gloveStatus = "Not Connected";
             $scope.messages = [];
             $scope.gloveModel = {};
             $scope.gloveModel2 = {};
-            $scope.btAddress = "00:06:66:61:32:B8";
+            $scope.btAddress = "00:06:66:61:32:B8"; // Just for R0 by default.... You can still scan if you want.
             $scope.btAddressList = [];
             $scope.boneList = [
               'CARPALS', 'METACARPALS', 'PP_1',
@@ -85,9 +101,18 @@
             $scope.measureOptions = ["acceleration", "gyro", "mag"];
 
             $scope.sendTestData = function() {
-                $.get('/api/sendTestData/'+ $scope.mode +"/" + $scope.myCommand + "/" +
-                        ($scope.msgArgs ? $scope.msgArgs : 0), function(res) {
-                });
+                if($scope.myArgForms === ""){
+                    $scope.myArgForms = -1;
+                }
+                if($scope.msgArgs === []){
+                    $scope.msgArgs = 0;
+                }
+                console.log($scope.myArgForms);
+                $.get('/api/sendTestData/'+ $scope.mode +"/" + $scope.myCommand.command + "/" +
+                    $scope.myArgForms.len + "/" + $scope.msgArgs, function(res){});
+                $scope.myArgForms = "";
+                $scope.msgArgs = [];
+
             };
             $scope.sendSync = function() {
                 $.get('/api/sendSync/' + $scope.mode, function(res){
@@ -155,17 +180,18 @@
             socket.on('outCommand', function(data) {
                 console.log(data);
                 $scope.$apply(function() {
-                    console.log($scope.commands);
-                    console.log(data);
-                    var getKeys = function(obj){
-                        var keys = [];
-                        for(var key in obj){
-                            keys.push(key);
-                        }
-                        return keys;
-                    };
+                    //console.log($scope.commands);
+                    //console.log(data);
+                    //var getKeys = function(obj){
+                    //    var keys = [];
+                    //    for(var key in obj){
+                    //        keys.push(key);
+                    //    }
+                    //    return keys;
+                    //};
 
-                    $scope.commands = getKeys(data);
+                    //$scope.commands = getKeys(data);
+                    $scope.commands = data;
                 });
             });
 
