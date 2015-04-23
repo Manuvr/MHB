@@ -55,10 +55,10 @@
             <br /><br />
             <button  class="btn btn-primary" onclick="window.open('/#/hand')">Open Hand Visualizer</button>
             <br /><br />
-            <h3>Console</h3>
-            <div>
+            <h3>REC. COMMAND LOG</h3>
+            <div style="background-color: #b0c4de;">
             <span ng-repeat="message in messages track by $index | limitTo: 10">
-                {{ message.name }}<br/>
+                {{ message.name + " : [" + message.msg.args + "]" }}<br/>
             </span></div>
           </div>
     </div>

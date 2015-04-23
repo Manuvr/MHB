@@ -102,9 +102,10 @@
 
             $scope.sendTestData = function() {
                 if($scope.myArgForms === ""){
-                    $scope.myArgForms = -1;
+                    $scope.myArgForms = {};
+                    $scope.myArgForms.len = -1;
                 }
-                if($scope.msgArgs === []){
+                if($scope.msgArgs[0] === undefined || !$scope.msgArgs){
                     $scope.msgArgs = 0;
                 }
                 console.log($scope.myArgForms);
