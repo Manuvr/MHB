@@ -908,26 +908,24 @@ function onWindowResize() {
 
 function animate() {
 
-  setTimeout(function() {
-    requestAnimationFrame( animate );
-    if (gm) {
+  requestAnimationFrame( animate );
+  if (gm) {
 
-      updateTempMap();
+    updateTempMap();
 
-      if (showVector = 'accel') {
-        updateArrows('acc');
-      }
-      else if (showVector = 'mag') {
-        updateArrows('mag');
-      }
-      else if (showVector = 'gyro') {
-        updateArrows('gyro');
-      }
+    if (showVector = 'accel') {
+      updateArrows('acc');
     }
+    else if (showVector = 'mag') {
+      updateArrows('mag');
+    }
+    else if (showVector = 'gyro') {
+      updateArrows('gyro');
+    }
+  }
 
-    controls.update();
-    render();
-  }, 1000);
+  controls.update();
+  render();
 }
 
 function render() {
@@ -973,9 +971,6 @@ function updateArrows(vecToUp) {
     arrow_PP_5.setDirection ( updPP_5 );
     arrow_CARPALS.setDirection ( updCARPALS );
     arrow_METACARPALS.setDirection ( updMETACARPALS );
-
-    console.log(updMETACARPALS);
-    console.log(arrow_METACARPALS);
 }
 
 function updateTempMap() {
