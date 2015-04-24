@@ -193,6 +193,7 @@
 
                     //$scope.commands = getKeys(data);
                     $scope.commands = data;
+                    console.log(JSON.stringify(data));
                 });
             });
 
