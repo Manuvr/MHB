@@ -313,9 +313,9 @@ function doTest() {
     //}
     
     // Move the light around with the magnetometer vector. 
-    dirLight.position.set(Math.sin(frequencyYaw * (2 * Math.PI) * step / sampleFreq),
-                          Math.cos(frequencyYaw * (2 * Math.PI) * step / sampleFreq),
-                          0.5);
+    //dirLight.position.set(Math.sin(frequencyYaw * (2 * Math.PI) * step / sampleFreq),
+    //                      Math.cos(frequencyYaw * (2 * Math.PI) * step / sampleFreq),
+    //                      0.5);
 /*
     // Put some noise on the gyro
     var noise = function () { return random(-noiseLevel,  +noiseLevel); };
@@ -330,16 +330,18 @@ function doTest() {
     mz += noise();
 */
 
-    ax = imuData.a[0];
-    ay = imuData.a[1];
-    az = imuData.a[2];
-    gx = imuData.g[0];
-    gy = imuData.g[1];
-    gz = imuData.g[2];
-    mx = imuData.m[0];
-    my = imuData.m[1];
-    mz = imuData.m[2];
-    madgwickAHRSupdate(gx, gy, gz, ax, ay, az, mx, my, mz);
+    if(ax !== imuData.a[0] || step === 0) {
+        ax = imuData.a[0];
+        ay = imuData.a[1];
+        az = imuData.a[2];
+        gx = imuData.g[0];
+        gy = imuData.g[1];
+        gz = imuData.g[2];
+        mx = imuData.m[0];
+        my = imuData.m[1];
+        mz = imuData.m[2];
+        madgwickAHRSupdate(gx, gy, gz, ax, ay, az, mx, my, mz);
+    }
 
 
 //    mahonyAHRSupdate(gx, gy, gz, ax, ay, az, mx, my, mz);
@@ -380,8 +382,8 @@ document.addEventListener('mousedown', function (event) {
     if (intersects.length > 0) {
         //info.innerHTML = 'INTERSECT Count: ' + ++count;
         console.log('INTERSECT Count: ' + count++);
-        doYaw = !doYaw;
-        console.log(doYaw);
+        //doYaw = !doYaw;
+        //console.log(doYaw);
 
         var el = document.getElementById('divstack');
         //el.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
@@ -390,7 +392,6 @@ document.addEventListener('mousedown', function (event) {
         //el.requestFullscreen(); // standard
     }
 }, false);
-
 
 
 setInterval(function () {
