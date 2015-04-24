@@ -104,6 +104,7 @@
                 if($scope.myArgForms === ""){
                     $scope.myArgForms = {};
                     $scope.myArgForms.len = -1;
+                    $scope.msgArgs == [];
                 }
                 if($scope.msgArgs[0] === undefined || !$scope.msgArgs){
                     $scope.msgArgs = 0;
@@ -111,12 +112,17 @@
                 console.log($scope.myArgForms);
                 $.get('/api/sendTestData/'+ $scope.mode +"/" + $scope.myCommand.command + "/" +
                     $scope.myArgForms.len + "/" + $scope.msgArgs, function(res){});
-                $scope.myArgForms = "";
-                $scope.msgArgs = [];
+                //$scope.myArgForms = "";
+                //$scope.msgArgs = [];
 
             };
             $scope.sendSync = function() {
                 $.get('/api/sendSync/' + $scope.mode, function(res){
+                });
+            };
+
+            $scope.sendSync = function() {
+                $.get('/api/sendMassSync/' + $scope.mode, function(res){
                 });
             };
 
