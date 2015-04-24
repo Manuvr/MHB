@@ -22,7 +22,7 @@
             .state('hand', {
                 url: '/hand',
                 templateUrl: 'js/3minNew.html'
-            });
+            })
     })
     .factory('commands', ['$http', function($http){
         var o = {
