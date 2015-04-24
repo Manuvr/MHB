@@ -121,7 +121,7 @@
                 });
             };
 
-            $scope.sendSync = function() {
+            $scope.sendMassSync = function() {
                 $.get('/api/sendMassSync/' + $scope.mode, function(res){
                 });
             };
