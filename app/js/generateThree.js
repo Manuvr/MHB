@@ -757,18 +757,27 @@ function init() {
         });
     });
     $("#pourHeading").append("<div id='vectorDrop'>" +
-        "<span id='vacc'>acceleration</span>&nbsp;&nbsp;" +
-        "<span id='vgyro'>gyro</span>&nbsp;&nbsp;" +
-        "<span id='vmag'>mag</span>&nbsp;&nbsp;" +
+        "<span id='vacc' class='vecs'>acceleration</span>&nbsp;&nbsp;" +
+        "<span id='vgyro' class='vecs'>gyro</span>&nbsp;&nbsp;" +
+        "<span id='vmag' class='vecs'>mag</span>&nbsp;&nbsp;" +
       "</div>");
     $( "#vacc" ).on("click", function() {
       showVector = 'acc';
+      $(this).css('font-weight', 'bold');
+      $( "#vmag" ).css('font-weight', 'normal');
+      $( "#vgyro" ).css('font-weight', 'normal');
     });
     $( "#vmag" ).on("click", function() {
       showVector = 'mag';
+      $(this).css('font-weight', 'bold');
+      $( "#vacc" ).css('font-weight', 'normal');
+      $( "#vgyro" ).css('font-weight', 'normal');
     });
     $( "#vgyro" ).on("click", function() {
       showVector = 'gyro';
+      $(this).css('font-weight', 'bold');
+      $( "#vmag" ).css('font-weight', 'normal');
+      $( "#vacc" ).css('font-weight', 'normal');
     });
 
     // Set up camera.
@@ -962,6 +971,9 @@ function updateArrows(vecToUp) {
     arrow_PP_5.setDirection ( updPP_5 );
     arrow_CARPALS.setDirection ( updCARPALS );
     arrow_METACARPALS.setDirection ( updMETACARPALS );
+
+    console.log(updMETACARPALS);
+    console.log(arrow_METACARPALS);
 }
 
 function updateTempMap() {
