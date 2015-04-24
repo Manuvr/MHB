@@ -41,11 +41,13 @@
                 <button type="submit" class="btn btn-primary">Send Glove Message</button>
              </form>
              <br />
-             
+
+            <button ng-click="sendSync()" class="btn btn-primary">Send Sync Packet</button>
+            <button ng-click="sendMassSync()" class="btn btn-primary label-danger">Send 500 Sync Packets</button>
+             <br /><br />
             <button ng-click="connectBT(btAddress)" class="btn btn-primary label-success" ng-hide="btToggle">Connect to Bluetooth</button>
             <button ng-click="disconnectBT()" class="btn btn-primary label-danger" ng-show="btToggle">Close Bluetooth connection</button>
-            <button ng-click="sendSync()" class="btn btn-primary">Send Sync Packet</button>
-             <br /><br />
+            <br/> <br />
              <button ng-click="scanBT()" class="btn btn-primary" ng-hide="btToggle">Scan for Devices</button>
              <br /><br />
              <div ng-repeat="btAddy in btAddressList | limitTo: 5" ng-hide="btToggle">{{btAddy.name + " - " + btAddy.address}}</div>
