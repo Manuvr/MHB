@@ -129,22 +129,22 @@ var material = new THREE.MeshPhongMaterial({color: 0xffff00,
                                        });
 var materials = [
     new THREE.MeshLambertMaterial({
-        map: THREE.ImageUtils.loadTexture('textures/Right.png')
+        map: THREE.ImageUtils.loadTexture('Right.png')
     }),
     new THREE.MeshLambertMaterial({
-        map: THREE.ImageUtils.loadTexture('textures/Left.png')
+        map: THREE.ImageUtils.loadTexture('Left.png')
     }),
     new THREE.MeshLambertMaterial({
-        map: THREE.ImageUtils.loadTexture('textures/Back.png')
+        map: THREE.ImageUtils.loadTexture('Back.png')
     }),
     new THREE.MeshLambertMaterial({
-        map: THREE.ImageUtils.loadTexture('textures/Front.png')
+        map: THREE.ImageUtils.loadTexture('Front.png')
     }),
     new THREE.MeshLambertMaterial({
-        map: THREE.ImageUtils.loadTexture('textures/Top.png')
+        map: THREE.ImageUtils.loadTexture('Top.png')
     }),
     new THREE.MeshLambertMaterial({
-        map: THREE.ImageUtils.loadTexture('textures/Bottom.png')
+        map: THREE.ImageUtils.loadTexture('Bottom.png')
     }),
 ];
 material = new THREE.MeshFaceMaterial(materials);
