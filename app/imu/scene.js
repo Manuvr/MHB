@@ -218,24 +218,24 @@ function onWindowResize() {
 
 
 function onKeyDown(event) {
-    switch (event.keyCode) {
-    case 72: // h
-        break;
-    case 68: // d
-        break;
-    case 38: // Up 
-        rotateOnAxis(cube, axisY, +0.9);
-        break;
-    case 40: // Down 
-        rotateOnAxis(cube, axisY, -0.9);
-        break;
-    case 37: // Left
-        rotateOnAxis(cube, axisZ, +0.9);
-        break;
-    case 39: // Right
-        rotateOnAxis(cube, axisZ, -0.9);
-        break;
-    }
+    //switch (event.keyCode) {
+    //case 72: // h
+    //    break;
+    //case 68: // d
+    //    break;
+    //case 38: // Up
+    //    rotateOnAxis(cube, axisY, +0.9);
+    //    break;
+    //case 40: // Down
+    //    rotateOnAxis(cube, axisY, -0.9);
+    //    break;
+    //case 37: // Left
+    //    rotateOnAxis(cube, axisZ, +0.9);
+    //    break;
+    //case 39: // Right
+    //    rotateOnAxis(cube, axisZ, -0.9);
+    //    break;
+    //}
 }
 
 
@@ -284,33 +284,33 @@ var noiseLevel = 0.01;
 function doTest() {
 
     // Gyro input
-    gx =   0.0;      // Not in use
-    gy =   0.0;
-    gz =   0.0;
+    //gx =   0.0;      // Not in use
+    //gy =   0.0;
+    //gz =   0.0;
 
-    // Accelerometer input
-    if (doRoll) {
-        ax = 0.1 * Math.cos(frequencyRoll  * (2 * Math.PI) * step / sampleFreq);  // Roll oscillations
-    } else {
-        ax = 0.0;
-    }
-    if (doPitch) {
-        ay = 0.1 * Math.sin(frequencyPitch * (2 * Math.PI) * step / sampleFreq);  // Pitch oscillations
-    } else {
-        ay = 0.0;
-    }
-    az = -1.0;                                    // Gravity constant
-
-    if (doYaw) {
-        // Magnetometer input
-        mx =  Math.cos(frequencyYaw * (2 * Math.PI) * step / sampleFreq);       // Yaw, rotate around the verticle axis (z)
-        my =  Math.sin(frequencyYaw * (2 * Math.PI) * step / sampleFreq);
-        mz =  0.0;
-    } else {
-        mx = 0.0;
-        my = 0.0;
-        mz = 0.0;
-    }
+    //// Accelerometer input
+    //if (doRoll) {
+    //    ax = 0.1 * Math.cos(frequencyRoll  * (2 * Math.PI) * step / sampleFreq);  // Roll oscillations
+    //} else {
+    //    ax = 0.0;
+    //}
+    //if (doPitch) {
+    //    ay = 0.1 * Math.sin(frequencyPitch * (2 * Math.PI) * step / sampleFreq);  // Pitch oscillations
+    //} else {
+    //    ay = 0.0;
+    //}
+    //az = -1.0;                                    // Gravity constant
+	//
+    //if (doYaw) {
+    //    // Magnetometer input
+    //    mx =  Math.cos(frequencyYaw * (2 * Math.PI) * step / sampleFreq);       // Yaw, rotate around the verticle axis (z)
+    //    my =  Math.sin(frequencyYaw * (2 * Math.PI) * step / sampleFreq);
+    //    mz =  0.0;
+    //} else {
+    //    mx = 0.0;
+    //    my = 0.0;
+    //    mz = 0.0;
+    //}
     
     // Move the light around with the magnetometer vector. 
     dirLight.position.set(Math.sin(frequencyYaw * (2 * Math.PI) * step / sampleFreq),
@@ -336,9 +336,9 @@ function doTest() {
     gx = imuData.g[0];
     gy = imuData.g[1];
     gz = imuData.g[2];
-//    mx = imuData.m[0];
-//    my = imuData.m[1];
-//    mz = imuData.m[2];
+    mx = imuData.m[0];
+    my = imuData.m[1];
+    mz = imuData.m[2];
     madgwickAHRSupdate(gx, gy, gz, ax, ay, az, mx, my, mz);
 
 

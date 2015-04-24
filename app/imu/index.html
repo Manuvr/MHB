@@ -119,9 +119,9 @@
                     socket.on('glove_update', function(data) {
                         gm = data.IMU_set;
 
-                        imuData.a = [gm.CARPALS.acc.x, gm.CARPALS.acc.y, gm.CARPALS.acc.z];
-                        imuData.g = [gm.CARPALS.gyro.x, gm.CARPALS.gyro.y, gm.CARPALS.gyro.z];
-                        imuData.m = [gm.CARPALS.mag.x, gm.CARPALS.mag.y, gm.CARPALS.mag.z];
+                        imuData.a = [gm.METACARPALS.acc.x, gm.METACARPALS.acc.y, gm.METACARPALS.acc.z];
+                        imuData.g = [gm.METACARPALS.gyro.x, gm.METACARPALS.gyro.y, gm.METACARPALS.gyro.z];
+                        imuData.m = [gm.METACARPALS.mag.x, gm.METACARPALS.mag.y, gm.METACARPALS.mag.z];
 
                         console.log("got glove model");
                     });
