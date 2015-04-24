@@ -31,16 +31,11 @@
                      <input type="text" class="form-control" ng-model="msgArgs[$index]" placeholder="{{argRef[arg].type}}">
                      </div>
                  </div>
-                 <!-- OLD ARG INPUT
-                   <div class="form-group">
-                    <input type="text" class="form-control" ng-model="msgArgs" placeholder="Args...">
-                    </input>
-                   </div>
-                <button ng-click="randomIMUmag()" class="btn btn-primary label-danger">Generate Random Mag Stream</button>
-                -->
                 <button type="submit" class="btn btn-primary">Send Glove Message</button>
              </form>
              <br />
+             <button ng-click="randomIMUmag()" class="btn btn-primary label-danger">Generate Random IMU Vector Stream</button>
+             <br /><br />
 
             <button ng-click="sendSync()" class="btn btn-primary">Send Sync Packet</button>
             <button ng-click="sendMassSync()" class="btn btn-primary label-danger">Send 200 Sync Packets</button>
