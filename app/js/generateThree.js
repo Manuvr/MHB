@@ -908,24 +908,26 @@ function onWindowResize() {
 
 function animate() {
 
-        requestAnimationFrame( animate );
-        if (gm) {
+  setTimeout(function() {
+    requestAnimationFrame( animate );
+    if (gm) {
 
-          updateTempMap();
+      updateTempMap();
 
-          if (showVector = 'accel') {
-            updateArrows('acc');
-          }
-          else if (showVector = 'mag') {
-            updateArrows('mag');
-          }
-          else if (showVector = 'gyro') {
-            updateArrows('gyro');
-          }
-        }
+      if (showVector = 'accel') {
+        updateArrows('acc');
+      }
+      else if (showVector = 'mag') {
+        updateArrows('mag');
+      }
+      else if (showVector = 'gyro') {
+        updateArrows('gyro');
+      }
+    }
 
-		controls.update();
-        render();
+    controls.update();
+    render();
+  }, 1000);
 }
 
 function render() {
