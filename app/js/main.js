@@ -214,6 +214,10 @@
                 // Generate random hex string
                 // 680 + (4 floats * 17 * 4 bytes per float = 272) + 8
               // 952
+
+              $.get('/api/updateGloveModelRandom', function(res){
+              })
+               /* 
                 var totalBytes = 952 * 2;
                 var builtArg = "";
                 var randOpts = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
@@ -225,7 +229,9 @@
 
                 $scope.msgManArgs = builtArg;
                 $scope.sendManTestData();
+               */
             };
+
         }
     ]);
 }());
