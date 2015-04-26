@@ -329,20 +329,24 @@ function doTest() {
     my += noise();
     mz += noise();
 */
+	//
+    //if(ax !== imuData.a[0] || step === 0) {
+    //    ax = imuData.a[0];
+    //    ay = imuData.a[1];
+    //    az = imuData.a[2];
+    //    gx = imuData.g[0];
+    //    gy = imuData.g[1];
+    //    gz = imuData.g[2];
+    //    mx = imuData.m[0];
+    //    my = imuData.m[1];
+    //    mz = imuData.m[2];
+    //    madgwickAHRSupdate(gx, gy, gz, ax, ay, az, mx, my, mz);
+    //}
 
-    if(ax !== imuData.a[0] || step === 0) {
-        ax = imuData.a[0];
-        ay = imuData.a[1];
-        az = imuData.a[2];
-        gx = imuData.g[0];
-        gy = imuData.g[1];
-        gz = imuData.g[2];
-        mx = imuData.m[0];
-        my = imuData.m[1];
-        mz = imuData.m[2];
-        madgwickAHRSupdate(gx, gy, gz, ax, ay, az, mx, my, mz);
-    }
-
+    q0 = imuData.q[0];
+    q1 = imuData.q[1];
+    q2 = imuData.q[2];
+    q3 = imuData.q[3];
 
 //    mahonyAHRSupdate(gx, gy, gz, ax, ay, az, mx, my, mz);
     // Note: Seems to me Madgwick has put the quaternian axis vector in q1, q2, q3 and the angle in q0

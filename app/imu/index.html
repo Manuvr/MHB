@@ -119,6 +119,7 @@
                     socket.on('glove_update', function(data) {
                         gm = data.IMU_set.METACARPALS;
 
+                        imuData.q = [gm.quat.w, gm.quat.x, gm.quat.y, gm.quat.z];
                         imuData.a = [gm.acc.x, gm.acc.y, gm.acc.z];
                         imuData.g = [gm.gyro.x, gm.gyro.y, gm.gyro.z];
                         imuData.m = [gm.mag.x, gm.mag.y, gm.mag.z];
