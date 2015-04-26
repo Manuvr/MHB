@@ -73,6 +73,7 @@
         //'gloveModel',
         //'socket',
         function($scope, commands, argRef){
+            var IMU_MAP_STATE_CMD = '1542';
             commands.getAll();
             argRef.getAll();
             $scope.argRef = argRef;
@@ -83,6 +84,7 @@
             $scope.commands = commands.commands;
             $scope.myCommand = "";
             $scope.msgArgs = [];
+            $scope.msgManArgs = [];
             $scope.myArgForms = "";
             $scope.gloveStatus = "Not Connected";
             $scope.messages = [];
@@ -115,6 +117,11 @@
                 //$scope.myArgForms = "";
                 //$scope.msgArgs = [];
 
+            };
+            $scope.sendManTestData = function() {
+              $.get('/api/sendManData/'+ $scope.mode +"/" + IMU_MAP_STATE_CMD + "/" +
+                    ($scope.msgManArgs ? $scope.msgManArgs : 0), function(res) {
+              });
             };
             $scope.sendSync = function() {
                 $.get('/api/sendSync/' + $scope.mode, function(res){
@@ -216,7 +223,8 @@
                     builtArg += hexNum;
                 }
 
-                $scope.msgArgs = builtArg;
+                $scope.msgManArgs = builtArg;
+                $scope.sendManTestData();
             };
         }
     ]);
