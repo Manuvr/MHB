@@ -953,7 +953,7 @@ function updateArrows(vecToUp) {
     var updCARPALS = new THREE.Euler(gm.CARPALS[vecToUp].x, gm.CARPALS[vecToUp].y, gm.CARPALS[vecToUp].z);
     var updMETACARPALS = new THREE.Euler(gm.METACARPALS[vecToUp].x, gm.METACARPALS[vecToUp].y, gm.METACARPALS[vecToUp].z);
 
-    // Update direction on mag arrows.
+    // Update direction on vectors.
     arrow_DP_1.setDirection ( updDP_1 );
     arrow_IP_1.setDirection ( updIP_1 );
     arrow_PP_1.setDirection ( updPP_1 );
@@ -971,6 +971,27 @@ function updateArrows(vecToUp) {
     arrow_PP_5.setDirection ( updPP_5 );
     arrow_CARPALS.setDirection ( updCARPALS );
     arrow_METACARPALS.setDirection ( updMETACARPALS );
+
+
+    // Update magnitude on vectors.
+    var mult = 60;
+    arrow_DP_1.setLength(mult * (Math.sqrt( Math.pow(gm.DP_1[vecToUp].x, 2) + Math.pow(gm.DP_1[vecToUp].y, 2) + Math.pow(gm.DP_1[vecToUp].z, 2) ) ) );
+    arrow_IP_1.setLength(mult * (Math.sqrt( Math.pow(gm.IP_1[vecToUp].x, 2) + Math.pow(gm.IP_1[vecToUp].y, 2) + Math.pow(gm.IP_1[vecToUp].z, 2) ) ) );
+    arrow_PP_1.setLength(mult * (Math.sqrt( Math.pow(gm.PP_1[vecToUp].x, 2) + Math.pow(gm.PP_1[vecToUp].y, 2) + Math.pow(gm.PP_1[vecToUp].z, 2) ) ) );
+    arrow_DP_2.setLength(mult * (Math.sqrt( Math.pow(gm.DP_2[vecToUp].x, 2) + Math.pow(gm.DP_2[vecToUp].y, 2) + Math.pow(gm.DP_2[vecToUp].z, 2) ) ) );
+    arrow_IP_2.setLength(mult * (Math.sqrt( Math.pow(gm.IP_2[vecToUp].x, 2) + Math.pow(gm.IP_2[vecToUp].y, 2) + Math.pow(gm.IP_2[vecToUp].z, 2) ) ) );
+    arrow_PP_2.setLength(mult * (Math.sqrt( Math.pow(gm.PP_2[vecToUp].x, 2) + Math.pow(gm.PP_2[vecToUp].y, 2) + Math.pow(gm.PP_2[vecToUp].z, 2) ) ) );
+    arrow_DP_3.setLength(mult * (Math.sqrt( Math.pow(gm.DP_3[vecToUp].x, 2) + Math.pow(gm.DP_3[vecToUp].y, 2) + Math.pow(gm.DP_3[vecToUp].z, 2) ) ) );
+    arrow_IP_3.setLength(mult * (Math.sqrt( Math.pow(gm.IP_3[vecToUp].x, 2) + Math.pow(gm.IP_3[vecToUp].y, 2) + Math.pow(gm.IP_3[vecToUp].z, 2) ) ) );
+    arrow_PP_3.setLength(mult * (Math.sqrt( Math.pow(gm.PP_3[vecToUp].x, 2) + Math.pow(gm.PP_3[vecToUp].y, 2) + Math.pow(gm.PP_3[vecToUp].z, 2) ) ) );
+    arrow_DP_4.setLength(mult * (Math.sqrt( Math.pow(gm.DP_4[vecToUp].x, 2) + Math.pow(gm.DP_4[vecToUp].y, 2) + Math.pow(gm.DP_4[vecToUp].z, 2) ) ) );
+    arrow_IP_4.setLength(mult * (Math.sqrt( Math.pow(gm.IP_4[vecToUp].x, 2) + Math.pow(gm.IP_4[vecToUp].y, 2) + Math.pow(gm.IP_4[vecToUp].z, 2) ) ) );
+    arrow_PP_4.setLength(mult * (Math.sqrt( Math.pow(gm.PP_4[vecToUp].x, 2) + Math.pow(gm.PP_4[vecToUp].y, 2) + Math.pow(gm.PP_4[vecToUp].z, 2) ) ) );
+    arrow_DP_5.setLength(mult * (Math.sqrt( Math.pow(gm.DP_5[vecToUp].x, 2) + Math.pow(gm.DP_5[vecToUp].y, 2) + Math.pow(gm.DP_5[vecToUp].z, 2) ) ) );
+    arrow_IP_5.setLength(mult * (Math.sqrt( Math.pow(gm.IP_5[vecToUp].x, 2) + Math.pow(gm.IP_5[vecToUp].y, 2) + Math.pow(gm.IP_5[vecToUp].z, 2) ) ) );
+    arrow_PP_5.setLength(mult * (Math.sqrt( Math.pow(gm.PP_5[vecToUp].x, 2) + Math.pow(gm.PP_5[vecToUp].y, 2) + Math.pow(gm.PP_5[vecToUp].z, 2) ) ) );
+    arrow_CARPALS.setLength(mult * (Math.sqrt( Math.pow(gm.CARPALS[vecToUp].x, 2) + Math.pow(gm.CARPALS[vecToUp].y, 2) + Math.pow(gm.CARPALS[vecToUp].z, 2) ) ) );
+    arrow_METACARPALS.setLength(mult * (Math.sqrt( Math.pow(gm.METACARPALS[vecToUp].x, 2) + Math.pow(gm.METACARPALS[vecToUp].y, 2) + Math.pow(gm.METACARPALS[vecToUp].z, 2) ) ) );
 }
 
 function updateTempMap() {
