@@ -1,28 +1,6 @@
 (function() {
 'use strict';
 
-    var remove = {
-		IMU_set: {
-			CARPALS    : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			METACARPALS: ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			PP_1       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			IP_1       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			DP_1       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			PP_2       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			IP_2       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			DP_2       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			PP_3       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			IP_3       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			DP_3       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			PP_4       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			IP_4       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			DP_4       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			PP_5       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			IP_5       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1'],
-			DP_5       : ["e_x", 'e_y', 'e_z', 'e_rx', 'e_ry', 'e_rz', 'e_mx', 'e_my', 'e_mz', 'LED', 'LED_1']
-		}
-	};
-
     var socket = io.connect();
 
     angular.module('ManusDebug', ['ui.router'])
@@ -38,28 +16,41 @@
             })
             .state('glove', {
                 url: '/glove',
-                templateUrl: 'partials/partial-glove.html'
+                templateUrl: 'partials/partial-glove.html',
+                controller: 'MainCtrl'
             })
             .state('hand', {
                 url: '/hand',
                 templateUrl: 'js/3minNew.html'
-            });
+            })
     })
     .factory('commands', ['$http', function($http){
         var o = {
-            commands: []
+            commands: {}
         };
         o.getAll = function() {
-            console.log('in getAll funcshn');
+            //console.log('in getAll function');
             return $http.get('/api/commands').success(function(data){
-                var getKeys = function(obj){
-                    var keys = [];
-                    for(var key in obj){
-                        keys.push(key);
-                    }
-                    return keys;
-                };
-                angular.copy(getKeys(data), o.commands);
+
+                //var getKeys = function(obj){
+                //    var keys = [];
+                //    for(var key in obj){
+                //        keys.push(key);
+                //    }
+                //    return keys;
+                //};
+                angular.copy(data, o.commands);
+            });
+        };
+        return o;
+    }])
+    .factory('argRef', ['$http', function($http){
+        var o = {
+        };
+        o.getAll = function() {
+            return $http.get('/api/argRef').success(function(data){
+
+                angular.copy(data, o);
             });
         };
         return o;
@@ -69,7 +60,7 @@
         };
         o.getAll = function() {
             return $http.get('/api/gloveModel').success(function(data){
-                console.log(data);
+                //console.log(data);
                 angular.copy(data, o);
             });
         };
@@ -78,31 +69,67 @@
     .controller('MainCtrl', [
         '$scope',
         'commands',
+         'argRef',
         //'gloveModel',
         //'socket',
-        function($scope, commands){
+        function($scope, commands, argRef){
+            var IMU_MAP_STATE_CMD = '1542';
             commands.getAll();
+            argRef.getAll();
+            $scope.argRef = argRef;
             //gloveModel.getAll();
             $scope.btToggle = false;
             $scope.mode = "host";
             $scope.modeOptions = [ "host", "glove"];
             $scope.commands = commands.commands;
             $scope.myCommand = "";
-            $scope.msgArgs = "";
+            $scope.msgArgs = [];
+            $scope.msgManArgs = [];
+            $scope.myArgForms = "";
             $scope.gloveStatus = "Not Connected";
             $scope.messages = [];
             $scope.gloveModel = {};
             $scope.gloveModel2 = {};
-            $scope.btAddress = "00:06:66:61:32:B8";
+            $scope.btAddress = "00:06:66:61:32:B8"; // Just for R0 by default.... You can still scan if you want.
             $scope.btAddressList = [];
+            $scope.boneList = [
+              'CARPALS', 'METACARPALS', 'PP_1',
+              'IP_1', 'DP_1', 'PP_2', 'IP_2',
+              'DP_2', 'PP_3', 'IP_3', 'DP_3',
+              'PP_4', 'IP_4', 'DP_4', 'PP_5',
+              'IP_5', 'DP_5'];
+
+            $scope.measure = "gyro";
+            $scope.measureOptions = ["acceleration", "gyro", "mag"];
 
             $scope.sendTestData = function() {
-                $.get('/api/sendTestData/'+ $scope.mode +"/" + $scope.myCommand + "/" + 
-                        ($scope.msgArgs ? $scope.msgArgs : 0), function(res) {
-                });
+                if($scope.myArgForms === ""){
+                    $scope.myArgForms = {};
+                    $scope.myArgForms.len = -1;
+                    $scope.msgArgs == [];
+                }
+                if($scope.msgArgs[0] === undefined || !$scope.msgArgs){
+                    $scope.msgArgs = 0;
+                }
+                console.log($scope.myArgForms);
+                $.get('/api/sendTestData/'+ $scope.mode +"/" + $scope.myCommand.command + "/" +
+                    $scope.myArgForms.len + "/" + $scope.msgArgs, function(res){});
+                //$scope.myArgForms = "";
+                //$scope.msgArgs = [];
+
+            };
+            $scope.sendManTestData = function() {
+              $.get('/api/sendManData/'+ $scope.mode +"/" + IMU_MAP_STATE_CMD + "/" +
+                    ($scope.msgManArgs ? $scope.msgManArgs : 0), function(res) {
+              });
             };
             $scope.sendSync = function() {
                 $.get('/api/sendSync/' + $scope.mode, function(res){
+                });
+            };
+
+            $scope.sendMassSync = function() {
+                $.get('/api/sendMassSync/' + $scope.mode, function(res){
                 });
             };
 
@@ -132,8 +159,8 @@
 
             socket.on('message_update', function(data, def) {
                 $scope.$apply(function() {
-					data.name = def;
-                    console.log(data);
+					          data.name = def;
+                    //console.log(data);
                     $scope.messages.unshift(data);
                 });
             });
@@ -141,53 +168,57 @@
             socket.on('glove_update', function(data) {
                 $scope.$apply(function() {
                     $scope.gloveModel = data;
-                    $scope.gloveModel2 = _.omitRecursive(data, remove);
-                    console.log($scope.gloveModel);
+                    //console.log($scope.gloveModel);
                 });
             });
 
-			socket.on('bt_connection', function(data) {
-				$scope.$apply(function() {
-					switch (data) {
-						case 1:
-							$scope.gloveStatus = "Connected via Bluetooth.";
-							$scope.btToggle = true;
-							break;
-						case 0:
-							$scope.gloveStatus = "Not Connected";
-							$scope.btToggle = false;
-							break;
-						case -1:
-							$scope.gloveStatus = "Pending Connection...";
-							$scope.btToggle = true;
-							break;
-					}
-				});
-			});
+            socket.on('bt_connection', function(data) {
+              $scope.$apply(function() {
+                switch (data) {
+                  case 1:
+                    $scope.gloveStatus = "Connected via Bluetooth.";
+                    $scope.btToggle = true;
+                    break;
+                  case 0:
+                    $scope.gloveStatus = "Not Connected";
+                    $scope.btToggle = false;
+                    break;
+                  case -1:
+                    $scope.gloveStatus = "Pending Connection...";
+                    $scope.btToggle = true;
+                    break;
+                }
+              });
+            });
 
             socket.on('outCommand', function(data) {
                 console.log(data);
                 $scope.$apply(function() {
-                    console.log($scope.commands);
-                    console.log(data);
-                    var getKeys = function(obj){
-                        var keys = [];
-                        for(var key in obj){
-                            keys.push(key);
-                        }
-                        return keys;
-                    };
+                    //console.log($scope.commands);
+                    //console.log(data);
+                    //var getKeys = function(obj){
+                    //    var keys = [];
+                    //    for(var key in obj){
+                    //        keys.push(key);
+                    //    }
+                    //    return keys;
+                    //};
 
-                    $scope.commands = getKeys(data);
-
-
-
+                    //$scope.commands = getKeys(data);
+                    $scope.commands = data;
+                    console.log(JSON.stringify(data));
                 });
             });
 
             $scope.randomIMUmag = function() {
                 // Generate random hex string
-                var totalBytes = 680 * 2;
+                // 680 + (4 floats * 17 * 4 bytes per float = 272) + 8
+              // 952
+
+              $.get('/api/updateGloveModelRandom', function(res){
+              })
+               /* 
+                var totalBytes = 952 * 2;
                 var builtArg = "";
                 var randOpts = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
                 for (var i = 0; i < totalBytes; i++) {
@@ -195,7 +226,10 @@
                     var hexNum = randOpts[rand];
                     builtArg += hexNum;
                 }
-                $scope.msgArgs = builtArg;
+
+                $scope.msgManArgs = builtArg;
+                $scope.sendManTestData();
+               */
             };
 
         }

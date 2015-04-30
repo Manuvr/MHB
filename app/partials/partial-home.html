@@ -17,45 +17,94 @@
              <form role="form" ng-submit="sendTestData()">
                  <div class="form-group">
                      <select ng-model="myCommand"
-                         ng-options="command for command in commands">
+                         ng-options="key for (key, value) in commands">
                          <option value="">-- choose command --</option>
                      </select>
                      <br />
-                     Currently selected: {{ myCommand }}
+                     <select ng-model="myArgForms"
+                             ng-options="value.len for (key, value) in myCommand.argForms">
+                         <option value="">-- Arg Length Select --</option>
+                     </select>
                  </div>
-                 <div class="form-group">
-                    <input type="text" class="form-control" ng-model="msgArgs" placeholder="Args...">
-                    </input>
-                </div>
+                 <div class="form-group" ng-show="myArgForms">
+                     <div ng-repeat="arg in myArgForms.data track by $index">
+                     <input type="text" class="form-control" ng-model="msgArgs[$index]" placeholder="{{argRef[arg].type}}">
+                     </div>
+                 </div>
                 <button type="submit" class="btn btn-primary">Send Glove Message</button>
              </form>
-           </br>
-             <button ng-click="randomIMUmag()" class="btn btn-primary label-danger">Generate Random Mag Stream</button>
-
-            <br /><br />
-            <button ng-click="sendSync()" class="btn btn-primary">Send Sync Packet</button>
+             <br />
+             <button ng-click="randomIMUmag()" class="btn btn-primary label-danger">Generate Random IMU Vector Stream</button>
              <br /><br />
 
-             <button ng-click="scanBT()" class="btn btn-primary" ng-hide="btToggle">Scan for Devices</button>
-             <div ng-repeat="btAddy in btAddressList | limitTo: 5" ng-hide="btToggle">{{btAddy.name + " - " + btAddy.address}}</div>
-             <input type="text" class="form-control" ng-model="btAddress" placeholder="Glove MAC Address"></input>
-           </br>
+            <button ng-click="sendSync()" class="btn btn-primary">Send Sync Packet</button>
+            <button ng-click="sendMassSync()" class="btn btn-primary label-danger">Send 200 Sync Packets</button>
+             <br /><br />
             <button ng-click="connectBT(btAddress)" class="btn btn-primary label-success" ng-hide="btToggle">Connect to Bluetooth</button>
             <button ng-click="disconnectBT()" class="btn btn-primary label-danger" ng-show="btToggle">Close Bluetooth connection</button>
+            <br/> <br />
+             <button ng-click="scanBT()" class="btn btn-primary" ng-hide="btToggle">Scan for Devices</button>
+             <br /><br />
+             <div ng-repeat="btAddy in btAddressList | limitTo: 5" ng-hide="btToggle">{{btAddy.name + " - " + btAddy.address}}</div>
+             <input type="text" class="form-control" ng-model="btAddress" placeholder="Glove MAC Address"></input>
+          </div>
+          <div class="col-md-6">
             <br /><br />
-            <h3>Console</h3>
-            <div>
+            <button  class="btn btn-primary" onclick="window.open('/#/hand')">Open Hand Visualizer</button>
+            <br /><br />
+            <h3>REC. COMMAND LOG</h3>
+            <div style="background-color: #b0c4de;">
             <span ng-repeat="message in messages track by $index | limitTo: 10">
-                {{ message.name }}<br/>
+                {{ message.name + " : [" + message.msg.args + "]" }}<br/>
             </span></div>
-
-        </div>
-
-        <div class="col-md-6">
-            <h3>Glove JSON Display</h3>
-            <pre>{{gloveModel2 | json}}</pre>
-        </div>
-
-
+          </div>
     </div>
+    <div class='row'>
+      <div class="col-md-12">
+      <h3>IMU Frames</h3>
+      <div class='table-responsive'>
+      <table class='table' border='1'>
+        <thead>
+          <tr>
+            <th>Bone</th>
+            <th>Quat</th>
+            <th>Acceleration</th>
+            <th>Gyro</th>
+            <th>Mag</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr data-ng-repeat="bone in boneList">
+            <td>{{bone}}</td>
+            <td>
+              w:{{(gloveModel.IMU_set[bone].quat.w)}}<br />
+              x:{{(gloveModel.IMU_set[bone].quat.x)}}<br />
+              y:{{(gloveModel.IMU_set[bone].quat.y)}}<br />
+              z:{{(gloveModel.IMU_set[bone].quat.z)}}<br />
+            </td>
+            <td>
+              x:{{(gloveModel.IMU_set[bone].acc.x)}}<br />
+              y:{{(gloveModel.IMU_set[bone].acc.y)}}<br />
+              z:{{(gloveModel.IMU_set[bone].acc.z)}}<br />
+            </td>
+            <td>
+              x:{{(gloveModel.IMU_set[bone].gyro.x)}}<br />
+              y:{{(gloveModel.IMU_set[bone].gyro.y)}}<br />
+              z:{{(gloveModel.IMU_set[bone].gyro.z)}}<br />
+            </td>
+            <td>
+              x:{{(gloveModel.IMU_set[bone].mag.x)}}<br />
+              y:{{(gloveModel.IMU_set[bone].mag.y)}}<br />
+              z:{{(gloveModel.IMU_set[bone].mag.z)}}<br />
+            </td>
+          </tr>
+      </table>
+      </div>
+      </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Glove JSON Display</h3>
+            <pre>{{gloveModel | json}}</pre>
+        </div>
 </div>

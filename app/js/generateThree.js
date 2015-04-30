@@ -619,14 +619,49 @@ var targetRotation = 0;
 var targetRotationOnMouseDown = 0;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
+var showVector = 'acc';
 
 var gm = null;
 var vec = new THREE.Vector3(1,0,0);
 
+var sphere_DP_1;
+var sphere_IP_1;
+var sphere_PP_1;
+var sphere_DP_2;
+var sphere_IP_2;
+var sphere_PP_2;
+var sphere_DP_3;
+var sphere_IP_3;
+var sphere_PP_3;
+var sphere_DP_4;
+var sphere_IP_4;
+var sphere_PP_4;
+var sphere_DP_5;
+var sphere_IP_5;
+var sphere_PP_5;
+var sphere_CARPALS;
+var sphere_METACARPALS;
+
+var arrow_DP_1;
+var arrow_IP_1;
+var arrow_PP_1;
+var arrow_DP_2;
+var arrow_IP_2;
+var arrow_PP_2;
+var arrow_DP_3;
+var arrow_IP_3;
+var arrow_PP_3;
+var arrow_DP_4;
+var arrow_IP_4;
+var arrow_PP_4;
+var arrow_DP_5;
+var arrow_IP_5;
+var arrow_PP_5;
+var arrow_CARPALS;
+var arrow_METACARPALS;
+
 //Connect to socket.io
-var serverIP = "localhost";
-var socket = io.connect(serverIP + ':4000');
-console.log('socket connected to: ' + serverIP);
+var socket = io.connect();
 
 // Start reading IMU data.
 runSocket();
@@ -644,22 +679,22 @@ function runSocket() {
 function init() {
 
     // IMU positions on scene.
-    imus = { 
-        DP_1: new THREE.Vector3(-300, 300, 0),
-        IP_1: new THREE.Vector3(-280, 200, 0),
-        PP_1: new THREE.Vector3(-270, 100, 0),
-        DP_2: new THREE.Vector3(-200, 350, 0),
-        IP_2: new THREE.Vector3(-200, 245, 0),
-        PP_2: new THREE.Vector3(-200, 120, 0),
+    imus = {
+        DP_1: new THREE.Vector3(0, 0, 0),
+        IP_1: new THREE.Vector3(90, 20, 0),
+        PP_1: new THREE.Vector3(170, 40, 0),
+        DP_2: new THREE.Vector3(10, 300, 0),
+        IP_2: new THREE.Vector3(-2, 210, 0),
+        PP_2: new THREE.Vector3(-10, 120, 0),
         DP_3: new THREE.Vector3(-100, 360, 0),
         IP_3: new THREE.Vector3(-100, 250, 0),
         PP_3: new THREE.Vector3(-100, 120, 0),
-        DP_4: new THREE.Vector3(10, 300, 0),
-        IP_4: new THREE.Vector3(-2, 210, 0),
-        PP_4: new THREE.Vector3(-10, 120, 0),
-        DP_5: new THREE.Vector3(0, 0, 0),
-        IP_5: new THREE.Vector3(90, 20, 0),
-        PP_5: new THREE.Vector3(170, 40, 0),
+        DP_4: new THREE.Vector3(-200, 350, 0),
+        IP_4: new THREE.Vector3(-200, 245, 0),
+        PP_4: new THREE.Vector3(-200, 120, 0),
+        DP_5: new THREE.Vector3(-300, 300, 0),
+        IP_5: new THREE.Vector3(-280, 200, 0),
+        PP_5: new THREE.Vector3(-270, 100, 0),
         CARPALS: new THREE.Vector3(-130, -60, 0),
         METACARPALS: new THREE.Vector3(-130, -150, 0)
     };
@@ -721,6 +756,29 @@ function init() {
         $.get('/api/updateGloveModelFakeData', function(res){
         });
     });
+    $("#pourHeading").append("<div id='vectorDrop'>" +
+        "<span id='vacc' class='vecs'>acceleration</span>&nbsp;&nbsp;" +
+        "<span id='vgyro' class='vecs'>gyro</span>&nbsp;&nbsp;" +
+        "<span id='vmag' class='vecs'>mag</span>&nbsp;&nbsp;" +
+      "</div>");
+    $( "#vacc" ).on("click", function() {
+      showVector = 'acc';
+      $(this).css('font-weight', 'bold');
+      $( "#vmag" ).css('font-weight', 'normal');
+      $( "#vgyro" ).css('font-weight', 'normal');
+    });
+    $( "#vmag" ).on("click", function() {
+      showVector = 'mag';
+      $(this).css('font-weight', 'bold');
+      $( "#vacc" ).css('font-weight', 'normal');
+      $( "#vgyro" ).css('font-weight', 'normal');
+    });
+    $( "#vgyro" ).on("click", function() {
+      showVector = 'gyro';
+      $(this).css('font-weight', 'bold');
+      $( "#vmag" ).css('font-weight', 'normal');
+      $( "#vacc" ).css('font-weight', 'normal');
+    });
 
     // Set up camera.
     camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 10000 );
@@ -748,27 +806,27 @@ function init() {
 
     scene = new THREE.Scene();
 
-    // Create spheres. 
+    // Create spheres.
     var geometry = new THREE.SphereGeometry( 20, 8, 6 );
-    var material = new THREE.MeshNormalMaterial( {wireframe: true, color: 'blue' } );
-    var sphere_DP_1 = new THREE.Mesh( geometry, material ); 
-    var sphere_IP_1 = new THREE.Mesh( geometry, material ); 
-    var sphere_PP_1 = new THREE.Mesh( geometry, material ); 
-    var sphere_DP_2 = new THREE.Mesh( geometry, material ); 
-    var sphere_IP_2 = new THREE.Mesh( geometry, material ); 
-    var sphere_PP_2 = new THREE.Mesh( geometry, material ); 
-    var sphere_DP_3 = new THREE.Mesh( geometry, material ); 
-    var sphere_IP_3 = new THREE.Mesh( geometry, material ); 
-    var sphere_PP_3 = new THREE.Mesh( geometry, material ); 
-    var sphere_DP_4 = new THREE.Mesh( geometry, material ); 
-    var sphere_IP_4 = new THREE.Mesh( geometry, material ); 
-    var sphere_PP_4 = new THREE.Mesh( geometry, material ); 
-    var sphere_DP_5 = new THREE.Mesh( geometry, material ); 
-    var sphere_IP_5 = new THREE.Mesh( geometry, material ); 
-    var sphere_PP_5 = new THREE.Mesh( geometry, material ); 
-    var sphere_CARPALS = new THREE.Mesh( geometry, material ); 
-    var sphere_METACARPALS = new THREE.Mesh( geometry, material ); 
-    
+    var material = new THREE.MeshBasicMaterial( {wireframe: true, color: 'blue' } );
+    sphere_DP_1 = new THREE.Mesh( geometry, material );
+    sphere_IP_1 = new THREE.Mesh( geometry, material );
+    sphere_PP_1 = new THREE.Mesh( geometry, material );
+    sphere_DP_2 = new THREE.Mesh( geometry, material );
+    sphere_IP_2 = new THREE.Mesh( geometry, material );
+    sphere_PP_2 = new THREE.Mesh( geometry, material );
+    sphere_DP_3 = new THREE.Mesh( geometry, material );
+    sphere_IP_3 = new THREE.Mesh( geometry, material );
+    sphere_PP_3 = new THREE.Mesh( geometry, material );
+    sphere_DP_4 = new THREE.Mesh( geometry, material );
+    sphere_IP_4 = new THREE.Mesh( geometry, material );
+    sphere_PP_4 = new THREE.Mesh( geometry, material );
+    sphere_DP_5 = new THREE.Mesh( geometry, material );
+    sphere_IP_5 = new THREE.Mesh( geometry, material );
+    sphere_PP_5 = new THREE.Mesh( geometry, material );
+    sphere_CARPALS = new THREE.Mesh( geometry, material );
+    sphere_METACARPALS = new THREE.Mesh( geometry, material );
+
     // Apply sphere positions.
     sphere_DP_1.position.set(imus.DP_1.x, imus.DP_1.y, imus.DP_1.z);
     sphere_IP_1.position.set(imus.IP_1.x, imus.IP_1.y, imus.IP_1.z);
@@ -787,16 +845,16 @@ function init() {
     sphere_PP_5.position.set(imus.PP_5.x, imus.PP_5.y, imus.PP_5.z);
     sphere_CARPALS.position.set(imus.CARPALS.x, imus.CARPALS.y, imus.CARPALS.z);
     sphere_METACARPALS.position.set(imus.METACARPALS.x, imus.METACARPALS.y, imus.METACARPALS.z);
-    
 
-    scene.add( sphere_DP_1, sphere_IP_1, sphere_PP_1, 
+
+    scene.add( sphere_DP_1, sphere_IP_1, sphere_PP_1,
             sphere_DP_2,sphere_IP_2, sphere_PP_2,
             sphere_DP_3,sphere_IP_3, sphere_PP_3,
             sphere_DP_4,sphere_IP_4, sphere_PP_4,
             sphere_DP_5,sphere_IP_5, sphere_PP_5,
             sphere_CARPALS, sphere_METACARPALS
             );
-    
+
 
 
     // Axis Helper.
@@ -850,13 +908,24 @@ function onWindowResize() {
 
 function animate() {
 
-        requestAnimationFrame( animate );
-        
-        if (gm)
-            updateMagArrows();
+  requestAnimationFrame( animate );
+  if (gm) {
 
-		controls.update();
-        render();
+    updateTempMap();
+
+    if (showVector = 'accel') {
+      updateArrows('acc');
+    }
+    else if (showVector = 'mag') {
+      updateArrows('mag');
+    }
+    else if (showVector = 'gyro') {
+      updateArrows('gyro');
+    }
+  }
+
+  controls.update();
+  render();
 }
 
 function render() {
@@ -864,29 +933,27 @@ function render() {
 }
 
 
-function updateMagArrows() {
-        
-    //var time = Date.now();
-    //var directionUpdate = new THREE.Euler(Math.sin( time / 2000 ), Math.cos( time / 3000 ), Math.sin( time / 1000 ), 'XYZ' );
-    var updDP_1 = new THREE.Euler(gm.DP_1.mx, gm.DP_1.my, gm.DP_1.mz);
-    var updIP_1 = new THREE.Euler(gm.IP_1.mx, gm.IP_1.my, gm.IP_1.mz);
-    var updPP_1 = new THREE.Euler(gm.PP_1.mx, gm.PP_1.my, gm.PP_1.mz);
-    var updDP_2 = new THREE.Euler(gm.DP_2.mx, gm.DP_2.my, gm.DP_2.mz);
-    var updIP_2 = new THREE.Euler(gm.IP_2.mx, gm.IP_2.my, gm.IP_2.mz);
-    var updPP_2 = new THREE.Euler(gm.PP_2.mx, gm.PP_2.my, gm.PP_2.mz);
-    var updDP_3 = new THREE.Euler(gm.DP_3.mx, gm.DP_3.my, gm.DP_3.mz);
-    var updIP_3 = new THREE.Euler(gm.IP_3.mx, gm.IP_3.my, gm.IP_3.mz);
-    var updPP_3 = new THREE.Euler(gm.PP_3.mx, gm.PP_3.my, gm.PP_3.mz);
-    var updDP_4 = new THREE.Euler(gm.DP_4.mx, gm.DP_4.my, gm.DP_4.mz);
-    var updIP_4 = new THREE.Euler(gm.IP_4.mx, gm.IP_4.my, gm.IP_4.mz);
-    var updPP_4 = new THREE.Euler(gm.PP_4.mx, gm.PP_4.my, gm.PP_4.mz);
-    var updDP_5 = new THREE.Euler(gm.DP_5.mx, gm.DP_5.my, gm.DP_5.mz);
-    var updIP_5 = new THREE.Euler(gm.IP_5.mx, gm.IP_5.my, gm.IP_5.mz);
-    var updPP_5 = new THREE.Euler(gm.PP_5.mx, gm.PP_5.my, gm.PP_5.mz);
-    var updCARPALS = new THREE.Euler(gm.CARPALS.mx, gm.CARPALS.my, gm.CARPALS.mz);
-    var updMETACARPALS = new THREE.Euler(gm.METACARPALS.mx, gm.METACARPALS.my, gm.METACARPALS.mz);
+function updateArrows(vecToUp) {
 
-    // Update direction on mag arrows.
+    var updDP_1 = new THREE.Euler(gm.DP_1[vecToUp].x, gm.DP_1[vecToUp].y, gm.DP_1[vecToUp].z);
+    var updIP_1 = new THREE.Euler(gm.IP_1[vecToUp].x, gm.IP_1[vecToUp].y, gm.IP_1[vecToUp].z);
+    var updPP_1 = new THREE.Euler(gm.PP_1[vecToUp].x, gm.PP_1[vecToUp].y, gm.PP_1[vecToUp].z);
+    var updDP_2 = new THREE.Euler(gm.DP_2[vecToUp].x, gm.DP_2[vecToUp].y, gm.DP_2[vecToUp].z);
+    var updIP_2 = new THREE.Euler(gm.IP_2[vecToUp].x, gm.IP_2[vecToUp].y, gm.IP_2[vecToUp].z);
+    var updPP_2 = new THREE.Euler(gm.PP_2[vecToUp].x, gm.PP_2[vecToUp].y, gm.PP_2[vecToUp].z);
+    var updDP_3 = new THREE.Euler(gm.DP_3[vecToUp].x, gm.DP_3[vecToUp].y, gm.DP_3[vecToUp].z);
+    var updIP_3 = new THREE.Euler(gm.IP_3[vecToUp].x, gm.IP_3[vecToUp].y, gm.IP_3[vecToUp].z);
+    var updPP_3 = new THREE.Euler(gm.PP_3[vecToUp].x, gm.PP_3[vecToUp].y, gm.PP_3[vecToUp].z);
+    var updDP_4 = new THREE.Euler(gm.DP_4[vecToUp].x, gm.DP_4[vecToUp].y, gm.DP_4[vecToUp].z);
+    var updIP_4 = new THREE.Euler(gm.IP_4[vecToUp].x, gm.IP_4[vecToUp].y, gm.IP_4[vecToUp].z);
+    var updPP_4 = new THREE.Euler(gm.PP_4[vecToUp].x, gm.PP_4[vecToUp].y, gm.PP_4[vecToUp].z);
+    var updDP_5 = new THREE.Euler(gm.DP_5[vecToUp].x, gm.DP_5[vecToUp].y, gm.DP_5[vecToUp].z);
+    var updIP_5 = new THREE.Euler(gm.IP_5[vecToUp].x, gm.IP_5[vecToUp].y, gm.IP_5[vecToUp].z);
+    var updPP_5 = new THREE.Euler(gm.PP_5[vecToUp].x, gm.PP_5[vecToUp].y, gm.PP_5[vecToUp].z);
+    var updCARPALS = new THREE.Euler(gm.CARPALS[vecToUp].x, gm.CARPALS[vecToUp].y, gm.CARPALS[vecToUp].z);
+    var updMETACARPALS = new THREE.Euler(gm.METACARPALS[vecToUp].x, gm.METACARPALS[vecToUp].y, gm.METACARPALS[vecToUp].z);
+
+    // Update direction on vectors.
     arrow_DP_1.setDirection ( updDP_1 );
     arrow_IP_1.setDirection ( updIP_1 );
     arrow_PP_1.setDirection ( updPP_1 );
@@ -904,5 +971,67 @@ function updateMagArrows() {
     arrow_PP_5.setDirection ( updPP_5 );
     arrow_CARPALS.setDirection ( updCARPALS );
     arrow_METACARPALS.setDirection ( updMETACARPALS );
+
+
+    // Update magnitude on vectors.
+    var mult = 60;
+    arrow_DP_1.setLength(mult * (Math.sqrt( Math.pow(gm.DP_1[vecToUp].x, 2) + Math.pow(gm.DP_1[vecToUp].y, 2) + Math.pow(gm.DP_1[vecToUp].z, 2) ) ) );
+    arrow_IP_1.setLength(mult * (Math.sqrt( Math.pow(gm.IP_1[vecToUp].x, 2) + Math.pow(gm.IP_1[vecToUp].y, 2) + Math.pow(gm.IP_1[vecToUp].z, 2) ) ) );
+    arrow_PP_1.setLength(mult * (Math.sqrt( Math.pow(gm.PP_1[vecToUp].x, 2) + Math.pow(gm.PP_1[vecToUp].y, 2) + Math.pow(gm.PP_1[vecToUp].z, 2) ) ) );
+    arrow_DP_2.setLength(mult * (Math.sqrt( Math.pow(gm.DP_2[vecToUp].x, 2) + Math.pow(gm.DP_2[vecToUp].y, 2) + Math.pow(gm.DP_2[vecToUp].z, 2) ) ) );
+    arrow_IP_2.setLength(mult * (Math.sqrt( Math.pow(gm.IP_2[vecToUp].x, 2) + Math.pow(gm.IP_2[vecToUp].y, 2) + Math.pow(gm.IP_2[vecToUp].z, 2) ) ) );
+    arrow_PP_2.setLength(mult * (Math.sqrt( Math.pow(gm.PP_2[vecToUp].x, 2) + Math.pow(gm.PP_2[vecToUp].y, 2) + Math.pow(gm.PP_2[vecToUp].z, 2) ) ) );
+    arrow_DP_3.setLength(mult * (Math.sqrt( Math.pow(gm.DP_3[vecToUp].x, 2) + Math.pow(gm.DP_3[vecToUp].y, 2) + Math.pow(gm.DP_3[vecToUp].z, 2) ) ) );
+    arrow_IP_3.setLength(mult * (Math.sqrt( Math.pow(gm.IP_3[vecToUp].x, 2) + Math.pow(gm.IP_3[vecToUp].y, 2) + Math.pow(gm.IP_3[vecToUp].z, 2) ) ) );
+    arrow_PP_3.setLength(mult * (Math.sqrt( Math.pow(gm.PP_3[vecToUp].x, 2) + Math.pow(gm.PP_3[vecToUp].y, 2) + Math.pow(gm.PP_3[vecToUp].z, 2) ) ) );
+    arrow_DP_4.setLength(mult * (Math.sqrt( Math.pow(gm.DP_4[vecToUp].x, 2) + Math.pow(gm.DP_4[vecToUp].y, 2) + Math.pow(gm.DP_4[vecToUp].z, 2) ) ) );
+    arrow_IP_4.setLength(mult * (Math.sqrt( Math.pow(gm.IP_4[vecToUp].x, 2) + Math.pow(gm.IP_4[vecToUp].y, 2) + Math.pow(gm.IP_4[vecToUp].z, 2) ) ) );
+    arrow_PP_4.setLength(mult * (Math.sqrt( Math.pow(gm.PP_4[vecToUp].x, 2) + Math.pow(gm.PP_4[vecToUp].y, 2) + Math.pow(gm.PP_4[vecToUp].z, 2) ) ) );
+    arrow_DP_5.setLength(mult * (Math.sqrt( Math.pow(gm.DP_5[vecToUp].x, 2) + Math.pow(gm.DP_5[vecToUp].y, 2) + Math.pow(gm.DP_5[vecToUp].z, 2) ) ) );
+    arrow_IP_5.setLength(mult * (Math.sqrt( Math.pow(gm.IP_5[vecToUp].x, 2) + Math.pow(gm.IP_5[vecToUp].y, 2) + Math.pow(gm.IP_5[vecToUp].z, 2) ) ) );
+    arrow_PP_5.setLength(mult * (Math.sqrt( Math.pow(gm.PP_5[vecToUp].x, 2) + Math.pow(gm.PP_5[vecToUp].y, 2) + Math.pow(gm.PP_5[vecToUp].z, 2) ) ) );
+    arrow_CARPALS.setLength(mult * (Math.sqrt( Math.pow(gm.CARPALS[vecToUp].x, 2) + Math.pow(gm.CARPALS[vecToUp].y, 2) + Math.pow(gm.CARPALS[vecToUp].z, 2) ) ) );
+    arrow_METACARPALS.setLength(mult * (Math.sqrt( Math.pow(gm.METACARPALS[vecToUp].x, 2) + Math.pow(gm.METACARPALS[vecToUp].y, 2) + Math.pow(gm.METACARPALS[vecToUp].z, 2) ) ) );
+}
+
+function updateTempMap() {
+
+    // Get temperature from current glove model.
+    var updDP_1 = gm.DP_1.temp;
+    var updIP_1 = gm.DP_1.temp;
+    var updPP_1 = gm.DP_1.temp;
+    var updDP_2 = gm.DP_1.temp;
+    var updIP_2 = gm.DP_1.temp;
+    var updPP_2 = gm.DP_1.temp;
+    var updDP_3 = gm.DP_1.temp;
+    var updIP_3 = gm.DP_1.temp;
+    var updPP_3 = gm.DP_1.temp;
+    var updDP_4 = gm.DP_1.temp;
+    var updIP_4 = gm.DP_1.temp;
+    var updPP_4 = gm.DP_1.temp;
+    var updDP_5 = gm.DP_1.temp;
+    var updIP_5 = gm.DP_1.temp;
+    var updPP_5 = gm.DP_1.temp;
+    var updCARPALS = gm.DP_1.temp;
+    var updMETACARPALS = gm.DP_1.temp;
+
+    // Update temperature in render
+    sphere_DP_1.material.color.setHex(0x009933);
+    sphere_IP_1.material.color.setHex(0x009933);
+    sphere_PP_1.material.color.setHex(0x009933);
+    sphere_DP_2.material.color.setHex(0x009933);
+    sphere_IP_2.material.color.setHex(0x009933);
+    sphere_PP_2.material.color.setHex(0x009933);
+    sphere_DP_3.material.color.setHex(0x009933);
+    sphere_IP_3.material.color.setHex(0x009933);
+    sphere_PP_3.material.color.setHex(0x009933);
+    sphere_DP_4.material.color.setHex(0x009933);
+    sphere_IP_4.material.color.setHex(0x009933);
+    sphere_PP_4.material.color.setHex(0x009933);
+    sphere_DP_5.material.color.setHex(0x009933);
+    sphere_IP_5.material.color.setHex(0x009933);
+    sphere_PP_5.material.color.setHex(0x009933);
+    sphere_CARPALS.material.color.setHex(0x009933);
+    sphere_METACARPALS.material.color.setHex(0x009933);
 
 }
