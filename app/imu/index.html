@@ -113,13 +113,39 @@
             <script>
                 var socket = io.connect();
                 var gm = {};
-                var imuData = {a: [0, 0, 0], g: [0, 0, 0], m: [0, 0, 0]};
+                var imuData = {a: [0, 0, 0], g: [0, 0, 0], m: [0, 0, 0], q: [1, 0, 0, 0]};
+
+
+                // shot in the dark...
+                function convertMadgwickToOpenGL(qIn){
+                    // w, x, y, z order
+                    var tempQuat = [];
+                    var rotation = [ Math.sqrt(0.5), 0, 0, -1 * Math.sqrt(0.5)];
+                    tempQuat[0] = qIn.w;
+                    tempQuat[1] = qIn.x *  -1.0;
+                    tempQuat[2] = qIn.y;
+                    tempQuat[3] = qIn.z * -1.0;
+
+                    function quatMultiply(a, b){
+                        var ret = [];
+                        ret[0] = (b[0] * a[0]) - (b[1] * a[1]) - (b[2] * a[2]) - (b[3] * a[3]);
+                        ret[1] = (b[0] * a[1]) + (b[1] * a[0]) + (b[2] * a[3]) - (b[3] * a[2]);
+                        ret[2] = (b[0] * a[2]) + (b[2] * a[0]) + (b[3] * a[1]) - (b[1] * a[3]);
+                        ret[3] = (b[0] * a[3]) + (b[3] * a[0]) + (b[1] * a[2]) - (b[2] * a[1]);
+
+                        return ret;
+                    }
+
+                    return quatMultiply(tempQuat, rotation);
+                }
 
                 function runSocket() {
                     socket.on('glove_update', function(data) {
                         gm = data.IMU_set.METACARPALS;
 
-                        imuData.q = [gm.quat.w, gm.quat.x, gm.quat.y, gm.quat.z];
+                        imuData.q = convertMadgwickToOpenGL(gm.quat);
+
+                        //imuData.q = [gm.quat.w, gm.quat.x, gm.quat.y, gm.quat.z];
                         imuData.a = [gm.acc.x, gm.acc.y, gm.acc.z];
                         imuData.g = [gm.gyro.x, gm.gyro.y, gm.gyro.z];
                         imuData.m = [gm.mag.x, gm.mag.y, gm.mag.z];
