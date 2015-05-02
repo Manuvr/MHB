@@ -679,6 +679,7 @@ function runSocket() {
 function init() {
 
     // IMU positions on scene.
+  // TODO: D AND P OUT OF ORDER
     imus = {
         DP_1: new THREE.Vector3(0, 0, 0),
         IP_1: new THREE.Vector3(90, 20, 0),
@@ -992,6 +993,10 @@ function updateArrows(vecToUp) {
     arrow_PP_5.setLength(mult * (Math.sqrt( Math.pow(gm.PP_5[vecToUp].x, 2) + Math.pow(gm.PP_5[vecToUp].y, 2) + Math.pow(gm.PP_5[vecToUp].z, 2) ) ) );
     arrow_CARPALS.setLength(mult * (Math.sqrt( Math.pow(gm.CARPALS[vecToUp].x, 2) + Math.pow(gm.CARPALS[vecToUp].y, 2) + Math.pow(gm.CARPALS[vecToUp].z, 2) ) ) );
     arrow_METACARPALS.setLength(mult * (Math.sqrt( Math.pow(gm.METACARPALS[vecToUp].x, 2) + Math.pow(gm.METACARPALS[vecToUp].y, 2) + Math.pow(gm.METACARPALS[vecToUp].z, 2) ) ) );
+}
+
+// TODO: write this func fix gross above
+function arrowSetLen (arrow, vecX, vecY, vecZ) {
 }
 
 function updateTempMap() {
