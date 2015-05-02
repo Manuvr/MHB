@@ -77,25 +77,25 @@
         <tr data-ng-repeat="bone in boneList">
             <td>{{bone}}</td>
             <td>
-              w:{{(gloveModel.IMU_set[bone].quat.w)}}<br />
-              x:{{(gloveModel.IMU_set[bone].quat.x)}}<br />
-              y:{{(gloveModel.IMU_set[bone].quat.y)}}<br />
-              z:{{(gloveModel.IMU_set[bone].quat.z)}}<br />
+              w:{{(gloveModel.IMU_set[bone].quat.w.toFixed(4))}}<br />
+              x:{{(gloveModel.IMU_set[bone].quat.x.toFixed(4))}}<br />
+              y:{{(gloveModel.IMU_set[bone].quat.y.toFixed(4))}}<br />
+              z:{{(gloveModel.IMU_set[bone].quat.z.toFixed(4))}}<br />
             </td>
             <td>
-              x:{{(gloveModel.IMU_set[bone].acc.x)}}<br />
-              y:{{(gloveModel.IMU_set[bone].acc.y)}}<br />
-              z:{{(gloveModel.IMU_set[bone].acc.z)}}<br />
+              x:{{(gloveModel.IMU_set[bone].acc.x.toFixed(4))}}<br />
+              y:{{(gloveModel.IMU_set[bone].acc.y.toFixed(4))}}<br />
+              z:{{(gloveModel.IMU_set[bone].acc.z.toFixed(4))}}<br />
             </td>
             <td>
-              x:{{(gloveModel.IMU_set[bone].gyro.x)}}<br />
-              y:{{(gloveModel.IMU_set[bone].gyro.y)}}<br />
-              z:{{(gloveModel.IMU_set[bone].gyro.z)}}<br />
+              x:{{(gloveModel.IMU_set[bone].gyro.x.toFixed(4))}}<br />
+              y:{{(gloveModel.IMU_set[bone].gyro.y.toFixed(4))}}<br />
+              z:{{(gloveModel.IMU_set[bone].gyro.z.toFixed(4))}}<br />
             </td>
             <td>
-              x:{{(gloveModel.IMU_set[bone].mag.x)}}<br />
-              y:{{(gloveModel.IMU_set[bone].mag.y)}}<br />
-              z:{{(gloveModel.IMU_set[bone].mag.z)}}<br />
+              x:{{(gloveModel.IMU_set[bone].mag.x.toFixed(4))}}<br />
+              y:{{(gloveModel.IMU_set[bone].mag.y.toFixed(4))}}<br />
+              z:{{(gloveModel.IMU_set[bone].mag.z.toFixed(4))}}<br />
             </td>
           </tr>
       </table>
