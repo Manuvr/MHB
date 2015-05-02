@@ -155,7 +155,8 @@
     // Holds our model instances by name key
     var models = {};
     // name of the model to use when rendering bones.
-    var displayModel = "axis";
+    //var displayModel = "axis";
+    var displayModel = "xyzbone";
 
     var rootArm = new THREE.Object3D();
     var parentStack = new Array();
@@ -179,7 +180,7 @@
     function runSocket() {
         socket.on('glove_update', function(data) {
             gm = data.IMU_set;
-            console.log(gm);
+            //console.log(gm);
         });
     }
 
@@ -236,7 +237,7 @@
         var hObj = JSON.parse(taHierarchy.value);
         rootArm.name = "_ROOT_";
         parentStack.push(rootArm);
-        console.log(hObj);
+        //console.log(hObj);
         // Recursively traverse the hierarchy node to set up the ordered structure
         js_traverse(hObj.HIERARCHY);
         // Now loop through the offsets and set each bones relative offset
@@ -249,8 +250,8 @@
             console.log(key, hObj.OFFSETS[key]);
         }
 
-        console.log(boneArray);
-        console.log(rootArm);
+        //console.log(boneArray);
+        //console.log(rootArm);
         scene.add(rootArm);
         bonesInitialized = true;
     }
@@ -268,7 +269,7 @@
                 var parentJoint = parentStack[parentStack.length - 1];
                 parentJoint.add(newJoint);
                 newJoint.name = key;
-                console.log("C " + newJoint.name + " ->  P " + parentJoint.name)
+                //console.log("C " + newJoint.name + " ->  P " + parentJoint.name)
                 parentStack.push(newJoint);
                 boneArray.push(newJoint);
                 js_traverse(o[key]);
