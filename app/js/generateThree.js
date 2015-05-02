@@ -680,21 +680,21 @@ function init() {
 
     // IMU positions on scene.
     imus = {
-        DP_1: new THREE.Vector3(-300, 300, 0),
-        IP_1: new THREE.Vector3(-280, 200, 0),
-        PP_1: new THREE.Vector3(-270, 100, 0),
-        DP_2: new THREE.Vector3(-200, 350, 0),
-        IP_2: new THREE.Vector3(-200, 245, 0),
-        PP_2: new THREE.Vector3(-200, 120, 0),
+        DP_1: new THREE.Vector3(0, 0, 0),
+        IP_1: new THREE.Vector3(90, 20, 0),
+        PP_1: new THREE.Vector3(170, 40, 0),
+        DP_2: new THREE.Vector3(10, 300, 0),
+        IP_2: new THREE.Vector3(-2, 210, 0),
+        PP_2: new THREE.Vector3(-10, 120, 0),
         DP_3: new THREE.Vector3(-100, 360, 0),
         IP_3: new THREE.Vector3(-100, 250, 0),
         PP_3: new THREE.Vector3(-100, 120, 0),
-        DP_4: new THREE.Vector3(10, 300, 0),
-        IP_4: new THREE.Vector3(-2, 210, 0),
-        PP_4: new THREE.Vector3(-10, 120, 0),
-        DP_5: new THREE.Vector3(0, 0, 0),
-        IP_5: new THREE.Vector3(90, 20, 0),
-        PP_5: new THREE.Vector3(170, 40, 0),
+        DP_4: new THREE.Vector3(-200, 350, 0),
+        IP_4: new THREE.Vector3(-200, 245, 0),
+        PP_4: new THREE.Vector3(-200, 120, 0),
+        DP_5: new THREE.Vector3(-300, 300, 0),
+        IP_5: new THREE.Vector3(-280, 200, 0),
+        PP_5: new THREE.Vector3(-270, 100, 0),
         CARPALS: new THREE.Vector3(-130, -60, 0),
         METACARPALS: new THREE.Vector3(-130, -150, 0)
     };
