@@ -34,24 +34,56 @@
     </style>
   </head>
   <body>
-    <div class="graph"></div>
+    <header>Manuvr Real Time IMU Monitor</header>
+    <div>
+      <select id='imu-select'>
+        <option value='quat'>Quaternion</option>
+        <option value='acc'>Acceleration</option>
+        <option value='gyro'>Gyroscope</option>
+        <option value='mag'>Magnetometer</option>
+      </select>
+      <select id='phalanx-select'>
+        <option value='CARPALS'>Carpals</option>
+        <option value='METACARPALS'>Metacarpals</option>
+        <option value='PP_1'>PP_1</option>
+        <option value='IP_1'>IP_1</option>
+        <option value='DP_1'>DP_1</option>
+        <option value='PP_2'>PP_2</option>
+        <option value='IP_2'>IP_2</option>
+        <option value='DP_2'>DP_2</option>
+        <option value='PP_3'>PP_3</option>
+        <option value='IP_3'>IP_3</option>
+        <option value='DP_3'>DP_3</option>
+        <option value='PP_4'>PP_4</option>
+        <option value='IP_4'>IP_4</option>
+        <option value='DP_4'>DP_4</option>
+        <option value='PP_5'>PP_5</option>
+        <option value='IP_5'>IP_5</option>
+        <option value='DP_5'>DP_5</option>
+      </select>
+    </div>
+    <div class='graph'></div>
 
-    <script src="http://d3js.org/d3.v3.min.js"></script>
-    <script src="../bower_components/socket.io-client/socket.io.js"></script>
+    <script src='http://d3js.org/d3.v3.min.js'></script>
+    <script src='../bower_components/socket.io-client/socket.io.js'></script>
+        <script src='../bower_components/jquery/dist/jquery.min.js'></script>
     <script>
 
+    // Set dropdown vars
+    var vectorSelected = 'quat';
+    var phalanaxSelected = 'CARPALS';
+    $('#vector-select').change(function() {
+      vectorSelected = $(this).val();
+    });
+    $('#phalanx-select').change(function() {
+      phalanaxSelected = $(this).val();
+    });
+
     var gm;
-    var imuData = {a: [0, 0, 0], g: [0, 0, 0], m: [0, 0, 0]};
     var socket = io.connect();
     function runSocket() {
       socket.on('glove_update', function(data) {
-        gm = data.IMU_set.DP_1;
-
-        imuData.q = [gm.quat.w, gm.quat.x, gm.quat.y, gm.quat.z];
-        imuData.a = [gm.acc.x, gm.acc.y, gm.acc.z];
-        imuData.g = [gm.gyro.x, gm.gyro.y, gm.gyro.z];
-        imuData.m = [gm.mag.x, gm.mag.y, gm.mag.z];
-
+        gm = data.IMU_set;
         console.log("got glove model");
       });
     }
@@ -138,8 +170,14 @@
       var i = 0;
       for (var name in groups) {
         var group = groups[name];
-        group.data.push(imuData.m[i])
-        group.path.attr('d', line)
+        if(gm) {
+          group.data.push(gm[phalanaxSelected][vectorSelected][name])
+          group.path.attr('d', line)
+        }
+        else {
+          group.data.push(0);
+          group.path.attr('d', line)
+        }
         i++;
       }
 
