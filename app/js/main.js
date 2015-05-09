@@ -3,6 +3,8 @@
 
     var socket = io.connect();
 
+
+
     angular.module('ManusDebug', ['ui.router'])
     .config(function ($stateProvider, $urlRouterProvider) {
 
@@ -234,4 +236,7 @@
 
         }
     ]);
+
+
+
 }());
