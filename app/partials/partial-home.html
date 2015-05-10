@@ -3,108 +3,163 @@
     <div class="row">
         <div class="col-md-6">
             <!-- views -->
-            <h3>Status</h3>
-                {{ gloveStatus }}
+            <h4>Status: <span style="color: red;}};">{{ gloveStatus }}</span></h4>
 
-            <h3>Glove Emulator</h3>
-            <div>
-                <select ng-model="mode"
+            <div style="background-color: #D0D0D0; padding: 10px; width: 420px; height: 40px; border-radius: 6px;">
+                <label class="control-label col-sm-4" for="target">Target:</label>
+                <select class="col-sm-8"
+                        id="target"
+                        ng-model="mode"
                         ng-options="m for m in modeOptions">
                     <option value="">-- choose command --</option>
                 </select>
-            </div><br />
+            </div>
 
-             <form role="form" ng-submit="sendTestData()">
-                 <div class="form-group">
-                     <select ng-model="myCommand"
-                         ng-options="key for (key, value) in commands">
-                         <option value="">-- choose command --</option>
-                     </select>
-                     <br />
-                     <select ng-model="myArgForms"
-                             ng-options="value.len for (key, value) in myCommand.argForms">
-                         <option value="">-- Arg Length Select --</option>
-                     </select>
-                 </div>
-                 <div class="form-group" ng-show="myArgForms">
-                     <div ng-repeat="arg in myArgForms.data track by $index">
-                     <input type="text" class="form-control" ng-model="msgArgs[$index]" placeholder="{{argRef[arg].type}}">
-                     </div>
-                 </div>
-                <button type="submit" class="btn btn-primary">Send Glove Message</button>
-             </form>
-             <br />
-             <button ng-click="randomIMUmag()" class="btn btn-primary label-danger">Generate Random IMU Vector Stream</button>
-             <br /><br />
+            <h4>Message Builder:</h4>
 
-            <button ng-click="sendSync()" class="btn btn-primary">Send Sync Packet</button>
-            <button ng-click="sendMassSync()" class="btn btn-primary label-danger">Send 200 Sync Packets</button>
-             <br /><br />
-            <button ng-click="connectBT(btAddress)" class="btn btn-primary label-success" ng-hide="btToggle">Connect to Bluetooth</button>
-            <button ng-click="disconnectBT()" class="btn btn-primary label-danger" ng-show="btToggle">Close Bluetooth connection</button>
-            <br/> <br />
-             <button ng-click="scanBT()" class="btn btn-primary" ng-hide="btToggle">Scan for Devices</button>
-             <br /><br />
-             <div ng-repeat="btAddy in btAddressList | limitTo: 5" ng-hide="btToggle">{{btAddy.name + " - " + btAddy.address}}</div>
-             <input type="text" class="form-control" ng-model="btAddress" placeholder="Glove MAC Address"></input>
-          </div>
-          <div class="col-md-6">
-            <br /><br />
-            <button  class="btn btn-primary" onclick="window.open('/#/hand')">Open Hand Visualizer</button>
-            <br /><br />
-            <h3>REC. COMMAND LOG</h3>
-            <div style="background-color: #b0c4de;">
+            <div style="background-color: #D0D0D0; padding: 10px; width: 420px; border-radius: 6px;">
+                <form role="form" ng-submit="sendTestData()">
+                    <div class="form-group">
+
+                        <label class="control-label col-sm-4" for="com">Commands:</label>
+                        <select class="col-sm-8" id="com" ng-model="myCommand"
+                                ng-options="key for (key, value) in commands">
+                            <option value="">-- choose command --</option>
+                        </select>
+                        <br/>
+                        <br/>
+                        <label class="control-label col-sm-4" for="arglen">Arg Len:</label>
+                        <select class="col-sm-8"
+                                id="arglen"
+                                ng-model="myArgForms"
+                                ng-options="value.len for (key, value) in myCommand.argForms">
+                            <option value="">-- Arg Length Select --</option>
+                        </select>
+                    </div>
+                    <div class="form-group" ng-show="myArgForms">
+                        <div ng-repeat="arg in myArgForms.data track by $index">
+                            <input type="text" class="form-control" ng-model="msgArgs[$index]"
+                                   placeholder="{{argRef[arg].type}}">
+                        </div>
+                    </div>
+                    <br/>
+                    <button type="submit" class="btn btn-primary">Send Glove Message</button>
+                </form>
+            </div>
+
+            <h4>Utility Functions:</h4>
+
+            <div style="background-color: #D0D0D0; padding: 10px; width: 420px; border-radius: 6px;">
+                <button ng-click="sendSync()" class="btn btn-primary">Send Sync Packet</button>
+                <button ng-click="sendMassSync()" class="btn btn-primary label-danger">Send 200 Sync Packets</button>
+                <br/><br/>
+                <button ng-click="randomIMUmag()" class="btn btn-primary label-danger">Generate Random IMU Vector
+                    Stream
+                </button>
+            </div>
+
+            <h4>Visualizers:</h4>
+
+            <div style="background-color: #D0D0D0; padding: 10px; width: 420px; border-radius: 6px;">
+                <button class="btn btn-primary" onclick="window.open('/#/hand')">Kinematic Hand Render</button>
+                <button class="btn btn-primary" onclick="window.open('/imu')">Carpals Quat Render</button>
+                <br /><br />
+                <button class="btn btn-primary" onclick="window.open('/rt')">Real Time Graph</button>
+                <button class="btn btn-primary" onclick="window.open('/fixed')">Fixed Sensor Render</button>
+                <br/>
+            </div>
+
+        </div>
+        <div class="col-sm-6">
+
+            <h4>Connection:</h4>
+
+            <div style="background-color: #D0D0D0; padding: 10px; min-height: 158px; width: 420px; border-radius: 6px;">
+                <div class="input-group" ng-hide="btToggle">
+                    <h5>Serial:</h5>
+
+                <span>
+                    <!--<p ng-hide="sToggle">1) Disconnect your USB/Serial device <br />2) Click "Auto Connect" <br />3) Re-connect device within 5 seconds.</p>-->
+                    <button ng-click="autoConnectSerial()" class="btn btn-primary" ng-hide="sToggle">Auto Connect</button>
+                    <button ng-click="closeSerial()" class="btn btn-danger" ng-show="sToggle">Close Serial Connection
+                    </button>
+                </span>
+                </div>
+
+                <h5 ng-hide="sToggle">Bluetooth:</h5>
+                <div class="input-group" ng-hide="sToggle">
+
+                <span class="input-group-btn">
+                    <button ng-click="scanBT()" class="btn btn-primary" ng-hide="btToggle">Scan</button>
+                </span>
+                    <input type="text" class="form-control" ng-model="btAddress" ng-hide="btToggle"
+                           placeholder="Glove MAC Address">
+                    <span class="input-group-btn">
+                        <button ng-click="connectBT(btAddress)" class="btn btn-primary" ng-hide="btToggle">Connect
+                        </button>
+                    </span>
+                    <button ng-click="disconnectBT()" class="btn btn-primary label-danger" ng-show="btToggle">Close
+                        Bluetooth connection
+                    </button>
+                </div>
+                <div ng-repeat="btAddy in btAddressList | limitTo: 5" ng-hide="btToggle">{{btAddy.name + " - " +
+                    btAddy.address}}
+                </div>
+            </div>
+
+            <h4>COMMAND LOG</h4>
+            <div style="background-color: #b0c4de; padding: 10px; height: 280px; width: 420px; border-radius: 6px;">
             <span ng-repeat="message in messages track by $index | limitTo: 10">
                 {{ message.name + " : [" + message.msg.args + "]" }}<br/>
             </span></div>
-          </div>
+            <h4>FPS: {{FPS}}</h4>
+
+
+        </div>
     </div>
     <div class='row'>
-      <div class="col-md-12">
-      <h3>IMU Frames</h3>
-      <div class='table-responsive'>
-      <table class='table' border='1'>
-        <thead>
-          <tr>
-            <th>Bone</th>
-            <th>Quat</th>
-            <th>Acceleration</th>
-            <th>Gyro</th>
-            <th>Mag</th>
-          </tr>
-        </thead>
-        <tbody>
-        <tr data-ng-repeat="bone in boneList">
-            <td>{{bone}}</td>
-            <td>
-              w:{{(gloveModel.IMU_set[bone].quat.w.toFixed(4))}}<br />
-              x:{{(gloveModel.IMU_set[bone].quat.x.toFixed(4))}}<br />
-              y:{{(gloveModel.IMU_set[bone].quat.y.toFixed(4))}}<br />
-              z:{{(gloveModel.IMU_set[bone].quat.z.toFixed(4))}}<br />
-            </td>
-            <td>
-              x:{{(gloveModel.IMU_set[bone].acc.x.toFixed(4))}}<br />
-              y:{{(gloveModel.IMU_set[bone].acc.y.toFixed(4))}}<br />
-              z:{{(gloveModel.IMU_set[bone].acc.z.toFixed(4))}}<br />
-            </td>
-            <td>
-              x:{{(gloveModel.IMU_set[bone].gyro.x.toFixed(4))}}<br />
-              y:{{(gloveModel.IMU_set[bone].gyro.y.toFixed(4))}}<br />
-              z:{{(gloveModel.IMU_set[bone].gyro.z.toFixed(4))}}<br />
-            </td>
-            <td>
-              x:{{(gloveModel.IMU_set[bone].mag.x.toFixed(4))}}<br />
-              y:{{(gloveModel.IMU_set[bone].mag.y.toFixed(4))}}<br />
-              z:{{(gloveModel.IMU_set[bone].mag.z.toFixed(4))}}<br />
-            </td>
-          </tr>
-      </table>
-      </div>
-      </div>
-    </div>
-    <div class="row">
         <div class="col-md-12">
-            <h3>Glove JSON Display</h3>
-            <pre>{{gloveModel | json}}</pre>
+            <h3>IMU Frames</h3>
+
+            <div class='table-responsive'>
+                <table class='table' border='1'>
+                    <thead>
+                    <tr>
+                        <th>Bone</th>
+                        <th>Quat</th>
+                        <th>Acceleration</th>
+                        <th>Gyro</th>
+                        <th>Mag</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr data-ng-repeat="bone in boneList">
+                        <td>{{bone}}</td>
+                        <td>
+                            w:{{(gloveModel.IMU_set[bone].quat.w.toFixed(4))}}<br/>
+                            x:{{(gloveModel.IMU_set[bone].quat.x.toFixed(4))}}<br/>
+                            y:{{(gloveModel.IMU_set[bone].quat.y.toFixed(4))}}<br/>
+                            z:{{(gloveModel.IMU_set[bone].quat.z.toFixed(4))}}<br/>
+                        </td>
+                        <td>
+                            x:{{(gloveModel.IMU_set[bone].acc.x.toFixed(4))}}<br/>
+                            y:{{(gloveModel.IMU_set[bone].acc.y.toFixed(4))}}<br/>
+                            z:{{(gloveModel.IMU_set[bone].acc.z.toFixed(4))}}<br/>
+                        </td>
+                        <td>
+                            x:{{(gloveModel.IMU_set[bone].gyro.x.toFixed(4))}}<br/>
+                            y:{{(gloveModel.IMU_set[bone].gyro.y.toFixed(4))}}<br/>
+                            z:{{(gloveModel.IMU_set[bone].gyro.z.toFixed(4))}}<br/>
+                        </td>
+                        <td>
+                            x:{{(gloveModel.IMU_set[bone].mag.x.toFixed(4))}}<br/>
+                            y:{{(gloveModel.IMU_set[bone].mag.y.toFixed(4))}}<br/>
+                            z:{{(gloveModel.IMU_set[bone].mag.z.toFixed(4))}}<br/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
+    </div>
+
 </div>
