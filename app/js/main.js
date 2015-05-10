@@ -4,7 +4,7 @@
 	var socket = io.connect();
 
 
-	angular.module('ManusDebug', ['ui.router'])
+	angular.module('ManusDebug', ['ui.router', 'luegg.directives'])
 		.config(function ($stateProvider, $urlRouterProvider) {
 
 			$urlRouterProvider.otherwise('/');
@@ -90,10 +90,11 @@
 				$scope.msgManArgs = [];
 				$scope.myArgForms = "";
 				$scope.gloveStatus = "Not Connected";
-				$scope.messages = [];
+				$scope.messages = ["Welcome!"];
 				$scope.gloveModel = {};
 				$scope.gloveModel2 = {};
 				$scope.btAddress = "00:06:66:61:32:B8"; // Just for R0 by default.... You can still scan if you want.
+				$scope.sAddress = "/dev/ttyACM0"; // default on Josh's laptop
 				$scope.btAddressList = [];
 				$scope.boneList = [
 					'CARPALS', 'METACARPALS', 'PP_1',
@@ -104,6 +105,10 @@
 
 				$scope.measure = "gyro";
 				$scope.measureOptions = ["acceleration", "gyro", "mag"];
+
+				$scope.clearLog = function(){
+					$scope.messages = ["Log cleared."]
+				};
 
 				$scope.sendTestData = function () {
 					if ($scope.myArgForms === "") {
@@ -171,6 +176,15 @@
 					$.get('/api/closeSerial')
 				};
 
+				$scope.scanSerial = function(){
+					$.get('/api/scanSerial')
+				};
+
+				$scope.connectSerial = function(port){
+					$.get('/api/connectSerial/' + port, function (res){
+					});
+				};
+
 				socket.on('FPS', function (value) {
 					$scope.$apply(function () {
 						$scope.FPS = value;
@@ -196,10 +210,20 @@
 					})
 				});
 
+				socket.on('serialList', function(data){
+					$scope.$apply(function(){
+						$scope.messages.push("PORT LIST:");
+						data.forEach(function(e, i, a){
+							$scope.messages.push(e);
+						})
+					})
+				});
+
 				socket.on('btFound', function (address, name) {
 					$scope.$apply(function () {
 						console.log(address + " " + name);
-						$scope.btAddressList.push({address: address, name: name})
+						//$scope.btAddressList.push({address: address, name: name});
+						$scope.messages.push("BT: " + name + " @ " + address);
 					})
 				});
 
@@ -207,7 +231,7 @@
 					$scope.$apply(function () {
 						data.name = def;
 						//console.log(data);
-						$scope.messages.unshift(data);
+						$scope.messages.push("COMMAND: " + def + ": " + data.msg.args );
 					});
 				});
 

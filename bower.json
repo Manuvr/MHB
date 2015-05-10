@@ -21,6 +21,7 @@
     "animate.css": "~3.2.0",
     "bootstrap": "~3.3.1",
     "fontawesome": "~4.2.0",
-    "socket.io-client": "~1.2.1"
+    "socket.io-client": "~1.2.1",
+    "angular-scroll-glue": "~2.0.5"
   }
 }

@@ -6,14 +6,14 @@
     <div class="row">
         <div class="col-md-6">
             <!-- views -->
-            <h4>Status: <span style="color: red;}};">{{ gloveStatus }}</span></h4>
+            <h4>Glove Status: <span style="color: red;}};">{{ gloveStatus }}</span></h4>
 
             <div style="background-color: #D0D0D0; padding: 10px; width: 420px; height: 40px; border-radius: 6px;">
-                <label class="control-label col-sm-4" for="target">Target:</label>
-                <select class="col-sm-8"
+                <label class="control-label col-md-4" for="target">Target:</label>
+                <select class=" col-md-8"
                         id="target"
                         ng-model="mode"
-                        ng-options="m for m in modeOptions">
+                        ng-options="m for m in modeOptions"
                     <option value="">-- choose command --</option>
                 </select>
             </div>
@@ -24,15 +24,15 @@
                 <form role="form" ng-submit="sendTestData()">
                     <div class="form-group">
 
-                        <label class="control-label col-sm-4" for="com">Commands:</label>
-                        <select class="col-sm-8" id="com" ng-model="myCommand"
+                        <label class="control-label col-md-4" for="com">Commands:</label>
+                        <select class="col-md-8" id="com" ng-model="myCommand"
                                 ng-options="key for (key, value) in commands">
                             <option value="">-- choose command --</option>
                         </select>
                         <br/>
                         <br/>
-                        <label class="control-label col-sm-4" for="arglen">Arg Len:</label>
-                        <select class="col-sm-8"
+                        <label class="control-label col-md-4" for="arglen">Arg Length:</label>
+                        <select class="col-md-8"
                                 id="arglen"
                                 ng-model="myArgForms"
                                 ng-options="value.len for (key, value) in myCommand.argForms">
@@ -46,47 +46,56 @@
                         </div>
                     </div>
                     <br/>
-                    <button type="submit" class="btn btn-primary">Send Glove Message</button>
+                    <button type="submit" class="col-md-12 btn btn-primary">Send Glove Message</button>
+                    <br /><br />
                 </form>
             </div>
 
             <h4>Utility Functions:</h4>
 
             <div style="background-color: #D0D0D0; padding: 10px; width: 420px; border-radius: 6px;">
-                <button ng-click="sendSync()" class="btn btn-primary">Send Sync Packet</button>
-                <button ng-click="sendMassSync()" class="btn btn-primary label-danger">Send 200 Sync Packets</button>
+                <button ng-click="sendSync()" class="btn btn-primary col-md-6">Send Sync Packet</button>
+                <button ng-click="sendMassSync()" class="btn btn-primary label-danger col-md-6 pull-right">Send 200 Sync Packets</button>
                 <br/><br/>
-                <button ng-click="randomIMUmag()" class="btn btn-primary label-danger">Generate Random IMU Vector
+                <button ng-click="randomIMUmag()" class="btn btn-primary label-danger col-md-12">Generate Random IMU Vector
                     Stream
                 </button>
+                <br /><br />
             </div>
 
             <h4>Visualizers:</h4>
 
             <div style="background-color: #D0D0D0; padding: 10px; width: 420px; border-radius: 6px;">
-                <button class="btn btn-primary" onclick="window.open('/#/hand')">Kinematic Hand Render</button>
-                <button class="btn btn-primary" onclick="window.open('/imu')">Carpals Quat Render</button>
+                <button class="btn btn-primary col-md-6" onclick="window.open('/#/hand')">Kinematic Hand Render</button>
+                <button class="btn btn-primary col-md-6" onclick="window.open('/imu')">Carpals Quat Render</button>
                 <br /><br />
-                <button class="btn btn-primary" onclick="window.open('/rt')">Real Time Graph</button>
-                <button class="btn btn-primary" onclick="window.open('/fixed')">Fixed Sensor Render</button>
-                <br/>
+                <button class="btn btn-primary col-md-6" onclick="window.open('/rt')">Real Time Graph</button>
+                <button class="btn btn-primary col-md-6" onclick="window.open('/fixed')">Fixed Sensor Render</button>
+                <br /><br />
             </div>
 
         </div>
-        <div class="col-sm-6">
+        <div class="col-md-2">
 
             <h4>Connection:</h4>
 
-            <div style="background-color: #D0D0D0; padding: 10px; min-height: 158px; width: 420px; border-radius: 6px;">
+            <div style="background-color: #D0D0D0; padding: 10px; min-height: 170px; width: 420px; border-radius: 6px;">
+                <h5 ng-hide="btToggle">Serial: </h5>
+                <button ng-click="closeSerial()" class="btn btn-danger" ng-show="sToggle">Close Serial Connection
+                </button>
                 <div class="input-group" ng-hide="btToggle">
-                    <h5>Serial:</h5>
 
-                <span>
-                    <!--<p ng-hide="sToggle">1) Disconnect your USB/Serial device <br />2) Click "Auto Connect" <br />3) Re-connect device within 5 seconds.</p>-->
-                    <button ng-click="autoConnectSerial()" class="btn btn-primary" ng-hide="sToggle">Auto Connect</button>
-                    <button ng-click="closeSerial()" class="btn btn-danger" ng-show="sToggle">Close Serial Connection
-                    </button>
-                </span>
+                    <span class="input-group-btn">
+                        <button ng-click="scanSerial()" class="btn btn-primary" ng-hide="sToggle">Scan</button>
+                    </span>
+                    <input type="text" class="form-control" ng-model="sAddress" ng-hide="sToggle"
+                           placeholder="Serial Address">
+                    <span class="input-group-btn">
+                        <button ng-click="connectSerial(sAddress)" class="btn btn-primary" ng-hide="sToggle">Connect
+                        </button>
+                        <button ng-click="autoConnectSerial()" class="btn btn-success" ng-hide="sToggle">Auto Connect</button>
+                    </span>
+
                 </div>
 
                 <h5 ng-hide="sToggle">Bluetooth:</h5>
@@ -105,24 +114,29 @@
                         Bluetooth connection
                     </button>
                 </div>
-                <div ng-repeat="btAddy in btAddressList | limitTo: 5" ng-hide="btToggle">{{btAddy.name + " - " +
-                    btAddy.address}}
-                </div>
+                <!--<div ng-repeat="btAddy in btAddressList | limitTo: 5" ng-hide="btToggle">{{btAddy.name + " - " +-->
+                    <!--btAddy.address}}-->
+                <!--</div>-->
             </div>
 
-            <h4>COMMAND LOG</h4>
-            <div style="background-color: #b0c4de; padding: 10px; height: 280px; width: 420px; border-radius: 6px;">
-            <span ng-repeat="message in messages track by $index | limitTo: 10">
-                {{ message.name + " : [" + message.msg.args + "]" }}<br/>
-            </span></div>
-            <h4>FPS: {{FPS}}</h4>
+            <span>
+                <h4>Log: <button ng-click="clearLog()" class="btn btn-link">Clear</button></h4>
+            </span>
+            <div id="log"
+                 style="background-color: black; padding: 10px; height: 270px; overflow: auto; width: 420px; border-radius: 6px;"
+                 scroll-glue>
+                <span ng-repeat="message in messages track by $index" style="color: greenyellow; font-size: small; font-family: Consolas,  Menlo, monospace; ">
+                    {{message}} <br />
+                </span>
+                <a id="bottom"></a>
+            </div>
 
 
         </div>
     </div>
     <div class='row'>
         <div class="col-md-12">
-            <h3>IMU Frames</h3>
+            <h4>IMU Frames (FPS: {{FPS}})</h4>
 
             <div class='table-responsive'>
                 <table class='table' border='1'>
