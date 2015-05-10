@@ -218,7 +218,6 @@
 					});
 				});
 
-
 				socket.on('bt_connection', function (data) {
 					$scope.$apply(function () {
 						switch (data) {
