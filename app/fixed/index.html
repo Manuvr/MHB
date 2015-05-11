@@ -185,7 +185,7 @@
 
       // Create spheres.
       var geometry = new THREE.SphereGeometry( 20, 8, 6 );
-      var material = new THREE.MeshBasicMaterial( {wireframe: true, color: 'blue' } );
+      //var material = new THREE.MeshBasicMaterial( {wireframe: true, color: 'blue' } );
       spheres = {
         sphere_DP_1: null,
         sphere_IP_1: null,
@@ -205,12 +205,17 @@
         sphere_CARPALS: null, 
         sphere_METACARPALS: null
       };
-
+      
       var i = 0;
       for (var sphere in spheres) {
-        var phalanax = phalanges[i];
-        spheres[sphere] = new THREE.Mesh(geometry, material);
+        var toSplit = sphere.indexOf("_");
+        var phalanax = sphere.substring(toSplit + 1);
+        spheres[sphere] = new THREE.Mesh(
+          geometry, 
+          new THREE.MeshBasicMaterial({wireframe: true, color: 'blue' })
+        );
         spheres[sphere].position.set(imus[phalanax].x, imus[phalanax].y, imus[phalanax].z);
+        spheres[sphere].mvr_phalanax = phalanax;
         scene.add(spheres[sphere]);
         i++;
       }
@@ -320,7 +325,6 @@
       arrow_CARPALS.setDirection ( updCARPALS );
       arrow_METACARPALS.setDirection ( updMETACARPALS );
 
-
       // Update magnitude on vectors.
       for(arrow in arrows)
       {
@@ -341,29 +345,43 @@
     function updateTempMap() {
 
         // Get temperature from current glove model.
-        var updDP_1 = gm.DP_1.temp;
-        var updIP_1 = gm.DP_1.temp;
-        var updPP_1 = gm.DP_1.temp;
-        var updDP_2 = gm.DP_1.temp;
-        var updIP_2 = gm.DP_1.temp;
-        var updPP_2 = gm.DP_1.temp;
-        var updDP_3 = gm.DP_1.temp;
-        var updIP_3 = gm.DP_1.temp;
-        var updPP_3 = gm.DP_1.temp;
-        var updDP_4 = gm.DP_1.temp;
-        var updIP_4 = gm.DP_1.temp;
-        var updPP_4 = gm.DP_1.temp;
-        var updDP_5 = gm.DP_1.temp;
-        var updIP_5 = gm.DP_1.temp;
-        var updPP_5 = gm.DP_1.temp;
-        var updCARPALS = gm.DP_1.temp;
-        var updMETACARPALS = gm.DP_1.temp;
-
         // Update temperature in render
         for (var sphere in spheres) {
-          spheres[sphere].material.color.setHex(0x009933)
+          var sphere_temp = gm[spheres[sphere].mvr_phalanax].temp;
+          var sphere_color = getColor(sphere_temp);
+          spheres[sphere].material.color.setStyle(sphere_color);
         }
     }
+
+    function getColor(pct) {
+      var percentColors = [
+      { pct: 0.0, color: { r: 0, g: 0, b: 255 } },
+      { pct: 0.5, color: { r: 255, g: 0, b: 255 } },
+      { pct: 1.0, color: { r: 255, g: 0, b: 0 } } ];
+
+      for (var i = 1; i < percentColors.length - 1; i++) {
+          if (pct < percentColors[i].pct) {
+              break;
+          }
+      }
+      var lower = percentColors[i - 1];
+      var upper = percentColors[i];
+      var range = upper.pct - lower.pct;
+      var rangePct = (pct - lower.pct) / range;
+      var pctLower = 1 - rangePct;
+      var pctUpper = rangePct;
+      var color = {
+          r: Math.floor(lower.color.r * pctLower + upper.color.r * pctUpper),
+          g: Math.floor(lower.color.g * pctLower + upper.color.g * pctUpper),
+          b: Math.floor(lower.color.b * pctLower + upper.color.b * pctUpper)
+      };
+      var hexColor = rgbToHex(color.r, color.g, color.b);
+      return hexColor;
+    } 
+    function rgbToHex(r, g, b) {
+      return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
     </script>
   </body>
 </html>
