@@ -82,7 +82,9 @@ function showAxes() {
 
 // Create a renderer using an existing canvas
 var canvas = document.getElementById("canvas");
-var renderer = new THREE.WebGLRenderer({ canvas: canvas });
+//var renderer = new THREE.CanvasRenderer({ canvas: canvas});
+var renderer = Detector.webgl? new THREE.WebGLRenderer({ canvas: canvas }): new THREE.CanvasRenderer({ canvas: canvas });
+
 var CANVAS_WIDTH = canvas.scrollWidth;
 var CANVAS_HEIGHT = canvas.scrollHeight;
 var CANVAS_ASPECT = CANVAS_WIDTH / CANVAS_HEIGHT;
