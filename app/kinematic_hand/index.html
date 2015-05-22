@@ -194,9 +194,10 @@
 					antialias		: true,	// to get smoother output
 					preserveDrawingBuffer	: true	// to allow screenshot
 				});
-				renderer.setClearColor( 0xbbbbbb );
+				renderer.setClearColor( 0xffffff );
 			}else{
 				renderer	= new THREE.CanvasRenderer();
+				renderer.setClearColor( 0xffffff)
 			}
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			document.getElementById('container').appendChild(renderer.domElement);
