@@ -1,29 +1,25 @@
+'use strict'
+
 var gulp = require('gulp');
-var browserSync = require('browser-sync');
-var reload = browserSync.reload;
-var nodemon = require('gulp-nodemon');
+var path = require('path');
+var webpack = require('webpack');
+var gutil = require('gulp-util');
 
-// tasks
-gulp.task('lint', function() {
-    var jshint = require('gulp-jshint');
-    gulp.src(['./app/**/*.js', '!./app/bower_components/**'])
-        .pipe(jshint())
-        .pipe(jshint.reporter('default'))
-        .pipe(jshint.reporter('fail'));
-});
-gulp.task('browser-sync', function() {
-    browserSync({
-        proxy: "http://localhost:4000"
-    });
-});
-gulp.task('nodemon', function (cb) {
-    var called = false;
-    return nodemon({
-        script: 'main.js'
-    }).on('start', function() {
-            cb();
-    });
+var webpackConfig = require('./webpack.config');
+
+gulp.task('default', ['build']);
+
+gulp.task('build', ['serve'], function(cb) {
+  webpack(webpackConfig, function(err){
+    gutil.log('webpack built');
+    cb(err);
+  });
 });
 
-gulp.task('default',['browser-sync'] , function() {
+gulp.task('serve', function(cb) {
+
+  // TODO: Setup to run express
+  var started = false;
+  var cp = require('child_process');
+
 });

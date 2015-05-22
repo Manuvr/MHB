@@ -81,6 +81,7 @@
 				$scope.FPS = 0.0;
 				//gloveModel.getAll();
 				$scope.btToggle = false;
+				$scope.recordToggle = false;
 				$scope.sToggle = false;
 				$scope.mode = "host";
 				$scope.modeOptions = ["host", "glove"];
@@ -283,27 +284,17 @@
 				});
 
 				$scope.randomIMUmag = function () {
-					// Generate random hex string
-					// 680 + (4 floats * 17 * 4 bytes per float = 272) + 8
-					// 952
-
 					$.get('/api/updateGloveModelRandom', function (res) {
-					})
-					/*
-					 var totalBytes = 952 * 2;
-					 var builtArg = "";
-					 var randOpts = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
-					 for (var i = 0; i < totalBytes; i++) {
-					 var rand = Math.floor((Math.random() * 15) + 1);
-					 var hexNum = randOpts[rand];
-					 builtArg += hexNum;
-					 }
-
-					 $scope.msgManArgs = builtArg;
-					 $scope.sendManTestData();
-					 */
+					});
+        };
+        $scope.enableRecord = function (address) {
+					$scope.recordToggle = true;
+					$.get('/api/enableRecording', function (res) {});
 				};
-
+        $scope.disableRecord = function (address) {
+					$scope.recordToggle = false;
+					$.get('/api/disableRecording', function (res) {});
+        };
 			}
 		]);
 
