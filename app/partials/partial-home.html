@@ -55,10 +55,12 @@
 
             <div style="background-color: #D0D0D0; padding: 10px; width: 420px; border-radius: 6px;">
                 <button ng-click="sendSync()" class="btn btn-primary col-md-6">Send Sync Packet</button>
-                <button ng-click="sendMassSync()" class="btn btn-primary label-danger col-md-6 pull-right">Send 200 Sync Packets</button>
+                <button ng-click="sendMassSync()" class="btn btn-primary col-md-6 pull-right">Send 200 Sync Packets</button>
                 <br/><br/>
-                <button ng-click="randomIMUmag()" class="btn btn-primary label-danger col-md-12">Generate Random IMU Vector
-                    Stream
+                <button ng-click="randomIMUmag()" class="btn btn-primary col-md-6">Generate IMU</button>
+                <button ng-click="enableRecord()" class="btn btn-primary col-md-6" ng-hide="recordToggle">Record
+                </button>
+                <button ng-click="disableRecord()" class="btn label-danger col-md-6" ng-show="recordToggle">Stop
                 </button>
                 <br /><br />
             </div>
