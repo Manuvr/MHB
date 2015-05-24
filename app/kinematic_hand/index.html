@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 	<head>
-		<title>learningthree.js boiler plate for three.js</title>
+		<title>Manuvr Full Hand Quat Render</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		
@@ -17,6 +17,9 @@
 		<script src="vendor/threex.dragpancontrols.js"></script>
 		<script type="text/javascript" src="https://rawgit.com/mrdoob/three.js/master/examples/js/controls/TrackballControls.js"></script>
 		<script src="../bower_components/socket.io-client/socket.io.js"></script>
+		<script src="../bower_components/dat.gui/dat.gui.min.js"></script>
+		<script src="../bower_components/underscore/underscore-min.js"></script>
+
 
 		<link  href="css/main.css" rel="stylesheet"/>
 	</head>
@@ -170,6 +173,56 @@
 			}
 		};
 
+		var imuVectors = {};
+		var calibrationFrame = {};
+		var calibrate = false;
+
+
+		var options = {
+			"Calibrate Frame": function (){
+				console.log("I LIKE TURTLES");
+				calibrationFrame = _.clone(imuVectors);
+				calibrate = true;
+				console.log(JSON.stringify(calibrationFrame));
+				console.log("wut")
+			}
+		};
+
+		var gui = new dat.GUI({
+			height : 5 * 32 - 1
+		});
+
+		gui.add(options, 'Calibrate Frame');
+
+		function updateImuVectors() {
+			for (var imu in IMU_set) {
+				if (IMU_set.hasOwnProperty(imu)) {
+					imuVectors[imu] = {};
+					for (var sensor in IMU_set[imu]) {
+						console.log("s: " + sensor + "  " + imu)
+						if (IMU_set[imu].hasOwnProperty(sensor)) {
+							switch (sensor) {
+								case "quat" :
+									if (options.calibrate) {
+										imuVectors[imu][sensor] = new THREE.Quaternion(IMU_set[imu][sensor].x, IMU_set[imu][sensor].y, IMU_set[imu][sensor].z, IMU_set[imu][sensor].w).sub(calibrationFrame[imu][sensor]);
+									} else {
+										imuVectors[imu][sensor] = new THREE.Quaternion(IMU_set[imu][sensor].x, IMU_set[imu][sensor].y, IMU_set[imu][sensor].z, IMU_set[imu][sensor].w);
+									}
+									break;
+								case "acc"  :
+								case "gyro" :
+								case "mag"  :
+									imuVectors[imu][sensor] = new THREE.Vector3(IMU_set[imu][sensor].x, IMU_set[imu][sensor].y, IMU_set[imu][sensor].z);
+									break;
+							}
+						}
+					}
+				}
+			}
+			console.log(JSON.stringify(imuVectors));
+		}
+
+
 		var socket = io.connect();
 
 		var frames = 0;
@@ -177,6 +230,8 @@
 		function runSocket() {
 			socket.on('glove_update', function(data) {
 				IMU_set = data.IMU_set;
+				updateImuVectors();
+
 			});
 		}
 		runSocket();
@@ -188,6 +243,7 @@
 
 		// init the scene
 		function init(){
+			updateImuVectors();
 
 			if( Detector.webgl ){
 				renderer = new THREE.WebGLRenderer({
@@ -346,34 +402,32 @@
 			dp5.position.y = 3;
 
 			// Arrow Stuff
+			var createArrow = function(type) {
+				return new THREE.ArrowHelper( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3(0, (type.height / 2.0), 0), 1, 0xFF0000);
+			};
 
-			var dir = new THREE.Vector3( 0, 0, 0 );
-			var origin = new THREE.Vector3( 0, 2, 0 );
-			var length = 1;
-			var hex = 0xFF0000;
+			carpArrow  = createArrow(carpal);
+			mcarpArrow = createArrow(carpal);
 
-			carpArrow  = new THREE.ArrowHelper( dir, new THREE.Vector3(0, (carpal.height / 2.0), 0), length, hex);
-			mcarpArrow = new THREE.ArrowHelper( dir, new THREE.Vector3(0, (carpal.height / 2.0), 0), length, hex);
+			pp1Arrow   = createArrow(thumb);
+			ip1Arrow   = createArrow(thumb);
+			dp1Arrow   = createArrow(thumb);
 
-			pp1Arrow   = new THREE.ArrowHelper( dir, new THREE.Vector3(0, (thumb.height / 2.0), 0), length, hex);
-			ip1Arrow   = new THREE.ArrowHelper( dir, new THREE.Vector3(0, (thumb.height / 2.0), 0), length, hex);
-			dp1Arrow   = new THREE.ArrowHelper( dir, new THREE.Vector3(0, (thumb.height / 2.0), 0), length, hex);
+			pp2Arrow   = createArrow(finger);
+			ip2Arrow   = createArrow(finger);
+			dp2Arrow   = createArrow(finger);
 
-			pp2Arrow   = new THREE.ArrowHelper( dir, new THREE.Vector3(0, (finger.height / 2.0), 0), length, hex);
-			ip2Arrow   = new THREE.ArrowHelper( dir, new THREE.Vector3(0, (finger.height / 2.0), 0), length, hex);
-			dp2Arrow   = new THREE.ArrowHelper( dir, new THREE.Vector3(0, (finger.height / 2.0), 0), length, hex);
+			pp3Arrow   = createArrow(finger);
+			ip3Arrow   = createArrow(finger);
+			dp3Arrow   = createArrow(finger);
 
-			pp3Arrow   = new THREE.ArrowHelper( dir, new THREE.Vector3(0, (finger.height / 2.0), 0), length, hex);
-			ip3Arrow   = new THREE.ArrowHelper( dir, new THREE.Vector3(0, (finger.height / 2.0), 0), length, hex);
-			dp3Arrow   = new THREE.ArrowHelper( dir, new THREE.Vector3(0, (finger.height / 2.0), 0), length, hex);
+			pp4Arrow   = createArrow(finger);
+			ip4Arrow   = createArrow(finger);
+			dp4Arrow   = createArrow(finger);
 
-			pp4Arrow   = new THREE.ArrowHelper( dir, new THREE.Vector3(0, (finger.height / 2.0), 0), length, hex);
-			ip4Arrow   = new THREE.ArrowHelper( dir, new THREE.Vector3(0, (finger.height / 2.0), 0), length, hex);
-			dp4Arrow   = new THREE.ArrowHelper( dir, new THREE.Vector3(0, (finger.height / 2.0), 0), length, hex);
-
-			pp5Arrow   = new THREE.ArrowHelper( dir, new THREE.Vector3(0, (finger.height / 2.0), 0), length, hex);
-			ip5Arrow   = new THREE.ArrowHelper( dir, new THREE.Vector3(0, (finger.height / 2.0), 0), length, hex);
-			dp5Arrow   = new THREE.ArrowHelper( dir, new THREE.Vector3(0, (finger.height / 2.0), 0), length, hex);
+			pp5Arrow   = createArrow(finger);
+			ip5Arrow   = createArrow(finger);
+			dp5Arrow   = createArrow(finger);
 
 			carp.add(carpArrow);
 			mcarp.add(mcarpArrow);
@@ -406,47 +460,47 @@
 			// - see details at http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
 			requestAnimationFrame( animate );
 
-			carp.quaternion.set( IMU_set.CARPALS.quat.x, IMU_set.CARPALS.quat.y, IMU_set.CARPALS.quat.z, IMU_set.CARPALS.quat.w);
-			mcarp.quaternion.set( IMU_set.METACARPALS.quat.x, IMU_set.METACARPALS.quat.y, IMU_set.METACARPALS.quat.z, IMU_set.METACARPALS.quat.w);
+			carp.quaternion.copy( imuVectors["CARPALS"]["quat"]);
+			mcarp.quaternion.copy( imuVectors["METACARPALS"]["quat"]);
 
-			pp1.quaternion.set( IMU_set.PP_1.quat.x, IMU_set.PP_1.quat.y, IMU_set.PP_1.quat.z, IMU_set.PP_1.quat.w);
-			ip1.quaternion.set( IMU_set.IP_1.quat.x, IMU_set.IP_1.quat.y, IMU_set.IP_1.quat.z, IMU_set.IP_1.quat.w);
-			dp1.quaternion.set( IMU_set.DP_1.quat.x, IMU_set.DP_1.quat.y, IMU_set.DP_1.quat.z, IMU_set.DP_1.quat.w);
+			pp1.quaternion.copy( imuVectors["PP_1"]["quat"]);
+			ip1.quaternion.copy( imuVectors["IP_1"]["quat"]);
+			dp1.quaternion.copy( imuVectors["DP_1"]["quat"]);
 
-			pp2.quaternion.set( IMU_set.PP_2.quat.x, IMU_set.PP_2.quat.y, IMU_set.PP_2.quat.z, IMU_set.PP_2.quat.w);
-			ip2.quaternion.set( IMU_set.IP_2.quat.x, IMU_set.IP_2.quat.y, IMU_set.IP_2.quat.z, IMU_set.IP_2.quat.w);
-			dp2.quaternion.set( IMU_set.DP_2.quat.x, IMU_set.DP_2.quat.y, IMU_set.DP_2.quat.z, IMU_set.DP_2.quat.w);
+			pp2.quaternion.copy( imuVectors["PP_2"]["quat"]);
+			ip2.quaternion.copy( imuVectors["IP_2"]["quat"]);
+			dp2.quaternion.copy( imuVectors["DP_2"]["quat"]);
 
-			pp3.quaternion.set( IMU_set.PP_3.quat.x, IMU_set.PP_3.quat.y, IMU_set.PP_3.quat.z, IMU_set.PP_3.quat.w);
-			ip3.quaternion.set( IMU_set.IP_3.quat.x, IMU_set.IP_3.quat.y, IMU_set.IP_3.quat.z, IMU_set.IP_3.quat.w);
-			dp3.quaternion.set( IMU_set.DP_3.quat.x, IMU_set.DP_3.quat.y, IMU_set.DP_3.quat.z, IMU_set.DP_3.quat.w);
+			pp3.quaternion.copy( imuVectors["PP_3"]["quat"]);
+			ip3.quaternion.copy( imuVectors["IP_3"]["quat"]);
+			dp3.quaternion.copy( imuVectors["DP_3"]["quat"]);
 
-			pp4.quaternion.set( IMU_set.PP_4.quat.x, IMU_set.PP_4.quat.y, IMU_set.PP_4.quat.z, IMU_set.PP_4.quat.w);
-			ip4.quaternion.set( IMU_set.IP_4.quat.x, IMU_set.IP_4.quat.y, IMU_set.IP_4.quat.z, IMU_set.IP_4.quat.w);
-			dp4.quaternion.set( IMU_set.DP_4.quat.x, IMU_set.DP_4.quat.y, IMU_set.DP_4.quat.z, IMU_set.DP_4.quat.w);
+			pp4.quaternion.copy( imuVectors["PP_4"]["quat"]);
+			ip4.quaternion.copy( imuVectors["IP_4"]["quat"]);
+			dp4.quaternion.copy( imuVectors["DP_4"]["quat"]);
 
-			pp5.quaternion.set( IMU_set.PP_5.quat.x, IMU_set.PP_5.quat.y, IMU_set.PP_5.quat.z, IMU_set.PP_5.quat.w);
-			ip5.quaternion.set( IMU_set.IP_5.quat.x, IMU_set.IP_5.quat.y, IMU_set.IP_5.quat.z, IMU_set.IP_5.quat.w);
-			dp5.quaternion.set( IMU_set.DP_5.quat.x, IMU_set.DP_5.quat.y, IMU_set.DP_5.quat.z, IMU_set.DP_5.quat.w);
+			pp5.quaternion.copy( imuVectors["PP_5"]["quat"]);
+			ip5.quaternion.copy( imuVectors["IP_5"]["quat"]);
+			dp5.quaternion.copy( imuVectors["DP_5"]["quat"]);
 
 
-			carpArrow.setLength(  new THREE.Euler(IMU_set.CARPALS.acc.x, IMU_set.CARPALS.acc.y, IMU_set.CARPALS.acc.z, IMU_set.CARPALS.acc.w))
-			mcarpArrow.setLength( new THREE.Euler(IMU_set.METACARPALS.acc.x, IMU_set.METACARPALS.acc.y, IMU_set.METACARPALS.acc.z, IMU_set.METACARPALS.acc.w))
-			pp1Arrow.setLength(   new THREE.Euler(IMU_set.PP_1.acc.x, IMU_set.PP_1.acc.y, IMU_set.PP_1.acc.z, IMU_set.PP_1.acc.w));
-			ip1Arrow.setLength(   new THREE.Euler(IMU_set.IP_1.acc.x, IMU_set.IP_1.acc.y, IMU_set.IP_1.acc.z, IMU_set.IP_1.acc.w));
-			dp1Arrow.setLength(   new THREE.Euler(IMU_set.DP_1.acc.x, IMU_set.DP_1.acc.y, IMU_set.DP_1.acc.z, IMU_set.DP_1.acc.w));
-			pp2Arrow.setLength(   new THREE.Euler(IMU_set.PP_2.acc.x, IMU_set.PP_2.acc.y, IMU_set.PP_2.acc.z, IMU_set.PP_2.acc.w));
-			ip2Arrow.setLength(   new THREE.Euler(IMU_set.IP_2.acc.x, IMU_set.IP_2.acc.y, IMU_set.IP_2.acc.z, IMU_set.IP_2.acc.w));
-			dp2Arrow.setLength(   new THREE.Euler(IMU_set.DP_2.acc.x, IMU_set.DP_2.acc.y, IMU_set.DP_2.acc.z, IMU_set.DP_2.acc.w));
-			pp3Arrow.setLength(   new THREE.Euler(IMU_set.PP_3.acc.x, IMU_set.PP_3.acc.y, IMU_set.PP_3.acc.z, IMU_set.PP_3.acc.w));
-			ip3Arrow.setLength(   new THREE.Euler(IMU_set.IP_3.acc.x, IMU_set.IP_3.acc.y, IMU_set.IP_3.acc.z, IMU_set.IP_3.acc.w));
-			dp3Arrow.setLength(   new THREE.Euler(IMU_set.DP_3.acc.x, IMU_set.DP_3.acc.y, IMU_set.DP_3.acc.z, IMU_set.DP_3.acc.w));
-			pp4Arrow.setLength(   new THREE.Euler(IMU_set.PP_4.acc.x, IMU_set.PP_4.acc.y, IMU_set.PP_4.acc.z, IMU_set.PP_4.acc.w));
-			ip4Arrow.setLength(   new THREE.Euler(IMU_set.IP_4.acc.x, IMU_set.IP_4.acc.y, IMU_set.IP_4.acc.z, IMU_set.IP_4.acc.w));
-			dp4Arrow.setLength(   new THREE.Euler(IMU_set.DP_4.acc.x, IMU_set.DP_4.acc.y, IMU_set.DP_4.acc.z, IMU_set.DP_4.acc.w));
-			pp5Arrow.setLength(   new THREE.Euler(IMU_set.PP_5.acc.x, IMU_set.PP_5.acc.y, IMU_set.PP_5.acc.z, IMU_set.PP_5.acc.w));
-			ip5Arrow.setLength(   new THREE.Euler(IMU_set.IP_5.acc.x, IMU_set.IP_5.acc.y, IMU_set.IP_5.acc.z, IMU_set.IP_5.acc.w));
-			dp5Arrow.setLength(   new THREE.Euler(IMU_set.DP_5.acc.x, IMU_set.DP_5.acc.y, IMU_set.DP_5.acc.z, IMU_set.DP_5.acc.w));
+			carpArrow.setDirection(new THREE.Euler(imuVectors["CARPALS"]["acc"]));
+			mcarpArrow.setDirection(new THREE.Euler(imuVectors["METACARPALS"]["acc"]));
+			pp1Arrow.setDirection(new THREE.Euler(imuVectors["PP_1"]["acc"]));
+			ip1Arrow.setDirection(new THREE.Euler(imuVectors["IP_1"]["acc"]));
+			dp1Arrow.setDirection(new THREE.Euler(imuVectors["DP_1"]["acc"]));
+			pp2Arrow.setDirection(new THREE.Euler(imuVectors["PP_2"]["acc"]));
+			ip2Arrow.setDirection(new THREE.Euler(imuVectors["IP_2"]["acc"]));
+			dp2Arrow.setDirection(new THREE.Euler(imuVectors["DP_2"]["acc"]));
+			pp3Arrow.setDirection(new THREE.Euler(imuVectors["PP_3"]["acc"]));
+			ip3Arrow.setDirection(new THREE.Euler(imuVectors["IP_3"]["acc"]));
+			dp3Arrow.setDirection(new THREE.Euler(imuVectors["DP_3"]["acc"]));
+			pp4Arrow.setDirection(new THREE.Euler(imuVectors["PP_4"]["acc"]));
+			ip4Arrow.setDirection(new THREE.Euler(imuVectors["IP_4"]["acc"]));
+			dp4Arrow.setDirection(new THREE.Euler(imuVectors["DP_4"]["acc"]));
+			pp5Arrow.setDirection(new THREE.Euler(imuVectors["PP_5"]["acc"]));
+			ip5Arrow.setDirection(new THREE.Euler(imuVectors["IP_5"]["acc"]));
+			dp5Arrow.setDirection(new THREE.Euler(imuVectors["DP_5"]["acc"]));
 
 			carpArrow.setLength(    mult * (Math.sqrt(Math.pow(IMU_set.CARPALS.acc.x, 2) + Math.pow(IMU_set.CARPALS.acc.y, 2) + Math.pow(IMU_set.CARPALS.acc.z, 2))) );
 			mcarpArrow.setLength(   mult * (Math.sqrt(Math.pow(IMU_set.METACARPALS.acc.x, 2) + Math.pow(IMU_set.METACARPALS.acc.y, 2) + Math.pow(IMU_set.METACARPALS.acc.z, 2)))    );
