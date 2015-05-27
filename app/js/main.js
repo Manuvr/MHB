@@ -267,19 +267,8 @@
 				socket.on('outCommand', function (data) {
 					console.log(data);
 					$scope.$apply(function () {
-						//console.log($scope.commands);
-						//console.log(data);
-						//var getKeys = function(obj){
-						//    var keys = [];
-						//    for(var key in obj){
-						//        keys.push(key);
-						//    }
-						//    return keys;
-						//};
-
-						//$scope.commands = getKeys(data);
-						$scope.commands = data;
-						console.log(JSON.stringify(data));
+            $scope.commands = data;
+            console.log(JSON.stringify(data));
 					});
 				});
 
@@ -287,13 +276,16 @@
 					$.get('/api/updateGloveModelRandom', function (res) {
 					});
         };
-        $scope.enableRecord = function (address) {
+        $scope.enableRecord = function () {
 					$scope.recordToggle = true;
 					$.get('/api/enableRecording', function (res) {});
 				};
-        $scope.disableRecord = function (address) {
+        $scope.disableRecord = function () {
 					$scope.recordToggle = false;
 					$.get('/api/disableRecording', function (res) {});
+        };
+        $scope.playRecording = function () {
+					$.get('/api/playRecording', function (res) {});
         };
 			}
 		]);
