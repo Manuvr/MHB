@@ -1,0 +1,544 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Manuvr Full Hand Quat Render</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		
+			
+		<script src="vendor/three.js/Three.js"></script>
+		<script src="vendor/three.js/Detector.js"></script>
+		<!-- https://github.com/mrdoob/stats.js -->
+		<script src="vendor/three.js/Stats.js"></script>
+
+		<script src="vendor/threex/THREEx.screenshot.js"></script>
+		<script src="vendor/threex/THREEx.FullScreen.js"></script>
+		<script src="vendor/threex/THREEx.WindowResize.js"></script>
+		<script src="vendor/threex.dragpancontrols.js"></script>
+		<script type="text/javascript" src="https://rawgit.com/mrdoob/three.js/master/examples/js/controls/TrackballControls.js"></script>
+		<script src="../bower_components/socket.io-client/socket.io.js"></script>
+		<script src="../bower_components/dat.gui/dat.gui.min.js"></script>
+		<script src="../bower_components/underscore/underscore-min.js"></script>
+
+
+		<link  href="css/main.css" rel="stylesheet"/>
+	</head>
+<body>
+	<!-- three.js container -->
+    	<div id="container"></div>
+	<!-- info on screen display -->
+	<div id="info">
+		<div class="top">
+			Manuvr Kinematic Viewer <br /> Quaternion data only
+		</div>
+		<div class="bottom" id="inlineDoc" >
+			- <i>p</i> for screenshot
+		</div> 
+	</div> 
+
+	<script type="text/javascript">
+
+		var IMU_set    = {
+			CARPALS    : {
+				quat : {w: 1, x: 0, y: 0, z: 0},
+				acc  : {x: 0, y: 0, z: 0},
+				gyro : {x: 0, y: 0, z: 0},
+				mag  : {x: 0, y: 0, z: 0},
+				temp : 0
+			},
+			METACARPALS: {
+				quat : {w: 1, x: 0, y: 0, z: 0},
+				acc  : {x: 0, y: 0, z: 0},
+				gyro : {x: 0, y: 0, z: 0},
+				mag  : {x: 0, y: 0, z: 0},
+				temp : 0,
+				LED  : 0,
+				LED_l: 0
+			},
+			PP_1       : {
+				quat : {w: 1, x: 0, y: 0, z: 0},
+				acc  : {x: 0, y: 0, z: 0},
+				gyro : {x: 0, y: 0, z: 0},
+				mag  : {x: 0, y: 0, z: 0},
+				temp : 0
+			},
+			IP_1       : {
+				quat : {w: 1, x: 0, y: 0, z: 0},
+				acc  : {x: 0, y: 0, z: 0},
+				gyro : {x: 0, y: 0, z: 0},
+				mag  : {x: 0, y: 0, z: 0},
+				temp : 0
+			},
+			DP_1       : {
+				quat : {w: 1, x: 0, y: 0, z: 0},
+				acc  : {x: 0, y: 0, z: 0},
+				gyro : {x: 0, y: 0, z: 0},
+				mag  : {x: 0, y: 0, z: 0},
+				temp : 0,
+				LED  : 0,
+				LED_l: 0
+			},
+
+			PP_2: {
+				quat : {w: 1, x: 0, y: 0, z: 0},
+				acc  : {x: 0, y: 0, z: 0},
+				gyro : {x: 0, y: 0, z: 0},
+				mag  : {x: 0, y: 0, z: 0},
+				temp : 0
+			},
+			IP_2: {
+				quat : {w: 1, x: 0, y: 0, z: 0},
+				acc  : {x: 0, y: 0, z: 0},
+				gyro : {x: 0, y: 0, z: 0},
+				mag  : {x: 0, y: 0, z: 0},
+				temp : 0
+			},
+			DP_2: {
+				quat : {w: 1, x: 0, y: 0, z: 0},
+				acc  : {x: 0, y: 0, z: 0},
+				gyro : {x: 0, y: 0, z: 0},
+				mag  : {x: 0, y: 0, z: 0},
+				temp : 0,
+				LED  : 0,
+				LED_l: 0
+			},
+			PP_3: {
+				quat : {w: 1, x: 0, y: 0, z: 0},
+				acc  : {x: 0, y: 0, z: 0},
+				gyro : {x: 0, y: 0, z: 0},
+				mag  : {x: 0, y: 0, z: 0},
+				temp: 0
+			},
+			IP_3: {
+				quat : {w: 1, x: 0, y: 0, z: 0},
+				acc  : {x: 0, y: 0, z: 0},
+				gyro : {x: 0, y: 0, z: 0},
+				mag  : {x: 0, y: 0, z: 0},
+				temp: 0
+			},
+			DP_3: {
+				quat : {w: 1, x: 0, y: 0, z: 0},
+				acc  : {x: 0, y: 0, z: 0},
+				gyro : {x: 0, y: 0, z: 0},
+				mag  : {x: 0, y: 0, z: 0},
+				temp : 0,
+				LED  : 0,
+				LED_l: 0
+			},
+			PP_4: {
+				quat : {w: 1, x: 0, y: 0, z: 0},
+				acc  : {x: 0, y: 0, z: 0},
+				gyro : {x: 0, y: 0, z: 0},
+				mag  : {x: 0, y: 0, z: 0},
+				temp : 0
+			},
+			IP_4: {
+				quat : {w: 1, x: 0, y: 0, z: 0},
+				acc  : {x: 0, y: 0, z: 0},
+				gyro : {x: 0, y: 0, z: 0},
+				mag  : {x: 0, y: 0, z: 0},
+				temp : 0
+			},
+			DP_4: {
+				quat : {w: 1, x: 0, y: 0, z: 0},
+				acc  : {x: 0, y: 0, z: 0},
+				gyro : {x: 0, y: 0, z: 0},
+				mag  : {x: 0, y: 0, z: 0},
+				temp : 0,
+				LED  : 0,
+				LED_l: 0
+			},
+			PP_5: {
+				quat : {w: 1, x: 0, y: 0, z: 0},
+				acc  : {x: 0, y: 0, z: 0},
+				gyro : {x: 0, y: 0, z: 0},
+				mag  : {x: 0, y: 0, z: 0},
+				temp : 0
+			},
+			IP_5: {
+				quat : {w: 1, x: 0, y: 0, z: 0},
+				acc  : {x: 0, y: 0, z: 0},
+				gyro : {x: 0, y: 0, z: 0},
+				mag  : {x: 0, y: 0, z: 0},
+				temp : 0
+			},
+			DP_5: {
+				quat : {w: 1, x: 0, y: 0, z: 0},
+				acc  : {x: 0, y: 0, z: 0},
+				gyro : {x: 0, y: 0, z: 0},
+				mag  : {x: 0, y: 0, z: 0},
+				temp : 0,
+				LED  : 0,
+				LED_l: 0
+			}
+		};
+
+		var imuVectors = {};
+		var calibrationFrame = {};
+		var calibrate = false;
+
+
+		var options = {
+			"Calibrate Frame": function (){
+				console.log("I LIKE TURTLES");
+				calibrationFrame = _.clone(imuVectors);
+				calibrate = true;
+				console.log(JSON.stringify(calibrationFrame));
+				console.log("wut")
+			}
+		};
+
+		var gui = new dat.GUI({
+			height : 5 * 32 - 1
+		});
+
+		gui.add(options, 'Calibrate Frame');
+
+		function updateImuVectors() {
+			for (var imu in IMU_set) {
+				if (IMU_set.hasOwnProperty(imu)) {
+					imuVectors[imu] = {};
+					for (var sensor in IMU_set[imu]) {
+						console.log("s: " + sensor + "  " + imu)
+						if (IMU_set[imu].hasOwnProperty(sensor)) {
+							switch (sensor) {
+								case "quat" :
+									if (options.calibrate) {
+										imuVectors[imu][sensor] = new THREE.Quaternion(IMU_set[imu][sensor].x, IMU_set[imu][sensor].y, IMU_set[imu][sensor].z, IMU_set[imu][sensor].w).sub(calibrationFrame[imu][sensor]);
+									} else {
+										imuVectors[imu][sensor] = new THREE.Quaternion(IMU_set[imu][sensor].x, IMU_set[imu][sensor].y, IMU_set[imu][sensor].z, IMU_set[imu][sensor].w);
+									}
+									break;
+								case "acc"  :
+								case "gyro" :
+								case "mag"  :
+									imuVectors[imu][sensor] = new THREE.Vector3(IMU_set[imu][sensor].x, IMU_set[imu][sensor].y, IMU_set[imu][sensor].z);
+									break;
+							}
+						}
+					}
+				}
+			}
+			console.log(JSON.stringify(imuVectors));
+		}
+
+
+		var socket = io.connect();
+
+		var frames = 0;
+
+		function runSocket() {
+			socket.on('glove_update', function(data) {
+				IMU_set = data.IMU_set;
+				updateImuVectors();
+
+			});
+		}
+		runSocket();
+
+		var stats, scene, renderer, composer;
+		var camera, cameraControls;
+
+		if( !init() )	animate();
+
+		// init the scene
+		function init(){
+			updateImuVectors();
+
+			if( Detector.webgl ){
+				renderer = new THREE.WebGLRenderer({
+					antialias		: true,	// to get smoother output
+					preserveDrawingBuffer	: true	// to allow screenshot
+				});
+				renderer.setClearColor( 0xffffff );
+			}else{
+				renderer	= new THREE.CanvasRenderer();
+				renderer.setClearColor( 0xffffff)
+			}
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.getElementById('container').appendChild(renderer.domElement);
+
+			// add Stats.js - https://github.com/mrdoob/stats.js
+			stats = new Stats();
+			stats.domElement.style.position	= 'absolute';
+			stats.domElement.style.bottom	= '0px';
+			document.body.appendChild( stats.domElement );
+
+			// create a scene
+			scene = new THREE.Scene();
+
+			// put a camera in the scene
+			var cameraH	= 3;
+			var cameraW	= cameraH / window.innerHeight * window.innerWidth;
+			//camera	= new THREE.OrthographicCamera( -cameraW/2, +cameraW/2, cameraH/2, -cameraH/2, -10000, 10000 );
+			camera = new THREE.PerspectiveCamera( 45, cameraW / cameraH, 1, 1000 );
+
+			camera.position.set(0, 10, 40);
+			scene.add(camera);
+
+			// create a camera contol
+			cameraControls	= new THREE.TrackballControls( camera )
+
+
+			// transparently support window resize
+			THREEx.WindowResize.bind(renderer, camera);
+			// allow 'p' to make screenshot
+			THREEx.Screenshot.bindKey(renderer);
+			// allow 'f' to go fullscreen where this feature is supported
+			if( THREEx.FullScreen.available() ){
+				THREEx.FullScreen.bindKey();		
+				document.getElementById('inlineDoc').innerHTML	+= "- <i>f</i> for fullscreen";
+			}
+
+			// GEOMETRY FOR HAND
+			var carpal = {
+				width: 2,
+				height: 4,
+				depth: 1
+			};
+
+			var thumb = {
+				width: 1,
+				height: 2,
+				depth: 1
+			};
+
+			var finger = {
+				width: 1,
+				height: 3,
+				depth: 1
+			};
+
+			// mesh creation
+			var makeImuMesh = function(color, type){
+				var tempMat 	= new THREE.MeshLambertMaterial({ emissive: color, wireframe: true});
+				var tempGeo 	= new THREE.BoxGeometry(type.width, type.height, type.depth );
+				tempGeo.applyMatrix( new THREE.Matrix4().makeTranslation( 0, type.height/2, 0 ) );
+				var tempMesh	= new THREE.Mesh( tempGeo, tempMat );
+
+				// vector addition
+
+
+				return tempMesh;
+			};
+
+
+
+			carp = makeImuMesh(0x0000ff, carpal);
+			mcarp = makeImuMesh(0x00ffff, carpal);
+
+			pp1 = makeImuMesh(0x0f0f0f, thumb);
+			ip1 = makeImuMesh(0x0f0f0f, thumb);
+			dp1 = makeImuMesh(0x0f0f0f, thumb);
+
+			pp2 = makeImuMesh(0x0f0f0f, finger);
+			ip2 = makeImuMesh(0x0f0f0f, finger);
+			dp2 = makeImuMesh(0x0f0f0f, finger);
+
+			pp3 = makeImuMesh(0x0f0f0f, finger);
+			ip3 = makeImuMesh(0x0f0f0f, finger);
+			dp3 = makeImuMesh(0x0f0f0f, finger);
+
+			pp4 = makeImuMesh(0x0f0f0f, finger);
+			ip4 = makeImuMesh(0x0f0f0f, finger);
+			dp4 = makeImuMesh(0x0f0f0f, finger);
+
+			pp5 = makeImuMesh(0x0f0f0f, finger);
+			ip5 = makeImuMesh(0x0f0f0f, finger);
+			dp5 = makeImuMesh(0x0f0f0f, finger);
+
+			// hierarchy
+			ip5.add(   dp5   );
+			pp5.add(   ip5   );
+			mcarp.add( pp5   );
+
+			ip4.add(   dp4   );
+			pp4.add(   ip4   );
+			mcarp.add( pp4   );
+
+			ip3.add(   dp3   );
+			pp3.add(   ip3   );
+			mcarp.add( pp3   );
+
+			ip2.add(   dp2   );
+			pp2.add(   ip2   );
+			mcarp.add( pp2   );
+
+			ip1.add(   dp1   );
+			pp1.add(   ip1   );
+			mcarp.add( pp1   );
+
+			carp.add(  mcarp );
+			scene.add( carp  );
+
+			// hand offsets
+			carp.position.y = -10;
+
+			mcarp.position.y = 4;
+
+			pp1.position.y = 2;
+			pp1.position.x = 4;
+			ip1.position.y = 2;
+			dp1.position.y = 2;
+
+			pp2.position.y = 4;
+			pp2.position.x = 2;
+			ip2.position.y = 3;
+			dp2.position.y = 3;
+
+			pp3.position.y = 4;
+			pp3.position.x = 0;
+			ip3.position.y = 3;
+			dp3.position.y = 3;
+
+			pp4.position.y = 4;
+			pp4.position.x = -2;
+			ip4.position.y = 3;
+			dp4.position.y = 3;
+
+			pp5.position.y = 4;
+			pp5.position.x = -4;
+			ip5.position.y = 3;
+			dp5.position.y = 3;
+
+			// Arrow Stuff
+			var createArrow = function(type) {
+				return new THREE.ArrowHelper( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3(0, (type.height / 2.0), 0), 1, 0xFF0000);
+			};
+
+			carpArrow  = createArrow(carpal);
+			mcarpArrow = createArrow(carpal);
+
+			pp1Arrow   = createArrow(thumb);
+			ip1Arrow   = createArrow(thumb);
+			dp1Arrow   = createArrow(thumb);
+
+			pp2Arrow   = createArrow(finger);
+			ip2Arrow   = createArrow(finger);
+			dp2Arrow   = createArrow(finger);
+
+			pp3Arrow   = createArrow(finger);
+			ip3Arrow   = createArrow(finger);
+			dp3Arrow   = createArrow(finger);
+
+			pp4Arrow   = createArrow(finger);
+			ip4Arrow   = createArrow(finger);
+			dp4Arrow   = createArrow(finger);
+
+			pp5Arrow   = createArrow(finger);
+			ip5Arrow   = createArrow(finger);
+			dp5Arrow   = createArrow(finger);
+
+			carp.add(carpArrow);
+			mcarp.add(mcarpArrow);
+			pp1.add(pp1Arrow);
+			ip1.add(ip1Arrow);
+			dp1.add(dp1Arrow);
+			pp2.add(pp2Arrow);
+			ip2.add(ip2Arrow);
+			dp2.add(dp2Arrow);
+			pp3.add(pp3Arrow);
+			ip3.add(ip3Arrow);
+			dp3.add(dp3Arrow);
+			pp4.add(pp4Arrow);
+			ip4.add(ip4Arrow);
+			dp4.add(dp4Arrow);
+			pp5.add(pp5Arrow);
+			ip5.add(ip5Arrow);
+			dp5.add(dp5Arrow);
+			
+
+		}
+
+		// animation loop
+		function animate() {
+
+			var mult = 1;
+
+			// loop on request animation loop
+			// - it has to be at the begining of the function
+			// - see details at http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+			requestAnimationFrame( animate );
+
+			carp.quaternion.copy( imuVectors["CARPALS"]["quat"]);
+			mcarp.quaternion.copy( imuVectors["METACARPALS"]["quat"]);
+
+			pp1.quaternion.copy( imuVectors["PP_1"]["quat"]);
+			ip1.quaternion.copy( imuVectors["IP_1"]["quat"]);
+			dp1.quaternion.copy( imuVectors["DP_1"]["quat"]);
+
+			pp2.quaternion.copy( imuVectors["PP_2"]["quat"]);
+			ip2.quaternion.copy( imuVectors["IP_2"]["quat"]);
+			dp2.quaternion.copy( imuVectors["DP_2"]["quat"]);
+
+			pp3.quaternion.copy( imuVectors["PP_3"]["quat"]);
+			ip3.quaternion.copy( imuVectors["IP_3"]["quat"]);
+			dp3.quaternion.copy( imuVectors["DP_3"]["quat"]);
+
+			pp4.quaternion.copy( imuVectors["PP_4"]["quat"]);
+			ip4.quaternion.copy( imuVectors["IP_4"]["quat"]);
+			dp4.quaternion.copy( imuVectors["DP_4"]["quat"]);
+
+			pp5.quaternion.copy( imuVectors["PP_5"]["quat"]);
+			ip5.quaternion.copy( imuVectors["IP_5"]["quat"]);
+			dp5.quaternion.copy( imuVectors["DP_5"]["quat"]);
+
+
+			carpArrow.setDirection(new THREE.Euler(imuVectors["CARPALS"]["acc"]));
+			mcarpArrow.setDirection(new THREE.Euler(imuVectors["METACARPALS"]["acc"]));
+			pp1Arrow.setDirection(new THREE.Euler(imuVectors["PP_1"]["acc"]));
+			ip1Arrow.setDirection(new THREE.Euler(imuVectors["IP_1"]["acc"]));
+			dp1Arrow.setDirection(new THREE.Euler(imuVectors["DP_1"]["acc"]));
+			pp2Arrow.setDirection(new THREE.Euler(imuVectors["PP_2"]["acc"]));
+			ip2Arrow.setDirection(new THREE.Euler(imuVectors["IP_2"]["acc"]));
+			dp2Arrow.setDirection(new THREE.Euler(imuVectors["DP_2"]["acc"]));
+			pp3Arrow.setDirection(new THREE.Euler(imuVectors["PP_3"]["acc"]));
+			ip3Arrow.setDirection(new THREE.Euler(imuVectors["IP_3"]["acc"]));
+			dp3Arrow.setDirection(new THREE.Euler(imuVectors["DP_3"]["acc"]));
+			pp4Arrow.setDirection(new THREE.Euler(imuVectors["PP_4"]["acc"]));
+			ip4Arrow.setDirection(new THREE.Euler(imuVectors["IP_4"]["acc"]));
+			dp4Arrow.setDirection(new THREE.Euler(imuVectors["DP_4"]["acc"]));
+			pp5Arrow.setDirection(new THREE.Euler(imuVectors["PP_5"]["acc"]));
+			ip5Arrow.setDirection(new THREE.Euler(imuVectors["IP_5"]["acc"]));
+			dp5Arrow.setDirection(new THREE.Euler(imuVectors["DP_5"]["acc"]));
+
+			carpArrow.setLength(    mult * (Math.sqrt(Math.pow(IMU_set.CARPALS.acc.x, 2) + Math.pow(IMU_set.CARPALS.acc.y, 2) + Math.pow(IMU_set.CARPALS.acc.z, 2))) );
+			mcarpArrow.setLength(   mult * (Math.sqrt(Math.pow(IMU_set.METACARPALS.acc.x, 2) + Math.pow(IMU_set.METACARPALS.acc.y, 2) + Math.pow(IMU_set.METACARPALS.acc.z, 2)))    );
+			pp1Arrow.setLength(     mult * (Math.sqrt(Math.pow(IMU_set.PP_1.acc.x, 2) + Math.pow(IMU_set.PP_1.acc.y, 2) + Math.pow(IMU_set.PP_1.acc.z, 2)))    );
+			ip1Arrow.setLength(     mult * (Math.sqrt(Math.pow(IMU_set.IP_1.acc.x, 2) + Math.pow(IMU_set.IP_1.acc.y, 2) + Math.pow(IMU_set.IP_1.acc.z, 2)))    );
+			dp1Arrow.setLength(     mult * (Math.sqrt(Math.pow(IMU_set.DP_1.acc.x, 2) + Math.pow(IMU_set.DP_1.acc.y, 2) + Math.pow(IMU_set.DP_1.acc.z, 2)))    );
+			pp2Arrow.setLength(     mult * (Math.sqrt(Math.pow(IMU_set.PP_2.acc.x, 2) + Math.pow(IMU_set.PP_2.acc.y, 2) + Math.pow(IMU_set.PP_2.acc.z, 2)))    );
+			ip2Arrow.setLength(     mult * (Math.sqrt(Math.pow(IMU_set.IP_2.acc.x, 2) + Math.pow(IMU_set.IP_2.acc.y, 2) + Math.pow(IMU_set.IP_2.acc.z, 2)))    );
+			dp2Arrow.setLength(     mult * (Math.sqrt(Math.pow(IMU_set.DP_2.acc.x, 2) + Math.pow(IMU_set.DP_2.acc.y, 2) + Math.pow(IMU_set.DP_2.acc.z, 2)))    );
+			pp3Arrow.setLength(     mult * (Math.sqrt(Math.pow(IMU_set.PP_3.acc.x, 2) + Math.pow(IMU_set.PP_3.acc.y, 2) + Math.pow(IMU_set.PP_3.acc.z, 2)))    );
+			ip3Arrow.setLength(     mult * (Math.sqrt(Math.pow(IMU_set.IP_3.acc.x, 2) + Math.pow(IMU_set.IP_3.acc.y, 2) + Math.pow(IMU_set.IP_3.acc.z, 2)))    );
+			dp3Arrow.setLength(     mult * (Math.sqrt(Math.pow(IMU_set.DP_3.acc.x, 2) + Math.pow(IMU_set.DP_3.acc.y, 2) + Math.pow(IMU_set.DP_3.acc.z, 2)))    );
+			pp4Arrow.setLength(     mult * (Math.sqrt(Math.pow(IMU_set.PP_4.acc.x, 2) + Math.pow(IMU_set.PP_4.acc.y, 2) + Math.pow(IMU_set.PP_4.acc.z, 2)))    );
+			ip4Arrow.setLength(     mult * (Math.sqrt(Math.pow(IMU_set.IP_4.acc.x, 2) + Math.pow(IMU_set.IP_4.acc.y, 2) + Math.pow(IMU_set.IP_4.acc.z, 2)))    );
+			dp4Arrow.setLength(     mult * (Math.sqrt(Math.pow(IMU_set.DP_4.acc.x, 2) + Math.pow(IMU_set.DP_4.acc.y, 2) + Math.pow(IMU_set.DP_4.acc.z, 2)))    );
+			pp5Arrow.setLength(     mult * (Math.sqrt(Math.pow(IMU_set.PP_5.acc.x, 2) + Math.pow(IMU_set.PP_5.acc.y, 2) + Math.pow(IMU_set.PP_5.acc.z, 2)))    );
+			ip5Arrow.setLength(     mult * (Math.sqrt(Math.pow(IMU_set.IP_5.acc.x, 2) + Math.pow(IMU_set.IP_5.acc.y, 2) + Math.pow(IMU_set.IP_5.acc.z, 2)))    );
+			dp5Arrow.setLength(     mult * (Math.sqrt(Math.pow(IMU_set.DP_5.acc.x, 2) + Math.pow(IMU_set.DP_5.acc.y, 2) + Math.pow(IMU_set.DP_5.acc.z, 2)))    );
+
+			// do the render
+			render();
+
+			// update stats
+			stats.update();
+		}
+
+		// render the scene
+		function render() {
+			// variable which is increase by Math.PI every seconds - usefull for animation
+			var PIseconds	= Date.now() * Math.PI;
+
+			// update camera controls
+			cameraControls.update();
+
+
+			// actually render the scene
+			renderer.render( scene, camera );
+		}
+	</script>
+</body>
+</html>
