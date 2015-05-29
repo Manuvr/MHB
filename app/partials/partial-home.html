@@ -68,7 +68,10 @@
                         ng-options="r as r for r in myRecordings">
                     <option value="">-- choose recording --</option>
                 </select>
-                <br />
+                <br /><br />
+                <label class="col-md-4" for="fpsinput">Frame rate:</label>
+                <input id="fpsinput" type="text" class="col-md-7" ng-model="myRecordingFPS">
+                <br /><br />
                 <button ng-click="playRecording()" class="btn btn-primary col-md-12">Play Recording</button>
                 <br /><br />
             </div>

@@ -82,6 +82,7 @@
 				//gloveModel.getAll();
         $scope.myRecordings = [];
         $scope.myRecording = null;
+        $scope.myRecordingFPS = 50;
 				$scope.btToggle = false;
 				$scope.recordToggle = false;
 				$scope.sToggle = false;
@@ -287,11 +288,12 @@
 					$.get('/api/disableRecording', function (res) {});
         };
         $scope.playRecording = function () {
-					$.get('/api/playRecording', function (res) {});
+					$.get('/api/playRecording/' + 
+                $scope.myRecording + '/' +
+                $scope.myRecordingFPS, function (res) {});
         };
         $scope.getRecordings = function() {
           $.get('/api/getRecordings', function(res) {
-            console.log(JSON.parse(res));
             $scope.myRecordings = JSON.parse(res);
           });
         };
