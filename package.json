@@ -19,7 +19,7 @@
     "lodash": "^3.8.0",
     "node-libs-browser": "^0.5.0",
     "readable-stream": "*",
-    "robotjs": "https://github.com/octalmage/robotjs.git",
+    "robotjs": "octalmage/robotjs.git",
     "serialport": "^1.7.1",
     "socket.io": "*",
     "socket.io-client": "*",
