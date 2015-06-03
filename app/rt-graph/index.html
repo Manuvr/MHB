@@ -87,7 +87,7 @@
     }
     runSocket();
 
-    function visualize(vectorSelected) {
+    function visualize(vectorSelected, yMax, yMin) {
 
       var limit = 60 * 1,
           duration = 80,
@@ -126,7 +126,7 @@
         .range([0, width]);
 
       var y = d3.scale.linear()
-        .domain([-1, 1])
+        .domain([yMin, yMax])
         .range([height, 0]);
 
       var line = d3.svg.line()
@@ -215,9 +215,9 @@
       tick()
     }
 
-    visualize('acc');
-    visualize('gyro');
-    visualize('mag');
+    visualize('acc', -4, 4);
+    visualize('gyro', -500, 500);
+    visualize('mag', -4, 4);
     </script>
   </body>
 </html>
