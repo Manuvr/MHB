@@ -245,6 +245,7 @@
 
     // init the scene
     function init(){
+
         updateImuVectors();
 
         if( Detector.webgl ){
@@ -314,12 +315,39 @@
             depth: 1
         };
 
+        var light = new THREE.AmbientLight( 0xFFFFFF ); // soft white light
+        scene.add( light );
+
+
+        var materials = [
+            new THREE.MeshLambertMaterial({
+                map: THREE.ImageUtils.loadTexture('img/Right.png')
+            }),
+            new THREE.MeshLambertMaterial({
+                map: THREE.ImageUtils.loadTexture('img/Left.png')
+            }),
+            new THREE.MeshLambertMaterial({
+                map: THREE.ImageUtils.loadTexture('img/Back.png')
+            }),
+            new THREE.MeshLambertMaterial({
+                map: THREE.ImageUtils.loadTexture('img/Front.png')
+            }),
+            new THREE.MeshLambertMaterial({
+                map: THREE.ImageUtils.loadTexture('img/Top.png')
+            }),
+            new THREE.MeshLambertMaterial({
+                map: THREE.ImageUtils.loadTexture('img/Bottom.png')
+            })
+        ];
+        var material = new THREE.MeshFaceMaterial(materials);
+
         // mesh creation
         var makeImuMesh = function(color, type){
             var tempMat 	= new THREE.MeshLambertMaterial({ emissive: color, wireframe: true});
             var tempGeo 	= new THREE.BoxGeometry(type.height, type.width , type.depth );
             //tempGeo.applyMatrix( new THREE.Matrix4().makeTranslation( type.height/2, 0, 0 ) );
             var tempMesh	= new THREE.Mesh( tempGeo, tempMat );
+            var tempMesh	= new THREE.Mesh( tempGeo, material );
 
             // vector addition
 
