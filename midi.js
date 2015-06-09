@@ -34,7 +34,7 @@ setInterval(function () {
 	setTimeout(function() {
 		console.log("note off");
 		output.sendMessage([176, 123, 0]);
-	}, 100)
+	}, 100);
 
 	if(note < 90) {
 		note = teo.interval(tNote, 'M3').key();
