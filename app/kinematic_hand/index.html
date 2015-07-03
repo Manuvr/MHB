@@ -275,7 +275,8 @@
 		//camera	= new THREE.OrthographicCamera( -cameraW/2, +cameraW/2, cameraH/2, -cameraH/2, -10000, 10000 );
 		camera = new THREE.PerspectiveCamera( 45, cameraW / cameraH, 1, 1000 );
 
-		camera.position.set(0, 10, 40);
+		camera.position.set(-30, 0, 20);
+		camera.up = new THREE.Vector3( 1, 0, 0);
 		scene.add(camera);
 
 		// create a camera contol

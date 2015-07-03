@@ -10,7 +10,7 @@
     "angular-animate": "^1.3.16",
     "angular-route": "^1.3.16",
     "bl": "*",
-    "bluetooth-serial-port": "https://github.com/Zone-Ghost/node-bluetooth-serial-port/tarball/3a7e1c9f5f130240a2f7b34c2bc72b0e17cf9752",
+    "bluetooth-serial-port": "https://github.com/Zone-Ghost/node-bluetooth-serial-port/tarball/da1548ce05b39c39e3d48d18659e987363f51d72",
     "bower": "*",
     "browser-sync": "^2.7.6",
     "dissolve": "https://github.com/Zone-Ghost/dissolve/tarball/5644fd8a70d4ecda3a362755ec00814e9e6c0f4a",
