@@ -8,14 +8,14 @@ var events = new EventEmitter();
 
 var logger = require('winston');
 
-var bt = require('./bluetooth.js')();
-var serial = require('./serialport.js')();
-var dhbModels = require('./dhb-models.js');
+//var bt = require('./bluetooth.js')();
+//var serial = require('./serialport.js')();
+//var dhbModels = require('./dhb-models.js');
 var Receiver = require('./receiver.js');
-var dhbBuilder = require('./dhb-builder.js');
-var utils = require('./dhb-utils.js');
-var argparse = require('./dhb-argparser.js');
-var exec = require('./dhb-exec.js');
+//var dhbBuilder = require('./dhb-builder.js');
+//var utils = require('./dhb-utils.js');
+//var argparse = require('./dhb-argparser.js');
+//var exec = require('./dhb-exec.js');
 //var gesture = require('../capture/capture.js');
 //var runGestures = gesture(events);
 
@@ -42,7 +42,7 @@ var refreshModels = function() {
 //
 // Note: Eventually, I'd like to change the argForms key to a description of what the length will do. IE: set what?
 var buildOutCommands = function (obj) {
-	var new_obj = {};
+	new_obj = {};
 	for (var prop in obj) {
 		if (obj.hasOwnProperty(prop)) {
 			new_obj[obj[prop].def] = { command: parseInt(prop), flag: obj[prop].flag };
