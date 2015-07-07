@@ -1,7 +1,5 @@
-DigitabulumHostBridge
+ManuvrOS Host Bridge  
 =====================
-
-POC for node-based glove driver
 
 Note:
 Run "npm install" to load your dependencies after cloning.
