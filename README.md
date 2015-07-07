@@ -1,4 +1,4 @@
-MAnuvrOS Host Bridge  
+ManuvrOS Host Bridge  
 =====================
 
 Note:
