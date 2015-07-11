@@ -1,6 +1,7 @@
 'use strict';
 
 var types = require('./types');
+var commands = require('./commands');
 
 function legendMessage(jsonBuff) {
   var zeroScanner;
@@ -53,15 +54,15 @@ function legendMessage(jsonBuff) {
         }
 
         while (startLoc < zeroLoc) {
-          if (!models.argRef.hasOwnProperty(jsonBuff.raw.readUInt8(startLoc))) {
+          if (!types.hasOwnProperty(jsonBuff.raw.readUInt8(startLoc))) {
             isDynamic = 1;
-          } else if (models.argRef[jsonBuff.raw.readUInt8(startLoc)].len === 0) {
+          } else if (types[jsonBuff.raw.readUInt8(startLoc)].len === 0) {
             isDynamic = 1;
           } else {
-            argSize += models.argRef[jsonBuff.raw.readUInt8(startLoc)].len;
+            argSize += types[jsonBuff.raw.readUInt8(startLoc)].len;
           }
           parseArr.push(jsonBuff.raw.readUInt8(startLoc));
-          startLoc++
+          startLoc++;
         }
         if (isDynamic || argSize === 0) {
           tempObj[jsonBuff.raw.readUInt16LE(i)].argForms[0] = parseArr;
@@ -76,9 +77,9 @@ function legendMessage(jsonBuff) {
   return tempObj;
 }
 
-function typeParse(models, jsonBuff) {
-  if( models.commands.hasOwnProperty(jsonBuff.messageId)) {
-    var handler = models.commands[jsonBuff.messageId];
+function typeParse(jsonBuff) {
+  if(commands.hasOwnProperty(jsonBuff.messageId)) {
+    var handler = commands[jsonBuff.messageId];
 
     // check to see if the buffer is empty
     if ([] !== jsonBuff.raw && jsonBuff.raw.length !== 0) {
@@ -93,18 +94,18 @@ function typeParse(models, jsonBuff) {
       if (undefined === handler.argForms[buffLen]) {
         if (handler.argForms[0] === undefined) {
           // length is wrong and no dynamic length type exists
-          console.log("No valid parsing patterns");
+          console.log('No valid parsing patterns');
           return jsonBuff;
         } else {
           // assuming a dynamic length arg type
           while (i < buffLen) {
-            parseType = models.commands.argRef[handler.argForms[0][argNum]];
+            parseType = commands.argRef[handler.argForms[0][argNum]];
             if (parseType.len === 0) {
-              outObj[argNum] = parseType.val(jsonBuff.raw.slice(i, buffLen));
+              outObj[argNum] = parseType.read(jsonBuff.raw.slice(i, buffLen));
               i = buffLen;
             } else {
-              outObj[argNum] = parseType.val(jsonBuff.raw.slice(i, i + parseType.len));
-              i += parseType.len
+              outObj[argNum] = parseType.read(jsonBuff.raw.slice(i, i + parseType.len));
+              i += parseType.len;
             }
             argNum++;
           }
@@ -112,45 +113,44 @@ function typeParse(models, jsonBuff) {
       } else {
         // assuming a fixed length arg type
         while (i < buffLen) {
-          parseType = models.argRef[handler.argForms[buffLen][argNum]];
+          parseType = types[handler.argForms[buffLen][argNum]];
           //console.log("i : " + i + " buffLen: " + buffLen);
           //console.log(parseType);
-          outObj[argNum] = parseType.val(jsonBuff.raw.slice(i, i + parseType.len));
+          outObj[argNum] = parseType.read(jsonBuff.raw.slice(i, i + parseType.len));
           argNum++;
-          i += parseType.len
+          i += parseType.len;
 
         }
       }
       jsonBuff.args = outObj;
     } else {
       // I'm an empty array!
-      console.log("No args present");
+      console.log('No args present');
       jsonBuff.args = [];
       return jsonBuff;
     }
   } else {
-    console.log("I don't have a command for this messageID. (no arguments will be parsed) " +
+    console.log('I do not have a command for this messageID. (no arguments will be parsed) ' +
     jsonBuff.messageId);
   }
   return jsonBuff;
 }
 
-function MessageParser(dhbModels) {
-	this.models = dhbModels;
-}
+function MessageParser() { }
 
 MessageParser.prototype.parse = function(jsonBuff) {
 
-  var messageId = jsonBuff.messageId;
-  var updatedJsonBuff = typeParse(this.models, jsonBuff);
+  var messageId = commands[jsonBuff.messageId].def;
+  var updatedJsonBuff = typeParse(jsonBuff);
 
   switch(messageId) {
-    case 'LEGEND_MESSAGES':
-      legendMessage(updatedJsonBuff);
+    case 'MANUVR_MSG_LEGEND_MESSAGES':
+      var tempObj = legendMessage(updatedJsonBuff);
+      console.log('TEMPOBJ: ', tempObj);
       break;
 
     case 'GLOVE_MODEL':
-      console.log(updatedJsonBuff);
+      console.log('GM: ', updatedJsonBuff);
       break;
 
     default:

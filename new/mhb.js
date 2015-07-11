@@ -10,7 +10,6 @@ var logger = require('winston');
 
 var bt = require('./bluetooth.js')();
 var serial = require('./serialport.js')();
-var dhbModels = require('./models.js');
 var Receiver = require('./receiver.js');
 var MessageParser = require('./message_parser');
 var dhbBuilder = require('./builder.js');
@@ -24,7 +23,7 @@ var utils = require('./utils.js');
 //var dhbArgParser = new argparse(dhbModels);
 //var dhbExec = new exec(dhbModels, dhbArgParser);
 // REPLACED THESE WITH BELOW
-var messageParser = new MessageParser(dhbModels);
+var messageParser = new MessageParser();
 
 var opts = {};
 
@@ -67,7 +66,8 @@ var buildOutCommands = function (obj) {
 };
 
 // first pass outCommand instantiation
-dhbModels.outCommand = buildOutCommands(dhbModels.commands);
+// TODO: REFACTOR
+//dhbModels.outCommand = buildOutCommands(dhbModels.commands);
 
 // ****************
 // REPLY QUEUEING
@@ -287,22 +287,19 @@ var mhb = module.exports = function(){
 
   this.setOptions = function(optionsToSet) {
     for(var opt in optionsToSet) {
-      opts[opt] = optionsToSet[opt]
+      opts[opt] = optionsToSet[opt];
     }
-  }
+  };
 
   this.playRecording = function(file, framerate) {
-    var opts = {
+    var recordingOptions = {
       file: file,
       framerate: framerate
     };
-    utils.processFile(events, opts);
+    utils.processFile(events, recordingOptions);
   };
 
 	this.events = events;
-
-	// should alias by reference... I'm not 100% though, so we may need the refresh script to do this
-	this.models = dhbModels;
 
 	this.bt = bt;
 };

@@ -1,13 +1,13 @@
 'use strict';
 
 var types = module.exports = {
-  0: { 
-    name: 'DO NOT USE', 
+  0: {
+    name: 'DO NOT USE',
     len: 0
   },
   1: {
     name: 'Int8',
-    len: 1, 
+    len: 1,
     write: function(value){ var e = new Buffer(8); e.writeInt8(parseInt(value), 0); return e; },
     read: function(buff){ return buff.readInt8(0); }
   },
