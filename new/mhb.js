@@ -8,20 +8,24 @@ var events = new EventEmitter();
 
 var logger = require('winston');
 
-//var bt = require('./bluetooth.js')();
-//var serial = require('./serialport.js')();
-//var dhbModels = require('./dhb-models.js');
+var bt = require('./bluetooth.js')();
+var serial = require('./serialport.js')();
+var dhbModels = require('./models.js');
 var Receiver = require('./receiver.js');
-//var dhbBuilder = require('./dhb-builder.js');
-//var utils = require('./dhb-utils.js');
+var MessageParser = require('./message_parser');
+var dhbBuilder = require('./builder.js');
+var utils = require('./utils.js');
 //var argparse = require('./dhb-argparser.js');
 //var exec = require('./dhb-exec.js');
 //var gesture = require('../capture/capture.js');
 //var runGestures = gesture(events);
 
 // instantiated with pass-through requires
-var dhbArgParser = new argparse(dhbModels);
-var dhbExec = new exec(dhbModels, dhbArgParser);
+//var dhbArgParser = new argparse(dhbModels);
+//var dhbExec = new exec(dhbModels, dhbArgParser);
+// REPLACED THESE WITH BELOW
+var messageParser = new MessageParser(dhbModels);
+
 var opts = {};
 
 // ****************
@@ -30,9 +34,10 @@ var opts = {};
 
 // reinstatiates pass-through requires when dhbModels is updated
 var refreshModels = function() {
-	dhbModels.outCommand = buildOutCommands(dhbModels.commands);
-	dhbArgParser = new argparse(dhbModels);
-	dhbExec = new exec(dhbModels, dhbArgParser);
+	//dhbModels.outCommand = buildOutCommands(dhbModels.commands);
+	//dhbArgParser = new argparse(dhbModels);
+	//dhbExec = new exec(dhbModels, dhbArgParser);
+  console.log('IMPLEMENT REFRESH');
 };
 
 // builds "outCommand" in dhbModels.
@@ -42,7 +47,7 @@ var refreshModels = function() {
 //
 // Note: Eventually, I'd like to change the argForms key to a description of what the length will do. IE: set what?
 var buildOutCommands = function (obj) {
-	new_obj = {};
+	var new_obj = {};
 	for (var prop in obj) {
 		if (obj.hasOwnProperty(prop)) {
 			new_obj[obj[prop].def] = { command: parseInt(prop), flag: obj[prop].flag };
@@ -86,12 +91,15 @@ var sendReply = function() {
 // ****************
 
 var execute = function(jsonBuffer) {
-	var metaObj = dhbExec.runIt(jsonBuffer);
-	runTypeSwitch(metaObj);
-	if(metaObj.refresh) {
-		refreshModels();
-		events.emit('outCommand', dhbModels.outCommand);
-	}
+	//var metaObj = dhbExec.runIt(jsonBuffer);
+
+  messageParser.parse(jsonBuffer);
+
+	//runTypeSwitch(metaObj);
+	//if(metaObj.refresh) {
+		//refreshModels();
+		//events.emit('outCommand', dhbModels.outCommand);
+	//}
 };
 
 // FPS emitter... should probably be broken out.
@@ -105,50 +113,50 @@ setInterval(function(){
 }, 5000);
 
 // We'll put actionable executions here based on the type
-var runTypeSwitch = function(metaObj) {
+//var runTypeSwitch = function(metaObj) {
 
-	if( metaObj.type !== "GLOVE_MODEL") {
-		console.log("Received ", metaObj.def);
-	}
-	switch(metaObj.type) {
-		case "LEGEND_MESSAGES":
-      //console.log(metaObj.output);
-			console.log(metaObj);
-			dhbModels.commands = metaObj.output;
-			break;
-		case "GLOVE_MODEL":
-			//emit the glove model
-			var temp = dhbModels.gloveModel;
-			temp.IMU_set = metaObj.output;
-			frames++;
+	//if( metaObj.type !== "GLOVE_MODEL") {
+		//console.log("Received ", metaObj.def);
+	//}
+	//switch(metaObj.type) {
+		//case "LEGEND_MESSAGES":
+      ////console.log(metaObj.output);
+			//console.log(metaObj);
+			//dhbModels.commands = metaObj.output;
+			//break;
+		//case "GLOVE_MODEL":
+			////emit the glove model
+			//var temp = dhbModels.gloveModel;
+			//temp.IMU_set = metaObj.output;
+			//frames++;
 
-			events.emit('gloveModel', temp);
+			//events.emit('gloveModel', temp);
 
-      if(opts.record) {
-        utils.recordFile(temp, opts);
-      }
+      //if(opts.record) {
+        //utils.recordFile(temp, opts);
+      //}
 
-			break;
-		case "IMU_TAP":
-      		console.log('tap from dhb');
-			metaObj.output;
-      		events.emit('IMU_TAP', metaObj.msg);
-			break;
-		case "IMU_DOUBLE_TAP":
-      		console.log('double tap from dhb');
-			metaObj.output;
-      		events.emit('IMU_DOUBLE_TAP', metaObj.msg);
-			break;
-		case "NO_TYPE":
-			events.emit('genericMessage', metaObj, metaObj.def);
-			console.log(metaObj);
-			break;
-		default:
-			console.log("Something ended up in the default case.  This should never happen.")
-			console.log(metaObj);
-			break;
-	}
-};
+			//break;
+		//case "IMU_TAP":
+          //console.log('tap from dhb');
+			//metaObj.output;
+          //events.emit('IMU_TAP', metaObj.msg);
+			//break;
+		//case "IMU_DOUBLE_TAP":
+          //console.log('double tap from dhb');
+			//metaObj.output;
+          //events.emit('IMU_DOUBLE_TAP', metaObj.msg);
+			//break;
+		//case "NO_TYPE":
+			//events.emit('genericMessage', metaObj, metaObj.def);
+			//console.log(metaObj);
+			//break;
+		//default:
+			//console.log("Something ended up in the default case.  This should never happen.")
+			//console.log(metaObj);
+			//break;
+	//}
+//};
 
 
 // ****************
@@ -163,10 +171,10 @@ var commMode = 0;
 // ****************
 
 var receiver = new Receiver();
-receiver.parser.on("readable", function() {
-	var e;
-	while (e = receiver.parser.read()) {
-		execute(e);
+receiver.parser.on('readable', function() {
+	var jsonBuff;
+	while (jsonBuff = receiver.parser.read()) {
+		execute(jsonBuff);
 	}
 });
 
@@ -181,11 +189,11 @@ receiver.events.on('sendSync', function(){
 });
 
 // bluetooth
-bt.ee.on("btListAdd", function(address, name) {
+bt.ee.on('btListAdd', function(address, name) {
 	events.emit('btFound', address, name);
 });
 
-bt.ee.on("btData", function(buffer) {
+bt.ee.on('btData', function(buffer) {
 	receiver.parser.write(buffer);
 });
 
@@ -237,8 +245,8 @@ events.emit('testEmit');
 // EXPOSED OBJECT
 // ****************
 
-var dhb = module.exports =  function(){
-	if (!(this instanceof dhb)) { return new dhb(); }
+var mhb = module.exports = function(){
+	if (!(this instanceof mhb)) { return new mhb(); }
 
 	this.scanBluetooth = function(){
 		bt.scan();
@@ -298,3 +306,4 @@ var dhb = module.exports =  function(){
 
 	this.bt = bt;
 };
+

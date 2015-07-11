@@ -76,9 +76,9 @@ function legendMessage(jsonBuff) {
   return tempObj;
 }
 
-function typeParse(jsonBuff) {
-  if( this.models.commands.hasOwnProperty(jsonBuff.messageId)) {
-    var handler = this.models.commands[jsonBuff.messageId];
+function typeParse(models, jsonBuff) {
+  if( models.commands.hasOwnProperty(jsonBuff.messageId)) {
+    var handler = models.commands[jsonBuff.messageId];
 
     // check to see if the buffer is empty
     if ([] !== jsonBuff.raw && jsonBuff.raw.length !== 0) {
@@ -98,7 +98,7 @@ function typeParse(jsonBuff) {
         } else {
           // assuming a dynamic length arg type
           while (i < buffLen) {
-            parseType = this.models.commands.argRef[handler.argForms[0][argNum]];
+            parseType = models.commands.argRef[handler.argForms[0][argNum]];
             if (parseType.len === 0) {
               outObj[argNum] = parseType.val(jsonBuff.raw.slice(i, buffLen));
               i = buffLen;
@@ -112,7 +112,7 @@ function typeParse(jsonBuff) {
       } else {
         // assuming a fixed length arg type
         while (i < buffLen) {
-          parseType = this.models.argRef[handler.argForms[buffLen][argNum]];
+          parseType = models.argRef[handler.argForms[buffLen][argNum]];
           //console.log("i : " + i + " buffLen: " + buffLen);
           //console.log(parseType);
           outObj[argNum] = parseType.val(jsonBuff.raw.slice(i, i + parseType.len));
@@ -137,21 +137,24 @@ function typeParse(jsonBuff) {
 
 function MessageParser(dhbModels) {
 	this.models = dhbModels;
-
 }
 
 MessageParser.prototype.parse = function(jsonBuff) {
 
   var messageId = jsonBuff.messageId;
-  var argForms = typeParse(jsonBuff);
+  var updatedJsonBuff = typeParse(this.models, jsonBuff);
 
   switch(messageId) {
-    case 'LEGEND_MESSAGE':
-      legendMessage(jsonBuff);
+    case 'LEGEND_MESSAGES':
+      legendMessage(updatedJsonBuff);
+      break;
+
+    case 'GLOVE_MODEL':
+      console.log(updatedJsonBuff);
       break;
 
     default:
-      //console.log(jsonBuff.raw);
+      console.log('DEFAULT CASE: ', updatedJsonBuff);
   }
 };
 module.exports = MessageParser;
