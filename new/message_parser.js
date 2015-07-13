@@ -144,7 +144,7 @@ MessageParser.prototype.parse = function(jsonBuff) {
   var updatedJsonBuff = typeParse(jsonBuff);
 
   switch(messageId) {
-    case 'MANUVR_MSG_LEGEND_MESSAGES':
+    case 'LEGEND_MESSAGES':
       var tempObj = legendMessage(updatedJsonBuff);
       console.log('TEMPOBJ: ', tempObj);
       break;

@@ -1,8 +1,8 @@
 {
-  "name": "DigitabulumHostBridge",
+  "name": "MHB",
   "version": "0.0.5",
-  "description": "DigitabulumHostBridge",
-  "main": "app.js",
+  "description": "Manuvr Host Bridge",
+  "main": "index.js",
   "dependencies": {
     "CBuffer": "^1.1.0",
     "JSONStream": "^1.0.4",
@@ -31,12 +31,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Zone-Ghost/DigitabulumHostBridge"
+    "url": "https://github.com/Manuvr/MHB"
   },
   "bugs": {
-    "url": "https://github.com/Zone-Ghost/DigitabulumHostBridge/issues"
+    "url": "https://github.com/Manuvr/MHB/issues"
   },
-  "homepage": "https://github.com/Zone-Ghost/DigitabulumHostBridge",
+  "homepage": "https://github.com/Manuvr/MHB",
   "devDependencies": {
     "chai": "~3.0.0",
     "connect-livereload": "~0.5.3",
