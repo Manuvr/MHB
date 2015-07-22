@@ -90,10 +90,13 @@ var sendReply = function() {
 // EXECUTION
 // ****************
 
-var execute = function(jsonBuffer) {
+var generateMessage = function(jsonBuffer) {
 	//var metaObj = dhbExec.runIt(jsonBuffer);
 
-  messageParser.parse(jsonBuffer);
+  var message = messageParser.parse(jsonBuffer);
+  if(message) {
+    events.emit('MESSAGE', message);
+  }
 
 	//runTypeSwitch(metaObj);
 	//if(metaObj.refresh) {
@@ -174,7 +177,7 @@ var receiver = new Receiver();
 receiver.parser.on('readable', function() {
 	var jsonBuff;
 	while (jsonBuff = receiver.parser.read()) {
-		execute(jsonBuff);
+		generateMessage(jsonBuff);
 	}
 });
 

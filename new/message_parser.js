@@ -140,21 +140,34 @@ function MessageParser() { }
 
 MessageParser.prototype.parse = function(jsonBuff) {
 
+  var message = null;
   var messageId = commands[jsonBuff.messageId].def;
   var updatedJsonBuff = typeParse(jsonBuff);
 
   switch(messageId) {
+    //TODO: Change messageIds to consts?
     case 'LEGEND_MESSAGES':
       var tempObj = legendMessage(updatedJsonBuff);
+      message = {
+        id: 'LEGEND_MESSAGES',
+        text: tempObj
+      };
       console.log('TEMPOBJ: ', tempObj);
       break;
 
-    case 'GLOVE_MODEL':
+    case 'IMU_MAP_STATE':
       console.log('GM: ', updatedJsonBuff);
+      message = {
+        id: 'IMU_MAP_STATE',
+        text: updatedJsonBuff
+      };
       break;
 
     default:
       console.log('DEFAULT CASE: ', updatedJsonBuff);
   }
+
+  return message;
+
 };
 module.exports = MessageParser;

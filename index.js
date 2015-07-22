@@ -1,3 +1,3 @@
-var MHB = require('./dhb-lib/dhb.js')();
+var MHB = require('./new/mhb.js')();
 
 module.exports = MHB;
