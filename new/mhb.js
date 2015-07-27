@@ -8,7 +8,7 @@ var events = new EventEmitter();
 
 var logger = require('winston');
 
-var bt = require('./bluetooth.js')();
+//var bt = require('./bluetooth.js')();
 var serial = require('./serialport.js')();
 var Receiver = require('./receiver.js');
 var MessageParser = require('./message_parser');
@@ -181,35 +181,42 @@ receiver.parser.on('readable', function() {
 	}
 });
 
+//TODO: move this to transport layer
 receiver.events.on('sendSync', function(){
 	var buff = (Buffer([0x04, 0x00, 0x00, 0x55], 'hex'));
 
-	switch(commMode){
-		case 1: bt.write(buff); break;
-		case 2: serial.write(buff); break;
-		default: console.log('No glove connection to send sync to.'); break;
-	}
+  console.log('RECONFIG SYNC');
+	//switch(commMode){
+		//case 1: bt.write(buff); break;
+		//case 2: serial.write(buff); break;
+		//default: console.log('No glove connection to send sync to.'); break;
+	//}
+});
+
+// generic transport events
+events.on('recieved', function(buffer) {
+  receiver.parser.write(buffer);
 });
 
 // bluetooth
-bt.ee.on('btListAdd', function(address, name) {
-	events.emit('btFound', address, name);
-});
+//bt.ee.on('btListAdd', function(address, name) {
+	//events.emit('btFound', address, name);
+//});
 
-bt.ee.on('btData', function(buffer) {
-	receiver.parser.write(buffer);
-});
+//bt.ee.on('btData', function(buffer) {
+	//receiver.parser.write(buffer);
+//});
 
-bt.ee.on('connected', function(status) {
-	events.emit('btConnection', status);
-	// this reinstantiates the parser to clear the previous connections buffer
-	receiver.reset();
-	if(status === 1){
-		commMode = 1;
-	} else {
-		commMode = 0;
-	}
-});
+//bt.ee.on('connected', function(status) {
+	//events.emit('btConnection', status);
+	//// this reinstantiates the parser to clear the previous connections buffer
+	//receiver.reset();
+	//if(status === 1){
+		//commMode = 1;
+	//} else {
+		//commMode = 0;
+	//}
+//});
 
 // serial
 serial.ee.on('serialData', function(buffer){
@@ -251,9 +258,9 @@ events.emit('testEmit');
 var mhb = module.exports = function(){
 	if (!(this instanceof mhb)) { return new mhb(); }
 
-	this.scanBluetooth = function(){
-		bt.scan();
-	};
+	//this.scanBluetooth = function(){
+    //bt.scan();
+	//};
 
 	this.autoConnectSerial = function(){
 		serial.scanAndConnect();
@@ -272,11 +279,12 @@ var mhb = module.exports = function(){
 	};
 
 	this.sendToGlove = function(buffer){
-		switch(commMode){
-			case 1: bt.write(buffer); break;
-			case 2: serial.write(buffer); break;
-			default: console.log("No glove connection present to send data to."); break;
-		}
+    console.log('SEND TO GLOVE', buffer);
+		//switch(commMode){
+			//case 1: bt.write(buffer); break;
+			//case 2: serial.write(buffer); break;
+			//default: console.log("No glove connection present to send data to."); break;
+		//}
 	};
 
 	this.sendToHost = function(buffer){
@@ -304,6 +312,6 @@ var mhb = module.exports = function(){
 
 	this.events = events;
 
-	this.bt = bt;
+	//this.bt = bt;
 };
 
