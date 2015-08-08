@@ -26,15 +26,24 @@ var commands = {
   4:{ flag: 0, argForms: {}, def: 'SESS_ESTABLISHED'}, // Session established.
   5:{ flag: 0, argForms: {}, def: 'SESS_HANGUP'}, // Session hangup.
   6:{ flag: 0, argForms: {}, def: 'SESS_AUTH_CHALLENGE'}, // A code for challenge-response authentication.
-  7:{ flag: 0, argForms: {}, def: 'SELF_DESCRIBE'}, // No args? Asking for this data. One arg: Providing it.
-  // Field order: 4 required null-terminated strings, two optional.
+
+  // No args? Asking for this data. One arg: Providing it.
+  // Field order: 1 uint32, 4 required null-terminated strings, 1 optional.
   // uint32:     MTU                (in terms of bytes)
   // String:     Protocol version   (IE: "0.0.1")
+  // String:     Identity           (IE: "Digitabulum") Generally the name of the Manuvrable.
   // String:     Firmware version   (IE: "1.5.4")
   // String:     Hardware version   (IE: "4")
-  // String:     Device class       (User-defined)
   // String:     Extended detail    (User-defined)
-  //
+  7: { flag: 0,
+    argForms:
+      { '1': [ 8, 14, 14, 14, 14, 14 ],
+        '2': [ 8, 14, 14, 14, 14, 14, 14 ]
+      },
+    def: 'SELF_DESCRIBE'
+  },
+  
+  8:{ flag: 0, argForms: {}, def: 'KA'}, // No args.
 
   10:{ flag: 0, argForms: {}, def: 'LEGEND_TYPES'}, // No args? Asking for this legend. One arg: Legend provided.
   11:{ flag: 0, argForms: {}, def: 'LEGEND_MESSAGES'}, // No args? Asking for this legend. One arg: Legend provided.
