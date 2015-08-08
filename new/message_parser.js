@@ -133,56 +133,122 @@ function extractNullTerminatedString(jsonBuff, offset) {
 
 
 
+/**
+* Calling this fxn with a messageDef and a raw payload length will return either...
+*   A) An array of argForms that might fit the length.
+*   B) An empty set, if no such arg forms are found.
+*/
+function getPotentialArgForms(messageDef, len) {
+  var return_value = {};
+	for (var argForm in messageDef.argForms) {
+	  if (msg_def.argForms.hasOwnProperty(argForm)) {
+      if (minimumSizeOfArgForm(argForm) == len) {
+        return_value[return_value.length] = argForm;
+      }
+      else if ((minimumSizeOfArgForm(argForm) < len) && (containsVariableLengthTypeCode(argForm))) {
+        // If the form contains variable-length types, the length need not be an exact match.
+        return_value[return_value.length] = argForm;
+      }
+      else {
+        // If the minimum length of the form exceeds the length of our payload,
+        //   we disqualify it as a possible parse candidate.
+      }
+	  }
+	}
+  return return_value;
+}
+
+
+
 function typeParse(jsonBuff) {
-    var handler = commands[jsonBuff.messageId];
+  var handler = commands[jsonBuff.messageId];
 
-    // check to see if the buffer is empty
-    if ([] !== jsonBuff.raw && jsonBuff.raw.length !== 0) {
-      // instantiate an output object
-      var outObj = [];
-      var buffLen = jsonBuff.raw.length;
-      //console.log(buffLen);
-      var i = 0;
-      var parseType;
-      var argNum = 0; // assigned property names in outObj
+  // check to see if the buffer is empty
+  if ([] !== jsonBuff.raw && jsonBuff.raw.length !== 0) {
+    // If the buffer is non-empty, fetch a list of possible ways to interpret it...
+    var handlers = getPotentialArgForms(commands[jsonBuff.messageId], jsonBuff.raw.length);
+    
+    if (handlers.length > 0) {
+      for (var argForm in handlers) {
+        var outObj = [];         // instantiate an output object
+        var buffLen = jsonBuff.raw.length;
 
-      if (undefined === handler.argForms[buffLen]) {
-        if (handler.argForms[0] === undefined) {
-          // length is wrong and no dynamic length type exists
-          console.log('No valid parsing patterns');
-          return jsonBuff;
-        } else {
-          // assuming a dynamic length arg type
-          while (i < buffLen) {
-            parseType = commands.argRef[handler.argForms[0][argNum]];
-            if (parseType.len === 0) {
-              outObj[argNum] = parseType.read(jsonBuff.raw.slice(i, buffLen));
-              i = buffLen;
-            } else {
-              outObj[argNum] = parseType.read(jsonBuff.raw.slice(i, i + parseType.len));
-              i += parseType.len;
-            }
-            argNum++;
-          }
-        }
-      } else {
-        // assuming a fixed length arg type
-        while (i < buffLen) {
+        var i = 0;
+        var parseType;
+        var argNum = 0; // assigned property names in outObj
+        
+        // As long as there are still bytes to consume, and there are still arguments
+        //   expected, keep rolling...
+        while ((i < buffLen) && (argNum < argForm.length)) {
           parseType = types[handler.argForms[buffLen][argNum]];
-          //console.log("i : " + i + " buffLen: " + buffLen);
-          //console.log(parseType);
-          outObj[argNum] = parseType.read(jsonBuff.raw.slice(i, i + parseType.len));
-          argNum++;
-          i += parseType.len;
-
+          if (parseType.len > 0) {
+            // A fixed-length argument...
+            outObj[argNum] = parseType.read(jsonBuff.raw.slice(i, i + parseType.len));
+            i += parseType.len;
+          }
+          else if (parseType.name == 'String(ascii)') {   // TODO: should have a more-efficient comparison.
+            // A string (which is a variable length).
+            var tmp_len = i;
+            while (tmp_len < buffLen) {
+              if (jsonBuff.raw.readUInt8(tmp_len) === 0){
+                outObj[argNum] = parseType.read(jsonBuff.raw.slice(i, tmp_len));
+                i = tmp_len+1;
+                tmp_len = buffLen;   // This kills the loop.
+              }
+              else {
+                tmp_len++;
+              }
+            }
+          }
+          else if (parseType.name == 'StringB(ascii)') {  // TODO: This case should NEVER happen. Firmware's fault.
+            // A string (which is a variable length).
+            var tmp_len = i;
+            while (tmp_len < buffLen) {
+              if (jsonBuff.raw.readUInt8(tmp_len) === 0){
+                outObj[argNum] = parseType.read(jsonBuff.raw.slice(i, tmp_len));
+                i = tmp_len+1;
+                tmp_len = buffLen;   // This kills the loop.
+              }
+              else {
+                tmp_len++;
+              }
+            }
+          }
+          else {
+            // And here we have the all-consuming argument. Since we have no means of
+            //   telling the length of this, we take up the rest of the raw buffer and
+            //   hope it is the last argument.
+            outObj[argNum] = parseType.read(jsonBuff.raw.slice(i, buffLen));
+            i = buffLen;
+          }
+          
+          argNum++;  // Move on to the next argument...
+        }
+        
+        // Ok... time to check our exit condition...
+        if ((outObj.length == argForm.length) && (i == buffLen)) {
+          // If we have used all the bytes, and we are also at the end of the form spec, we 
+          //   take it as an indication of success. Populate the jsonBuff with the arguments 
+          //   we parsed and return. No need to look at additional argForms.
+          jsonBuff.args = outObj;
+          return jsonBuff;
+        }
+        else {
+          // If something is still out-of-balance, we continue the loop and try the next
+          //   argForm that met the length criteria.
         }
       }
-      jsonBuff.args = outObj;
-    } else {
-      // I'm an empty array!
-      console.log('No args present');
-      return jsonBuff;
     }
+    else {
+      // This is a bad condition to be in. It means that we have no way to parse the
+      //   payload. If we have more than one message legend floating about, now would
+      //   be a good time to consult them before asploding.
+    }
+  }
+  else {
+    // I'm an empty array!
+    //console.log('No args present');
+  }
   return jsonBuff;
 }
 

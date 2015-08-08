@@ -92,6 +92,10 @@ var packOwnLegendMessages = function(msg_defs) {
 	  }
 	}
 
+	if (required_size === 0) {
+	  return false;
+	}
+	
 	var return_value = Buffer(required_size);
 	var offset       = 0;
 	for (var msg_def in msg_defs) {
