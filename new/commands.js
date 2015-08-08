@@ -45,45 +45,8 @@ var commands = {
   
   8:{ flag: 0, argForms: {}, def: 'KA'}, // No args.
 
-  10:{ flag: 0, argForms: {}, def: 'LEGEND_TYPES'}, // No args? Asking for this legend. One arg: Legend provided.
-  11:{ flag: 0, argForms: {}, def: 'LEGEND_MESSAGES'}, // No args? Asking for this legend. One arg: Legend provided.
-  1542:{ flag: 0, argForms: {
-    '952': [
-      //TODO: update with new legend
-      //8, 12, 18
-      //18, 18, 18, 12, 22, 18, 18, 18, 8, 8, 8,
-      22, 18, 18, 18, 12,
-      22, 18, 18, 18, 12,
-      22, 18, 18, 18, 12,
-      22, 18, 18, 18, 12,
-      22, 18, 18, 18, 12,
-      22, 18, 18, 18, 12,
-      22, 18, 18, 18, 12,
-      22, 18, 18, 18, 12,
-      22, 18, 18, 18, 12,
-      22, 18, 18, 18, 12,
-      22, 18, 18, 18, 12,
-      22, 18, 18, 18, 12,
-      22, 18, 18, 18, 12,
-      22, 18, 18, 18, 12,
-      22, 18, 18, 18, 12,
-      22, 18, 18, 18, 12,
-      22, 18, 18, 18, 12]
-  }, def: 'IMU_MAP_STATE'},
-  // ^^ Changed from GLOVE MODEL TO IMU_MAP_STATE
-  //JUST FOR TESTING THE ARG THINGY
-  40964:
-  {   flag: 0,
-    argForms:
-      {   '1': [ 6 ],
-        '2': [ 6, 6 ],
-        '3': [ 6, 6, 6 ],
-        '4': [ 6, 6, 6, 6 ],
-        '5': [ 6, 6, 6, 6, 6 ],
-        '6': [ 6, 6, 6, 6, 6, 6 ]
-      },
-    def: 'LED_DIGITS_OFF'
-  }
+  10:{ flag: 0, argForms: {}, def: 'LEGEND_TYPES'},   // No args? Asking for this legend. One arg: Legend provided.
+  11:{ flag: 0, argForms: {}, def: 'LEGEND_MESSAGES'} // No args? Asking for this legend. One arg: Legend provided.
 };
 
 module.exports = commands;

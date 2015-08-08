@@ -81,20 +81,37 @@ function legendMessage(jsonBuff) {
 /**
 * Passed a sequence of type-codes, returns true if there is a variable-length type among them. False otherwise.
 */
-function containsVariableLengthTypeCode(argForms) {
+function containsVariableLengthTypeCode(argForm) {
   //for (var key in Object.getOwnPropertyNames(command_def.argForms)) {
   //}
   var i = 0;
-  while (i < argForms.length) {
-    switch (argForms[i++]) {
-      case 17:   // IMAGE_FM
-      case 16:   // AUDIO_FM
-      case 15:   // BINARY_FM
-      case 14:   // STR_FM
-        return true;
+  var parseType;
+  while (i < argForm.length) {
+    parseType = types[argForm[i++]];
+    if (parseType.len === 0) {
+      return true;
     }
   }
   return false;
+}
+
+
+/**
+* Passed a sequence of type-codes, returns the minimum number of bytes required to store it.
+* All variable-length types are presumed to have a minimum length of 1.
+* Returns -1 on failure, since 0 is a valid return (argForm may have no types in it).
+*/
+function minimumSizeOfArgForm(argForm) {
+  //for (var key in Object.getOwnPropertyNames(command_def.argForms)) {
+  //}
+  var i = 0;
+  var return_value = 0;
+  var parseType;
+  while (i < argForm.length) {
+    parseType = types[argForm[i++]];
+    return_value += (parseType.len > 0) ? parseType.len : 1;
+  }
+  return return_value;
 }
 
 
@@ -236,6 +253,21 @@ MessageParser.prototype.parse = function(jsonBuff) {
 
   switch(messageId) {
     //TODO: Change messageIds to consts?
+    case 'KA':    // Keep-alive.
+      console.log('KA');
+      // TODO: We should ACK this by changing the messageId to MANUVR_MSG_REPLY (0x01) and sending it.
+      break;
+
+    case '<UNDEFINED>':    // No way to deal with this. It should stop here?
+      console.log('<UNDEFINED>');
+      // TODO: We should NACK this by changing the messageId to MANUVR_MSG_REPLY_FAIL and sending it.
+      break;
+
+    case 'LEGEND_TYPES':
+      console.log('LEGEND_TYPES');
+      // TODO: On a future date, this ought to be used to dynamically describe types. Not today.
+      break;
+
     case 'LEGEND_MESSAGES':
       var tempObj = legendMessage(typeParse(jsonBuff));
       message = {
@@ -260,7 +292,6 @@ MessageParser.prototype.parse = function(jsonBuff) {
         id:   messageId,
         text: typeParse(jsonBuff)
       };
-      
       // TODO: Pass to Connector?
       break;
   }

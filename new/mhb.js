@@ -65,6 +65,65 @@ var buildOutCommands = function (obj) {
 	return new_obj;
 };
 
+
+
+/**
+* Given a structure full of Message definitions, build a BINBLOB that represents them.
+* Returns false on failure. A buffer containing the results on success.
+*
+* We need to loop twice. The first time to count everything and decide how large a buffer
+*   to create, and the second time to actually do the writing.
+*/
+var packOwnLegendMessages = function(msg_defs) {
+  var required_size = 0;
+	for (var msg_def in msg_defs) {
+	  if (msg_defs.hasOwnProperty(msg_def)) {
+	    // If this isn't prototypical cruft, we count it in the tally.
+	    required_size += 4;                       // +4 for the obligatory fields: flags (16-bit) and messageId (16-bit).
+	    required_size += msg_def.def.length + 1;  // +(some more) for the string to represent the message class.
+	    for (var argForm in msg_def.argForms) {
+	      if (msg_def.argForms.hasOwnProperty(argForm)) {
+	        // At this point, argForm should be one of (possibly many) valid argument forms
+	        //   for the msg_def we are operating on. Now we're just adding bytes....
+	        required_size += argForm.length + 1;  // +1 for the null-terminator.
+	      }
+	    }
+	    required_size++;   // +1 for the second consecutive null-terminator to denote the end of this def.
+	  }
+	}
+
+	var return_value = Buffer(required_size);
+	var offset       = 0;
+	for (var msg_def in msg_defs) {
+	  if (msg_defs.hasOwnProperty(msg_def)) {
+	    // If this isn't prototypical cruft, we write it to the buffer.
+	    return_value.writeUInt16LE(messageID,    offset);
+	    return_value.writeUInt16LE(msg_def.flag, offset + 2);
+	    offset += 4;
+
+	    return_value.write(msg_def.def, offset, 'ascii');  // +(some more) for the string to represent the message class.
+	    offset += msg_def.def.length;
+	    return_value[offset++] = 0;
+	    
+	    for (var argForm in msg_def.argForms) {
+	      if (msg_def.argForms.hasOwnProperty(argForm)) {
+	        // At this point, argForm should be one of (possibly many) valid argument forms
+	        //   for the msg_def we are operating on. Now we're just adding bytes....
+	        for (var n = 0; n < argForm.length; n++) {
+	          return_value[offset++] = argForm[n];
+	        }
+	        return_value[offset++] = 0;
+	      }
+	    }
+	    return_value[offset++] = 0; // +1 for the second consecutive null-terminator to denote the end of this def.
+	  }
+	}
+	return return_value;
+}
+
+
+
+
 // first pass outCommand instantiation
 // TODO: REFACTOR
 //dhbModels.outCommand = buildOutCommands(dhbModels.commands);
