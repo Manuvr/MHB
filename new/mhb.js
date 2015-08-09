@@ -6,23 +6,11 @@
 var EventEmitter = require('events').EventEmitter;
 var events = new EventEmitter();
 
-var logger = require('winston');
-
-//var bt = require('./bluetooth.js')();
-var serial = require('./serialport.js')();
 var Receiver = require('./receiver.js');
 var MessageParser = require('./message_parser');
 var dhbBuilder = require('./builder.js');
 var utils = require('./utils.js');
-//var argparse = require('./dhb-argparser.js');
-//var exec = require('./dhb-exec.js');
-//var gesture = require('../capture/capture.js');
-//var runGestures = gesture(events);
 
-// instantiated with pass-through requires
-//var dhbArgParser = new argparse(dhbModels);
-//var dhbExec = new exec(dhbModels, dhbArgParser);
-// REPLACED THESE WITH BELOW
 var messageParser = new MessageParser();
 
 var opts = {};
@@ -126,72 +114,24 @@ var packOwnLegendMessages = function(msg_defs) {
 }
 
 
-
-
-// first pass outCommand instantiation
-// TODO: REFACTOR
-//dhbModels.outCommand = buildOutCommands(dhbModels.commands);
-
-// ****************
-// REPLY QUEUEING
-// ****************
-
-// if true, this will bypass the reply queue and execute
-var autoExecReplies = true;
-var sendReplies = false;
-
-// we'll want this to emit whenever it's updated. Stick objects here prior to building...
-var replyQueue = [];
-
-var processReply = function(uniqueID, params) {
-};
-
-var sendReply = function() {
-};
-
 // ****************
 // EXECUTION
 // ****************
 
 var generateMessage = function(jsonBuffer) {
-	//var metaObj = dhbExec.runIt(jsonBuffer);
-
   var message = messageParser.parse(jsonBuffer);
   if(message) {
     events.emit('MESSAGE', message);
   }
-
-	//runTypeSwitch(metaObj);
-	//if(metaObj.refresh) {
-		//refreshModels();
-		//events.emit('outCommand', dhbModels.outCommand);
-	//}
 };
 
-// FPS emitter... should probably be broken out.
-var frames = 0;
-
-setInterval(function(){
-	if(frames !== 0) {
-		events.emit("FPS", (frames / 5) );
-		frames = 0;
-	}
-}, 5000);
-
-
-// ****************
-// CONTROL VARIABLES
-// ****************
-
-// Determines the protocol to send over... 0 = none, 1 = bluetooth, 2 = serial
-var commMode = 0;
 
 // ****************
 // LISTENERS
 // ****************
 
 var receiver = new Receiver();
-receiver.parser.on('readable', function() {
+  receiver.parser.on('readable', function() {
 	var jsonBuff;
 	while (jsonBuff = receiver.parser.read()) {
 		generateMessage(jsonBuff);

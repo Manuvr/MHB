@@ -48,7 +48,6 @@
     "sinon": "^1.14.1",
     "tiny-lr": "~0.1.5",
     "webpack": "^1.9.10",
-    "winston": "^1.0.0"
   },
   "scripts": {
     "start": "node lib/server.js",
