@@ -8,9 +8,9 @@ var bluetooth = require('./lib/mTransport.js'); // bluetooth
 
 var MHB = new mSession();
 
-MHB.addTransport(bluetooth());
+MHB.addEngine(mEngine);
 
-MHB.addEngine(new DHB());
+var glove1 = MHB.connectTransport(bluetooth);
 
 connector.on('message', function(arg) {
   console.log(arg);

@@ -1,25 +1,29 @@
 'use strict'
 
-var mCore = require('./MHB.js')
+var inherits = require('util').inherits;
+var ee = require('events').EventEmitter;
 
-function session(transport) {
+var MHB = require('./MHB.js')
+
+function session(transport, engines) {
   var that = this;
-  this.engine = new core();
+  this.engine = new MHB();
 
   this.transport = transport;
 
   var toParse = function(arg) {
-    that.engine.emit('toParse', buffer);
+    that.engine.parent.emit('toParse', buffer);
   }
 
-  this.transport.on('fromTransport', this.toParse)
+  this.transport.on('fromTransport', toParse)
 
   //example for assigning a new "engine"...
-  this.engine.on('version', function(nameAndVersion) {
+  this.engine.on('SELF_DESCRIBE', function(nameAndVersion) {
     for (var i = 0; i < that.engines.length; i++) {
       if (nameAndVersion.name === that.engines[i].config.name &&
         nameAndVersion.version === that.engines[i].config.version) {
-        that.engine = that.engines[i].init(that.engine)
+        that.engine = engines[i].init(that.engine)
+        break;
       }
     }
   });
@@ -27,25 +31,23 @@ function session(transport) {
 
 // EXPOSED FUNCTION
 function mSession() {
-  this.init();
+  ee.call(this);
+  this.engines = []
 }
+
 util.inherits(mSession, ee);
 
-mConnector.prototype.init = function() {
-  this.engines = [];
-}
-
 // sample public method
-mConnector.prototype.addEngine = function(engine) {
+mSession.prototype.addEngine = function(engine) {
   this.engines.push(engine);
 }
 
-mConnector.prototype.addCore = function(core) {
+mSession.prototype.addCore = function(core) {
   this.core = core;
 }
 
-mConnector.prototype.addTransport = function(transport) {
-  return new session(transport);
+mSession.prototype.connectTransport = function(transport) {
+  return new session(transport, this.engines);
 }
 
 module.exports = mSession;
