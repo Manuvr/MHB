@@ -34,7 +34,7 @@ var commands = {
   // String:     Identity           (IE: "Digitabulum") Generally the name of the Manuvrable.
   // String:     Firmware version   (IE: "1.5.4")
   // String:     Hardware version   (IE: "4")
-  // String:     Extended detail    (User-defined)
+  // String:     Extended detail    (User-defined, optional)
   7: { flag: 0,
     argForms:
       { '1': [ 8, 14, 14, 14, 14, 14 ],

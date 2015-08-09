@@ -178,52 +178,6 @@ setInterval(function(){
 	}
 }, 5000);
 
-// We'll put actionable executions here based on the type
-//var runTypeSwitch = function(metaObj) {
-
-	//if( metaObj.type !== "GLOVE_MODEL") {
-		//console.log("Received ", metaObj.def);
-	//}
-	//switch(metaObj.type) {
-		//case "LEGEND_MESSAGES":
-      ////console.log(metaObj.output);
-			//console.log(metaObj);
-			//dhbModels.commands = metaObj.output;
-			//break;
-		//case "GLOVE_MODEL":
-			////emit the glove model
-			//var temp = dhbModels.gloveModel;
-			//temp.IMU_set = metaObj.output;
-			//frames++;
-
-			//events.emit('gloveModel', temp);
-
-      //if(opts.record) {
-        //utils.recordFile(temp, opts);
-      //}
-
-			//break;
-		//case "IMU_TAP":
-          //console.log('tap from dhb');
-			//metaObj.output;
-          //events.emit('IMU_TAP', metaObj.msg);
-			//break;
-		//case "IMU_DOUBLE_TAP":
-          //console.log('double tap from dhb');
-			//metaObj.output;
-          //events.emit('IMU_DOUBLE_TAP', metaObj.msg);
-			//break;
-		//case "NO_TYPE":
-			//events.emit('genericMessage', metaObj, metaObj.def);
-			//console.log(metaObj);
-			//break;
-		//default:
-			//console.log("Something ended up in the default case.  This should never happen.")
-			//console.log(metaObj);
-			//break;
-	//}
-//};
-
 
 // ****************
 // CONTROL VARIABLES
@@ -261,57 +215,6 @@ events.on('recieved', function(buffer) {
   receiver.parser.write(buffer);
 });
 
-// bluetooth
-//bt.ee.on('btListAdd', function(address, name) {
-	//events.emit('btFound', address, name);
-//});
-
-//bt.ee.on('btData', function(buffer) {
-	//receiver.parser.write(buffer);
-//});
-
-//bt.ee.on('connected', function(status) {
-	//events.emit('btConnection', status);
-	//// this reinstantiates the parser to clear the previous connections buffer
-	//receiver.reset();
-	//if(status === 1){
-		//commMode = 1;
-	//} else {
-		//commMode = 0;
-	//}
-//});
-
-// serial
-serial.ee.on('serialData', function(buffer){
-	receiver.parser.write(buffer);
-});
-
-serial.ee.on('serialList', function(list){
-	events.emit('serialList', list);
-});
-
-serial.ee.on('serialConnected', function(value){
-	events.emit('serialConnected', value);
-	// this reinstantiates the parser to clear the previous connections buffer
-	receiver.reset();
-	if(value === 0){
-		commMode = 0;
-	} else {
-		commMode = 2;
-	}
-});
-
-serial.ee.on('serialError', function(error){
-	// do nothing for now?  Already logging to console...
-});
-
-
-// wut
-events.emit('testEmit');
-    
-// ****************
-// TEST COMMANDS
-// ****************
 
 
 // ****************
@@ -320,38 +223,13 @@ events.emit('testEmit');
 
 var mhb = module.exports = function(){
 	if (!(this instanceof mhb)) { return new mhb(); }
-
-	//this.scanBluetooth = function(){
-    //bt.scan();
-	//};
-
-	this.autoConnectSerial = function(){
-		serial.scanAndConnect();
-	};
-
-	this.connectSerial = function(port){
-		serial.connect(port);
-	};
-
-	this.scanSerial = function(){
-		serial.getList();
-	};
-
-	this.closeSerial = function(){
-		serial.close();
-	};
-
-	this.sendToGlove = function(buffer){
-    console.log('SEND TO GLOVE', buffer);
-		//switch(commMode){
-			//case 1: bt.write(buffer); break;
-			//case 2: serial.write(buffer); break;
-			//default: console.log("No glove connection present to send data to."); break;
-		//}
+	
+	this.addTransport = function(xport){
+    console.log('Added a transport.');
 	};
 
 	this.sendToHost = function(buffer){
-    logger.debug('Sending message to host from DHB.');
+    console.log('Sending message to host from DHB.');
 		receiver.parser.write(buffer);
 	};
 
@@ -365,16 +243,6 @@ var mhb = module.exports = function(){
     }
   };
 
-  this.playRecording = function(file, framerate) {
-    var recordingOptions = {
-      file: file,
-      framerate: framerate
-    };
-    utils.processFile(events, recordingOptions);
-  };
-
 	this.events = events;
-
-	//this.bt = bt;
 };
 
