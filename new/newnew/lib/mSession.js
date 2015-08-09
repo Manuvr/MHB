@@ -15,14 +15,32 @@ function session(transport, engines) {
     that.engine.parent.emit('toParse', buffer);
   }
 
-  this.transport.on('fromTransport', toParse)
+  var fromParse = function(arg) {
+    this.emit('message', arg)
+  }
+
+  var toTransport = function(arg) {
+    this.transport.emit('data', arg)
+  }
+
+  var toBuild = function(arg) {
+    this.engine.emit('build', arg);
+  }
+
+  this.engine.parent.on('toTransport', toTransport);
+
+  this.transport.on('fromTransport', toParse);
+  this.engine.on('fromParse', fromParse);
+  this.on('build', toBuild);
 
   //example for assigning a new "engine"...
   this.engine.on('SELF_DESCRIBE', function(nameAndVersion) {
+    var engineConfig;
     for (var i = 0; i < that.engines.length; i++) {
-      if (nameAndVersion.name === that.engines[i].config.name &&
-        nameAndVersion.version === that.engines[i].config.version) {
-        that.engine = engines[i].init(that.engine)
+      engineConfig = that.engines[i].getConfig();
+      if (nameAndVersion.name === engineConfig.name &&
+        nameAndVersion.version === engineConfig.version) {
+        that.engine = new engines[i](that.engine)
         break;
       }
     }

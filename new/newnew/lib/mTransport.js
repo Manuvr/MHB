@@ -17,6 +17,7 @@ var config = {
 // EXPOSED OBJECT / CONSTRUCTOR
 function mTransport() {
   var that = this;
+  ee.call(this);
   this.transport = new bt(); // will change base on transport
   this.init();
 
@@ -33,7 +34,7 @@ function mTransport() {
   this.on('toTransport', toTransport);
 };
 
-util.inherits(mTransport, ee);
+inherits(mTransport, ee);
 
 mTransport.prototype.init = function() {
 

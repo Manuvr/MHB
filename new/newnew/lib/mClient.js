@@ -12,8 +12,4 @@ MHB.addEngine(mEngine);
 
 var glove1 = MHB.connectTransport(bluetooth);
 
-connector.on('message', function(arg) {
-  console.log(arg);
-})
-
-newSession.send('okay', 'moar Data')
+glove1.emit('build', 'something')

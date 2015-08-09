@@ -19,14 +19,10 @@ var config = {
 };
 
 // mEngine Factory function
-function mEngine() {
-  this.config = config;
-};
-
-mEngine.prototype.init = function(parent) {
+function mEngine(parent) {
+  ee.call(this);
   var that = this;
   this.config = config;
-  ee.call(this);
 
   this.parent = parent;
 
@@ -37,7 +33,9 @@ mEngine.prototype.init = function(parent) {
   }
 
   var build = function(objectPacket) {
-
+    var newPacket = {};
+    //switch case on message info
+    that.parent.emit(newPacket);
   }
 
   var toParse = function(buffer) {
@@ -50,10 +48,12 @@ mEngine.prototype.init = function(parent) {
 
   // listeners
   this.on('toParse', toParse)
+  this.on('build', build)
   this.parent.on('fromParse', fromParse)
+};
 
-  return this;
+mEngine.getConfig = function() {
+  return config;
 }
-
 
 module.exports = mEngine;
