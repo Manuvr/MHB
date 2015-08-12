@@ -1,15 +1,19 @@
 'use strict'
 
 // template for DHB middle-man interaction
+var inherits = require('util').inherits;
 var ee = require('events').EventEmitter;
 
 // Config for mConnector to act on... pulled in to the constructor.
 var config = {
   name: 'DHB',
   version: '1.0.0',
-  emits: {
+  inputs: {
+    'data': 'data'
+  },
+  outputs: {
     'GLOVE_MODEL': 'direct_socket', // these will be definitions in connector
-    'ERROR': 'console_log'
+    'ERROR': 'log'
       //etc
   },
   state: {

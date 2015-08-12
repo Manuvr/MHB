@@ -2,14 +2,20 @@
 
 // this is where the Express app would live
 var mSession = require('./mSession.js'); // session factory
-var mCore = require('./lib/mCore.js'); // MHB
-var mEngine = require('./lib/mEngine.js'); //  DHB
-var bluetooth = require('./lib/mTransport.js'); // bluetooth
+var mCore = require('./mCore.js'); // MHB
+var mEngine = require('./mEngine.js'); //  DHB
+var bluetooth = require('./mTransport.js'); // bluetooth
 
-var MHB = new mSession();
+var manuvrFactory = new mSession();
 
-MHB.addEngine(mEngine);
+manuvrFactory.addEngine(mEngine);
+manuvrFactory.replaceCore(mCore);
 
-var glove1 = MHB.connectTransport(bluetooth);
+var glove = manuvrFactory.init(bluetooth);
 
-glove1.emit('build', 'something')
+glove.on('toClient', function(args) {
+  console.log(args)
+})
+
+glove.emit('', 'connect');
+glove.emit('toParse')

@@ -5,46 +5,109 @@ var inherits = require('util').inherits;
 var ee = require('events').EventEmitter;
 // may want to subscribe to global emitter?
 
+//require device library
 var bt = require('bluetooth-serial-port');
 
 // sample config for transport parameters
 var config = {
-  address: null,
-  port: null
-    // etc
+  state: {
+    'connected': 'boolean',
+    'address': 'string'
+  },
+  inputs: {
+    'scan': 'button',
+    'data': 'buffer',
+    'address': 'string',
+    'connect': 'button',
+    'disconnect': 'button',
+    'getConfig': 'button'
+  },
+  outputs: {
+    'connect': 'action',
+    'disconnect': 'action',
+    'scanResult': 'string',
+    'log': 'log'
+  }
+  // etc
 };
 
 // EXPOSED OBJECT / CONSTRUCTOR
 function mTransport() {
-  var that = this;
   ee.call(this);
-  this.transport = new bt(); // will change base on transport
-  this.init();
 
-  var toTransport = function(buffer) {
-    that.transport = 'x';
-  }
+  this.connAddress = "";
 
-  var fromTransport = function(buffer) {
-    that.emit('fromTransport', buffer)
-  }
-
-  // will depend on transport library....
-  this.transport.on('fromTransport', fromTransport);
+  // from local EE
   this.on('toTransport', toTransport);
+
+  // from device
+  this.device = new bt.BluetoothSerialPort();
+
+  this.device.on('data', function() {
+    fromTransport('data', arguments[0])
+  });
+  this.device.on('found', function() {
+    fromTransport('found', [arguments[0], arguments[1]])
+  });
+  this.device.on('closed', function() {
+    fromTransport('closed', arguments[0])
+  })
+
+  // set scope for private methods
+  var that = this;
+
+  // From local EE to Device functions
+  var toTransport = function(type, data) {
+    switch (type) {
+      case 'connect':
+        that.transport.findSerialPortChannel(address, function(channel) {
+          btSerial.connect(address, channel, function() {
+            //connected
+          }, function() {
+            //failed, but channel acquired
+          });
+        }, function() {
+          //failed, and no channel acquired
+        });
+        break;
+      case 'data':
+        that.device.write(data, function(err, bytesWritten) {
+          if (err) console.log(err);
+        });
+        break;
+      case 'scan':
+        that.device.inquire();
+        break;
+      case 'disconnect':
+        that.device.close();
+        break;
+      case 'address':
+        that.address = data;
+      default:
+        console.log('wut? ' + data);
+        break;
+
+    }
+  }
+
+  // from device to local EE functions
+  var fromTransport = function(type, args) {
+      switch (type) {
+        case 'data':
+          that.emit('fromTransport', 'data', args);
+          break;
+        case 'closed':
+          that.emit('fromTransport', 'disconnect')
+          break;
+        case 'found':
+          that.emit('fromTransport', 'scanResult', args[0], args[1])
+          break;
+        default:
+          console.log('No condition for this emit: ' + args);
+          break;
+      }
+    }
+    // will depend on transport library....
 };
 
 inherits(mTransport, ee);
-
-mTransport.prototype.init = function() {
-
-};
-
-mTransport.prototype.send = function(buffer) {
-
-};
-
-mTransport.prototype.getConfig = function(message) {
-  // TBD... This involves message definitions for specific module emits
-  return config;
-}

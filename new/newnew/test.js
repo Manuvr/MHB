@@ -3,30 +3,20 @@
 var ee = require('events').EventEmitter;
 var inherits = require('util').inherits;
 
-function derp() {
-  ee.call(this);
-  this.a = 'b';
-  var that = this;
-  var test = function(arg) {
-    that.a = arg;
-    console.log('inner voices:' + that.a);
-  }
-  this.on('herp', test);
-};
+var a = new ee();
 
-inherits(derp, ee);
 
-derp.prototype.init = function(value) {
-  this.a = value;
-  console.log(this.a)
-}
-
-var lerp = new derp();
-
-lerp.emit('herp', 'wut');
-
-lerp.on('herp', function(arg) {
-  console.log('first: ' + arg);
+a.on('derp', function(args) {
+  readOut('derp', arguments);
 })
 
-console.log('second: ' + lerp.a);
+function readOut(name, args) {
+  console.log(name)
+  console.log(args)
+}
+
+a.emit('derp', 'herp', 'lerp')
+
+a.emit('derp', 'mcgerp');
+
+a.emit('derp', 'guy');
