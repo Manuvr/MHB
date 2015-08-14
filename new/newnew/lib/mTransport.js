@@ -100,7 +100,7 @@ function mTransport() {
           that.emit('fromTransport', 'disconnect')
           break;
         case 'found':
-          that.emit('fromTransport', 'scanResult', args[0], args[1])
+          that.emit('fromTransport', 'scanResult', [args[0], args[1]])
           break;
         default:
           console.log('No condition for this emit: ' + args);

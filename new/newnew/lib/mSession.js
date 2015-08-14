@@ -12,55 +12,97 @@ function session(transport, core) {
   var that = this;
 
   this.transport = transport;
+
   if (core === undefined) {
     this.engine = MHB;
   } else {
     this.engine = core;
   }
 
-  //
+  // CONNECTED LISTENERS
+  this.engine.parent.on('fromCore', fromCore);
+  this.transport.on('fromTransport', fromTransport);
+  this.engine.on('fromEngine', fromEngine);
+  this.on('fromClient', fromClient);
+
+  // sender emits... logic shouldn't go here
+  var toCore = function(type, data) {
+    that.engine.parent.emit('toCore', type, data)
+  }
+  var toEngine = function(type, data) {
+    that.engine.emit('toEngine', type, data);
+  }
+  var toTransport = function(type, data) {
+    that.transport.emit('toTransport', type, data);
+  }
+
+  // notice the origin....
+  var toClient = function(origin, type, data) {
+    that.emit('toClient', origin, type, data);
+  }
+
+  // input logic
+  // default cast for ALL unknown types is to emit to the client.  This allows
+  // us to debug
   var fromCore = function(type, data) {
     switch (type) {
       case 'data':
-        this.transport.emit('toTransport', 'data', data)
+        toTransport('data', data);
         break;
+      case 'log': // passthrough
+      default:
+        toClient('core', type, data);
     }
   }
 
-  var toCore = function(type, data) {
-    this.engine.parent.emit('toCore', type, data)
-  }
-
-  var toTransport = function(type, data) {
-    this.transport.emit('toTransport', type, data);
+  var fromEngine = function(type, data) {
+    switch (type) {
+      case 'client':
+        if (data.message === 'SELF_DESCRIBE') {
+          swapEngine(data.args[0], data.args[2]) // ?? Need to inspect JSONbuff
+        }
+        toClient('engine', type, data)
+        break;
+      case 'log': // passthrough
+      default:
+        toClient('engine', type, data);
+    }
   }
 
   var fromTransport = function(type, data) {
-
+    switch (type) {
+      case 'data':
+        that.engine.parent.emit('toCore', 'data', data)
+        break;
+      case 'log': // passthrough
+      default:
+        toClient('transport', type, data)
+    }
   }
 
-  var toBuild = function(type, data) {
-    this.engine.emit('build', arg);
-  }
+  // this is essentially our inbound API. May want to expand this a bit?
+  // For example: add some custom types that translate in to others
+  // IE: emit('macro', 'sendBufferDataToDevice', whatever)
+  // result: toCore('data', whatever)
+  // Current approach assumes client knows about dest and type architecture.
+  var fromClient = function(destination, type, data) {
+    switch (destination) {
+      case 'xport':
+        toTransport(type, data);
+        break;
+      case 'engine':
+        toEngine(type, data);
+        break;
+      case 'session':
+        // deal with state or something?
+        break;
+      default:
+        console.log("Unknown emit destination: " + destination + " | " + type);
+    }
+  };
 
-  // From CORE directly to transport
-  this.engine.parent.on('toTransport', toTransport);
-
-  // From TRANSPORT
-  this.transport.on('fromTransport', toCore);
-
-  // from Engine
-  this.engine.on('fromParse', fromParse);
-  this.on('build', toBuild);
-
-  // from CLIENT
-  this.on('toTransport', toTransport)
-
-  // from CORE
-  this.engine.parent.on('fromCore', fromCore);
-
-  //Listener
-  this.engine.on('SELF_DESCRIBE', function(nameAndVersion) {
+  // special case functions
+  var swapEngine = function(name, version) {
     var engineConfig;
     for (var i = 0; i < engines.length; i++) {
       engineConfig = engines[i].getConfig();
@@ -70,10 +112,9 @@ function session(transport, core) {
         break;
       }
     }
-  });
+  };
 }
 util.inherits(session, ee);
-
 
 // EXPOSED SESSION FACTORY
 function mSession() {
