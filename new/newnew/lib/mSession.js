@@ -18,41 +18,48 @@ function session(transport, core) {
     this.engine = core;
   }
 
-  var toParse = function(type, arg) {
+  //
+  var fromCore = function(type, data) {
     switch (type) {
       case 'data':
-        that.engine.parent.emit('toParse', buffer);
+        this.transport.emit('toTransport', 'data', data)
         break;
-      default:
-
     }
   }
 
-  var fromParse = function(arg) {
-    this.emit('message', arg)
+  var toCore = function(type, data) {
+    this.engine.parent.emit('toCore', type, data)
   }
 
   var toTransport = function(type, data) {
-    //this.transport.emit('data', data)
     this.transport.emit('toTransport', type, data);
   }
 
-  var toBuild = function(arg) {
+  var fromTransport = function(type, data) {
+
+  }
+
+  var toBuild = function(type, data) {
     this.engine.emit('build', arg);
   }
 
   // From CORE directly to transport
   this.engine.parent.on('toTransport', toTransport);
 
-  // From TRANSPORT to Parse
-  this.transport.on('fromTransport', toParse);
+  // From TRANSPORT
+  this.transport.on('fromTransport', toCore);
 
+  // from Engine
   this.engine.on('fromParse', fromParse);
   this.on('build', toBuild);
 
+  // from CLIENT
   this.on('toTransport', toTransport)
 
-  //example for assigning a new "engine"...
+  // from CORE
+  this.engine.parent.on('fromCore', fromCore);
+
+  //Listener
   this.engine.on('SELF_DESCRIBE', function(nameAndVersion) {
     var engineConfig;
     for (var i = 0; i < engines.length; i++) {
