@@ -22,41 +22,69 @@ var config = {
   }
 };
 
+function customBuild(data) {
+  // manipulate buildable data with switch case
+  return data
+}
+
+function customRead(data) {
+  // manipulate parsed data with switch case
+  return data;
+}
+
 // mEngine Factory function
 function mEngine(parent) {
   ee.call(this);
   var that = this;
   this.config = config;
-
   this.parent = parent;
 
-  var parse = function(message) {
-    var newMessage = {};
-    // switch case to parse specific messages
-    return newMessage;
-  }
-
-  var build = function(objectPacket) {
-    var newPacket = {};
-    //switch case on message info
-    that.parent.emit(newPacket);
-  }
-
-  var toParse = function(buffer) {
-    that.parent.emit('toParse', buffer)
-  }
-
-  var fromParse = function(buffer) {
-    that.emit('fromParse', parse(packet))
-  }
-
   // listeners
-  this.on('toParse', toParse)
-  this.on('build', build)
-  this.parent.on('fromParse', fromParse)
-};
+  this.on('toEngine', toEngine)
+  this.parent.on('fromParent', fromParent)
 
-mEngine.getConfig = function() {
+  // Emits to session
+  var fromEngine = function(type, data) {
+    that.emit('fromEngine', type, data)
+  }
+
+  // Emits to parent
+  var toParent = function(type, data) {
+    that.parent.emit('toEngine', type, data)
+  }
+
+  // Inputs from session
+  var toEngine = function(type, data) {
+    switch (type) {
+      case 'send':
+        // build new
+        that.toParent(type, customBuild(data));
+        break;
+      case 'state':
+        // do something
+        break;
+      default:
+        that.fromEngine('log', "not a valid type")
+        break;
+    }
+  }
+
+  // Inputs from parent
+  var fromParent = function(type, data) {
+    switch (type) {
+      case 'client':
+        that.fromEngine(type, customRead(data));
+      case 'log':
+        that.fromEngine(type, data);
+      default:
+        // something random from parent
+
+    }
+  }
+};
+util.inherits(mEngine, ee);
+
+mEngine.prototype.getConfig = function() {
   return config;
 }
 

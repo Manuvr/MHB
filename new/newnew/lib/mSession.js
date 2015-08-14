@@ -47,11 +47,11 @@ function session(transport, core) {
   var fromCore = function(type, data) {
     switch (type) {
       case 'data':
-        toTransport('data', data);
+        that.toTransport('data', data);
         break;
       case 'log': // passthrough
       default:
-        toClient('core', type, data);
+        that.toClient('core', type, data);
     }
   }
 
@@ -59,13 +59,13 @@ function session(transport, core) {
     switch (type) {
       case 'client':
         if (data.message === 'SELF_DESCRIBE') {
-          swapEngine(data.args[0], data.args[2]) // ?? Need to inspect JSONbuff
+          that.swapEngine(data.args[0], data.args[2]) // ?? Need to inspect JSONbuff
         }
-        toClient('engine', type, data)
+        that.toClient('engine', type, data)
         break;
       case 'log': // passthrough
       default:
-        toClient('engine', type, data);
+        that.toClient('engine', type, data);
     }
   }
 
@@ -76,7 +76,7 @@ function session(transport, core) {
         break;
       case 'log': // passthrough
       default:
-        toClient('transport', type, data)
+        that.toClient('transport', type, data)
     }
   }
 
@@ -88,10 +88,10 @@ function session(transport, core) {
   var fromClient = function(destination, type, data) {
     switch (destination) {
       case 'xport':
-        toTransport(type, data);
+        that.toTransport(type, data);
         break;
       case 'engine':
-        toEngine(type, data);
+        that.toEngine(type, data);
         break;
       case 'session':
         // deal with state or something?
@@ -106,15 +106,18 @@ function session(transport, core) {
     var engineConfig;
     for (var i = 0; i < engines.length; i++) {
       engineConfig = engines[i].getConfig();
-      if (nameAndVersion.name === engineConfig.name &&
-        nameAndVersion.version === engineConfig.version) {
+      if (name === engineConfig.name &&
+        version === engineConfig.version) {
         that.engine = new engines[i](that.engine)
+        that.toClient('session', 'log', 'Found engine for ' + name + ', ' +
+          version)
         break;
       }
     }
+    that.toClient('session', 'log', 'No version found in self-describe.')
   };
 }
-util.inherits(session, ee);
+inherits(session, ee);
 
 // EXPOSED SESSION FACTORY
 function mSession() {

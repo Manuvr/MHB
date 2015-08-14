@@ -111,3 +111,5 @@ function mTransport() {
 };
 
 inherits(mTransport, ee);
+
+module.exports = mTransport;

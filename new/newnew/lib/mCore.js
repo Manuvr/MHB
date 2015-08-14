@@ -22,31 +22,72 @@ function parse(message) {
   return newMessage;
 }
 
-// EXPOSED OBJECT / CONSTRUCTOR
-function mCore() {
-  this.config = config;
-};
-
-mCore.prototype.init = function() {
-  ee.call(this);
-  var that = this;
-
-  this.on('toParse', function(buffer) {
-    parse(buffer);
-  })
-
-  this.on('done', function(packet) {
-    that.emit('fromParse', parse(packet));
-  })
-
-  return this;
+function customBuild(data) {
+  // manipulate buildable data with switch case
+  return data
 }
 
-util.inherits(mCore, ee);
+function customRead(data) {
+  // manipulate parsed data with switch case
+  return data;
+}
 
+// mEngine Factory function
+function mCore() {
+  ee.call(this);
+  var that = this;
+  this.config = config;
+  this.parent = this; // freaky way of doing a chained assignment from session
 
-mCore.prototype.getConfig = function(message) {
-  // TBD... This involves message definitions for specific module emits
+  // listeners
+  this.on('toEngine', toEngine)
+  this.on('toCore', toCore)
+
+  // Emits to session
+  var fromEngine = function(type, data) {
+    that.emit('fromEngine', type, data)
+  }
+
+  // Inputs from session
+  var toEngine = function(type, data) {
+    switch (type) {
+      case 'send':
+        // build new
+        that.parse(data);
+        break;
+      case 'state':
+        // do something
+        break;
+      default:
+        that.mCore('log', "not a valid type")
+        break;
+    }
+  }
+
+  var fromCore = function(type, data) {
+    that.emit('fromEngine', type, data)
+  }
+
+  // Inputs from session
+  var toCore = function(type, data) {
+    switch (type) {
+      case 'send':
+        // build new
+        that.parse(data);
+        break;
+      case 'state':
+        // do something
+        break;
+      default:
+        that.fromEngine('log', "not a valid type")
+        break;
+    }
+  }
+
+};
+util.inherits(mEngine, ee);
+
+mCore.prototype.getConfig = function() {
   return config;
 }
 
