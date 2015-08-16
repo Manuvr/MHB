@@ -33,7 +33,11 @@ function customBuild(data) {
 *
 */
 function customRead(data) {
-  // manipulate parsed data with switch case
+  switch (data.message) {
+    case 'SYS_POWER_MODE':
+      
+      break;
+  }
   return data;
 }
 

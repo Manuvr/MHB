@@ -18,7 +18,7 @@ var config = {
     'address': 'string',
     'connect': 'button',
     'disconnect': 'button',
-    'getConfig': 'button'
+    'getConfig':  'button'
   },
   outputs: {
     'connect': 'action',
@@ -29,6 +29,9 @@ var config = {
 };
 
 
+/**
+* Constructs an entangled pair of transports that constitute a cross-over cable.
+*/
 function pairConstructor() {
   this.transport0 = new mTransport();
   this.transport1 = new mTransport();

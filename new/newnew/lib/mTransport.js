@@ -45,7 +45,7 @@ function mTransport() {
   this.on('toTransport', toTransport);
 
   // from device
-  this.device = new bt.BluetoothSerialPort();
+  //this.device = new UnderlyingDeviceLibrary();
 
   this.device.on('data', function() {
     that.fromTransport('data', arguments[0])
@@ -61,26 +61,18 @@ function mTransport() {
   var toTransport = function(type, data) {
     switch (type) {
       case 'connect':
-        that.device.findSerialPortChannel(address, function(channel) {
-          btSerial.connect(address, channel, function() {
-            //connected
-          }, function() {
-            //failed, but channel acquired
-          });
-        }, function() {
-          //failed, and no channel acquired
-        });
+        //that.device.(imperative connection fxn call)
         break;
       case 'data':
-        that.device.write(data, function(err, bytesWritten) {
-          if (err) console.log(err);
-        });
+        //that.device.write(data, function(err, bytesWritten) {
+        //  if (err) console.log(err);
+        //});
         break;
       case 'scan':
-        that.device.inquire();
+        //that.device.(discovery fxn);
         break;
       case 'disconnect':
-        that.device.close();
+        //that.device.close();
         break;
       case 'address':
         that.address = data;
@@ -112,7 +104,5 @@ function mTransport() {
 };
 
 inherits(mTransport, ee);
-
-mTransport.prototype.middle = 
 
 module.exports = mTransport;
