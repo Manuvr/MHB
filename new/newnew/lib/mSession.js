@@ -14,20 +14,26 @@ function session(transport, core) {
   this.transport = transport;
 
   if (core === undefined) {
-    this.engine = MHB;
+    this.core = new MHB();
   } else {
-    this.engine = core;
+    this.core = core;
   }
+  // initial assignment
+  this.engine = this.core;
 
   // CONNECTED LISTENERS
-  this.engine.parent.on('fromCore', fromCore);
+
+  //fromCore is ALWAYS the initial listener...
+  this.core.on('fromCore', fromCore);
   this.transport.on('fromTransport', fromTransport);
-  this.engine.on('fromEngine', fromEngine);
   this.on('fromClient', fromClient);
+
+  // needs to be removed and reset to the new Engine when changing...
+  this.engine.on('fromEngine', fromEngine);
 
   // sender emits... logic shouldn't go here
   var toCore = function(type, data) {
-    that.engine.parent.emit('toCore', type, data)
+    that.core.emit('toCore', type, data)
   }
   var toEngine = function(type, data) {
     that.engine.emit('toEngine', type, data);
@@ -72,7 +78,7 @@ function session(transport, core) {
   var fromTransport = function(type, data) {
     switch (type) {
       case 'data':
-        that.engine.parent.emit('toCore', 'data', data)
+        that.core.emit('toCore', 'data', data)
         break;
       case 'log': // passthrough
       default:
@@ -108,7 +114,9 @@ function session(transport, core) {
       engineConfig = engines[i].getConfig();
       if (name === engineConfig.name &&
         version === engineConfig.version) {
+        that.engine.removeListener('fromEngine', fromEngine);
         that.engine = new engines[i](that.engine)
+        that.engine.on('fromEngine', fromEngine);
         that.toClient('session', 'log', 'Found engine for ' + name + ', ' +
           version)
         break;

@@ -8,10 +8,16 @@ var ee = require('events').EventEmitter;
 var config = {
   name: 'MHB',
   version: '1.0.0',
-  emits: {
-    'GENERIC': 'console_log', // these will be definitions in connector
-    'ERROR': 'console_log'
+  inputs: {
+    'data': 'data'
+  },
+  outputs: { // these will be definitions in connector
+    'ERROR': 'log'
       //etc
+  },
+  state: {
+    'LED_1': 'number',
+    'GLOVE_MODEL': 'string'
   }
 };
 
