@@ -5,6 +5,9 @@ var inherits = require('util').inherits;
 var ee = require('events').EventEmitter;
 
 var receiver = require('./mCore/receiver.js');
+var messageParser = require('./mCore/messageParser.js');
+var mLegend = require('./mCore/messageLegend.js');
+var mFlags = require('./mCore/messageFlags.js');
 
 // Config for mConnector to act on
 var config = {
@@ -30,6 +33,8 @@ function mCore() {
   this.config = config;
   this.parent = this; // freaky way of doing a chained assignment from session
   this.receiver = new receiver();
+  this.messageParser = new messageParser(mLegend, mFlags)
+  this.messageAction
 
   // input listeners
   this.on('toEngine', toEngine)
@@ -38,8 +43,10 @@ function mCore() {
   this.receiver.parser.on('readable', function() {
     var jsonBuff;
     while (jsonBuff = that.receiver.parser.read()) {
-      generateMessage(jsonBuff);
+      that.messageParser.parse(jsonBuff);
+      that.messageAction.process(jsonBuff);
     }
+
   });
 
 
