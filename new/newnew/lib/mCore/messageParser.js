@@ -233,7 +233,8 @@ function typeParse(jsonBuff, commands, types) {
           //   we parsed and return. No need to look at additional argForms.
           jsonBuff.args = outObj;
           return jsonBuff;
-        } else {
+        } 
+        else {
           // If something is still out-of-balance, we continue the loop and try the next
           //   argForm that met the length criteria.
         }
