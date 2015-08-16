@@ -1,9 +1,9 @@
 'use strict';
 
-var types = require('./types');
-var commands = require('./commands');
+// var types = require('./types');
+// var commands = require('./messageLegend.js');
 
-function legendMessage(jsonBuff) {
+function legendMessage(jsonBuff, commands, types) {
   var zeroScanner;
   var zeroLoc;
   var startLoc;
@@ -83,7 +83,7 @@ function legendMessage(jsonBuff) {
 /**
  * Passed a sequence of type-codes, returns true if there is a variable-length type among them. False otherwise.
  */
-function containsVariableLengthTypeCode(argForm) {
+function containsVariableLengthTypeCode(argForm, types) {
   //for (var key in Object.getOwnPropertyNames(command_def.argForms)) {
   //}
   var i = 0;
@@ -103,7 +103,7 @@ function containsVariableLengthTypeCode(argForm) {
  * All variable-length types are presumed to have a minimum length of 1.
  * Returns -1 on failure, since 0 is a valid return (argForm may have no types in it).
  */
-function minimumSizeOfArgForm(argForm) {
+function minimumSizeOfArgForm(argForm, types) {
   //for (var key in Object.getOwnPropertyNames(command_def.argForms)) {
   //}
   var i = 0;
@@ -117,22 +117,22 @@ function minimumSizeOfArgForm(argForm) {
 }
 
 
-/**
- * @return length of extracted string if there exists a null-terminator between 'offset' and the end of the raw buffer. Otherwise, returns -1.
- */
-function extractNullTerminatedString(jsonBuff, offset) {
-  var i = offset;
-  var max = jsonBuff.raw.length;
-  while (i < max) {
-    if (jsonBuff.raw.readUInt8(i) === 0) {
-      jsonBuff.args[jsonBuff.args.length()] = parseType.read(jsonBuff.raw.slice(
-        offset, i));
-      return (i - offset);
-    }
-    i++;
-  }
-  return -1;
-}
+// /**
+//  * @return length of extracted string if there exists a null-terminator between 'offset' and the end of the raw buffer. Otherwise, returns -1.
+//  */
+// function extractNullTerminatedString(jsonBuff, offset) {
+//   var i = offset;
+//   var max = jsonBuff.raw.length;
+//   while (i < max) {
+//     if (jsonBuff.raw.readUInt8(i) === 0) {
+//       jsonBuff.args[jsonBuff.args.length()] = parseType.read(jsonBuff.raw.slice(
+//         offset, i));
+//       return (i - offset);
+//     }
+//     i++;
+//   }
+//   return -1;
+// }
 
 
 
@@ -141,14 +141,14 @@ function extractNullTerminatedString(jsonBuff, offset) {
  *   A) An array of argForms that might fit the length.
  *   B) An empty set, if no such arg forms are found.
  */
-function getPotentialArgForms(messageDef, len) {
+function getPotentialArgForms(messageDef, len, types) {
   var return_value = {};
   for (var argForm in messageDef.argForms) {
-    if (msg_def.argForms.hasOwnProperty(argForm)) {
-      if (minimumSizeOfArgForm(argForm) == len) {
+    if (messageDef.argForms.hasOwnProperty(argForm)) {
+      if (minimumSizeOfArgForm(argForm, types) == len) {
         return_value[return_value.length] = argForm;
-      } else if ((minimumSizeOfArgForm(argForm) < len) && (
-          containsVariableLengthTypeCode(argForm))) {
+      } else if ((minimumSizeOfArgForm(argForm, types) < len) && (
+          containsVariableLengthTypeCode(argForm, types))) {
         // If the form contains variable-length types, the length need not be an exact match.
         return_value[return_value.length] = argForm;
       } else {
@@ -162,14 +162,16 @@ function getPotentialArgForms(messageDef, len) {
 
 
 
-function typeParse(jsonBuff) {
+function typeParse(jsonBuff, commands, types) {
   var handler = commands[jsonBuff.messageId];
 
   // check to see if the buffer is empty
   if ([] !== jsonBuff.raw && jsonBuff.raw.length !== 0) {
     // If the buffer is non-empty, fetch a list of possible ways to interpret it...
-    var handlers = getPotentialArgForms(commands[jsonBuff.messageId], jsonBuff.raw
-      .length);
+    var handlers = getPotentialArgForms(
+      commands[jsonBuff.messageId],
+      jsonBuff.raw.length,
+      types);
 
     if (handlers.length > 0) {
       for (var argForm in handlers) {
@@ -248,115 +250,86 @@ function typeParse(jsonBuff) {
   return jsonBuff;
 }
 
-
-
 /**
  * TODO: There is no good reason for this to be a special-case parser, as it's types are
  *   not ambiguous. But until the general typeParse() fxn can handle several strings, we need it.
  */
-function selfDescribeParse(jsonBuff) {
-  var handler = commands[jsonBuff.messageId];
+// function selfDescribeParse(jsonBuff) {
+//   var handler = commands[jsonBuff.messageId];
+//
+//   if (jsonBuff.raw.length > 0) {
+//     if (jsonBuff.raw.length >= 9) {
+//       // 9 bytes is the absolute-smallest this payload can be if it is greater than zero.
+//       var i = 0; // Our means of keeping track of our position in the buffer.
+//       jsonBuff.args[0] = jsonBuff.raw.readUInt32LE(i); // This is our counter-party's MTU.
+//       i += 4;
+//
+//       // Now to try and read the required strings.
+//       var nu_offset = extractNullTerminatedString(jsonBuff, i);
+//       while (0 <= nu_offset) {
+//         i = nu_offset + 1;
+//         nu_offset = extractNullTerminatedString(jsonBuff, i);
+//       }
+//
+//       switch (jsonBuff.args.length) {
+//         case 6:
+//         case 7:
+//           // This is success.
+//           // TODO: This is enough information to load the appropriate object for the
+//           //   Manuvrable that we are connected to.
+//           break;
+//         default:
+//           // If we are here, we have failed to correctly parse this message.
+//           console.log('Failed to parse the minimum required number of strings.');
+//           break;
+//       }
+//     } else {
+//       // Otherwise, it is clearly wrong.
+//       // TODO: Shut down communication? Revert to a de-sync'd state?
+//       console.log('Looks like we got an invalid self-describe message...');
+//     }
+//   } else {
+//     // TODO: This is to be interpreted as a request-for-self-description. Reply on the same unique-ID.
+//     console.log('Our identity is being queried...');
+//   }
+//   return jsonBuff;
+// }
 
-  if (jsonBuff.raw.length > 0) {
-    if (jsonBuff.raw.length >= 9) {
-      // 9 bytes is the absolute-smallest this payload can be if it is greater than zero.
-      var i = 0; // Our means of keeping track of our position in the buffer.
-      jsonBuff.args[0] = jsonBuff.raw.readUInt32LE(i); // This is our counter-party's MTU.
-      i += 4;
 
-      // Now to try and read the required strings.
-      var nu_offset = extractNullTerminatedString(jsonBuff, i);
-      while (0 <= nu_offset) {
-        i = nu_offset + 1;
-        nu_offset = extractNullTerminatedString(jsonBuff, i);
-      }
 
-      switch (jsonBuff.args.length) {
-        case 6:
-        case 7:
-          // This is success.
-          // TODO: This is enough information to load the appropriate object for the
-          //   Manuvrable that we are connected to.
-          break;
-        default:
-          // If we are here, we have failed to correctly parse this message.
-          console.log('Failed to parse the minimum required number of strings.');
-          break;
-      }
-    } else {
-      // Otherwise, it is clearly wrong.
-      // TODO: Shut down communication? Revert to a de-sync'd state?
-      console.log('Looks like we got an invalid self-describe message...');
-    }
-  } else {
-    // TODO: This is to be interpreted as a request-for-self-description. Reply on the same unique-ID.
-    console.log('Our identity is being queried...');
-  }
-  return jsonBuff;
+function MessageParser(commands, types) {
+  this.commands = commands;
+  this.types = types;
+  var that = this;
+
 }
-
-
-
-function MessageParser() {}
 
 MessageParser.prototype.parse = function(jsonBuff) {
 
-  if (!commands.hasOwnProperty(jsonBuff.messageId)) {
+  if (!that.commands.hasOwnProperty(jsonBuff.messageId)) {
     console.log('No messageID. (no arguments will be parsed) ', jsonBuff);
-    return null;
+    return false;
   }
-
+  jsonBuff.messageCode = jsonBuff.messageId;
+  jsonBuff.messageId = that.commands[jsonBuff.messageId].def;
+  jsonBuff.flag = that.commands[jsonBuff.messageId].flag;
   jsonBuff.args = [];
+  jsonBuff.message = jsonBuff.messageCode === 11 ?
+    legendMessage(jsonBuff, that.commands, that.types) : typeParse(jsonBuff,
+      that.commands, that.types);
+  delete jsonBuff.raw;
+  delete jsonBuff.totalLength;
+  delete jsonBuff.checkSum;
 
-  var message = null;
-  var messageId = commands[jsonBuff.messageId].def;
-
-  switch (messageId) {
-    //TODO: Change messageIds to consts?
-    case 'KA': // Keep-alive.
-      console.log('KA');
-      // TODO: We should ACK this by changing the messageId to MANUVR_MSG_REPLY (0x01) and sending it.
-      break;
-
-    case '<UNDEFINED>': // No way to deal with this. It should stop here?
-      console.log('<UNDEFINED>');
-      // TODO: We should NACK this by changing the messageId to MANUVR_MSG_REPLY_FAIL and sending it.
-      break;
-
-    case 'LEGEND_TYPES':
-      console.log('LEGEND_TYPES');
-      // TODO: On a future date, this ought to be used to dynamically describe types. Not today.
-      break;
-
-    case 'LEGEND_MESSAGES':
-      var tempObj = legendMessage(typeParse(jsonBuff));
-      message = {
-        id: 'LEGEND_MESSAGES',
-        text: tempObj
-      };
-      console.log('LEGEND_MESSAGES: ', tempObj);
-      break;
-
-    case 'SELF_DESCRIBE':
-      var tempObj = selfDescribeParse(jsonBuff);
-      message = {
-        id: 'SELF_DESCRIBE',
-        text: tempObj
-      };
-      console.log('SELF_DESCRIBE: ', tempObj);
-      break;
-
-    default:
-      // This is where we wind up when we don't respond to a message that is valid.
-      message = {
-        id: messageId,
-        text: typeParse(jsonBuff)
-      };
-      // TODO: Pass to Connector?
-      break;
-  }
-
-  return message;
-
+  return true;
 };
+
+MessageParser.prototype.updateCommands = function(commands) {
+  this.commands = commands;
+}
+
+MessageParser.prototype.updateTypes = function(types) {
+  this.types = types;
+}
+
 module.exports = MessageParser;
