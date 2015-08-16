@@ -41,7 +41,7 @@ function mEngine(parent) {
 
   // listeners
   this.on('toEngine', toEngine)
-  this.parent.on('fromParent', fromParent)
+  this.parent.on('fromEngine', fromParent)
 
   // Emits to session
   var fromEngine = function(type, data) {

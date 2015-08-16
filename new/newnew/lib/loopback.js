@@ -5,9 +5,6 @@ var inherits = require('util').inherits;
 var ee = require('events').EventEmitter;
 // may want to subscribe to global emitter?
 
-//require device library
-// 
-
 // sample config for transport parameters
 var config = {
   state: {
@@ -29,8 +26,23 @@ var config = {
     'scanResult': 'string',
     'log': 'log'
   }
-  // etc
 };
+
+
+function pairConstructor() {
+  this.transport0 = new mTransport();
+  this.transport1 = new mTransport();
+  
+  var that = this;
+  
+  this.transport0.on('toDevice', function(type, data) {
+    that.transport1.emit('fromDevice', type, data);
+  }
+  this.transport1.on('toDevice', function(type, data) {
+    that.transport0.emit('fromDevice', type, data);
+  }
+}
+
 
 // EXPOSED OBJECT / CONSTRUCTOR
 function mTransport() {
@@ -39,55 +51,25 @@ function mTransport() {
   // set scope for private methods
   var that = this;
 
-  this.connAddress = "";
+  this.address = Math.random();
 
   // from local EE
   this.on('toTransport', toTransport);
 
-  // from device
-  this.device = new bt.BluetoothSerialPort();
 
-  this.device.on('data', function() {
-    that.fromTransport('data', arguments[0])
+  this.on('fromDevice', function(type, data) {
+    that.fromTransport(type, data);
   });
-  this.device.on('found', function() {
-    that.fromTransport('found', [arguments[0], arguments[1]])
-  });
-  this.device.on('closed', function() {
-    that.fromTransport('closed', arguments[0])
-  })
 
   // From local EE to Device functions
   var toTransport = function(type, data) {
     switch (type) {
-      case 'connect':
-        that.device.findSerialPortChannel(address, function(channel) {
-          btSerial.connect(address, channel, function() {
-            //connected
-          }, function() {
-            //failed, but channel acquired
-          });
-        }, function() {
-          //failed, and no channel acquired
-        });
-        break;
       case 'data':
-        that.device.write(data, function(err, bytesWritten) {
-          if (err) console.log(err);
-        });
+        that.emit('toDevice', type, data);
         break;
-      case 'scan':
-        that.device.inquire();
-        break;
-      case 'disconnect':
-        that.device.close();
-        break;
-      case 'address':
-        that.address = data;
       default:
-        console.log('wut? ' + data);
+        console.log('loopback wut? ' + data);
         break;
-
     }
   }
 
@@ -96,12 +78,6 @@ function mTransport() {
       switch (type) {
         case 'data':
           that.emit('fromTransport', 'data', args);
-          break;
-        case 'closed':
-          that.emit('fromTransport', 'disconnect')
-          break;
-        case 'found':
-          that.emit('fromTransport', 'scanResult', [args[0], args[1]])
           break;
         default:
           console.log('No condition for this emit: ' + args);
@@ -113,6 +89,4 @@ function mTransport() {
 
 inherits(mTransport, ee);
 
-mTransport.prototype.middle = 
-
-module.exports = mTransport;
+module.exports = pairConstructor;

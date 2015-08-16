@@ -59,7 +59,7 @@ function session(transport, core) {
     switch (type) {
       case 'client':
         if (data.message === 'SELF_DESCRIBE') {
-          that.swapEngine(data.args[0], data.args[2]) // ?? Need to inspect JSONbuff
+          that.swapEngine(data.args[0], data.args[1]) // ?? Need to inspect JSONbuff
         }
         that.toClient('engine', type, data)
         break;
@@ -87,7 +87,7 @@ function session(transport, core) {
   // Current approach assumes client knows about dest and type architecture.
   var fromClient = function(destination, type, data) {
     switch (destination) {
-      case 'xport':
+      case 'transport':
         that.toTransport(type, data);
         break;
       case 'engine':

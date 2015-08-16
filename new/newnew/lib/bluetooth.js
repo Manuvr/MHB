@@ -6,7 +6,7 @@ var ee = require('events').EventEmitter;
 // may want to subscribe to global emitter?
 
 //require device library
-// 
+var bt = require('bluetooth-serial-port');
 
 // sample config for transport parameters
 var config = {
@@ -112,7 +112,5 @@ function mTransport() {
 };
 
 inherits(mTransport, ee);
-
-mTransport.prototype.middle = 
 
 module.exports = mTransport;
