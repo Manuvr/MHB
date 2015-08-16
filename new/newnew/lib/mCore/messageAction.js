@@ -1,23 +1,41 @@
 'use strict';
+var merge = require('lodash.merge');
+var mapKeys = require('lodash.mapkeys');
 
-function messageAction() {
+function messageAction(messageId) {
+  if (actionList.hasOwnProperty(messageId)) {
+    return actionList[messageId]
+  } else {
+    return function(jsonBuff) {
+      this.emit('doneParsing', 'client', jsonBuff);
+    }
+  }
+}
+
+function ackCheck(jsonBuff) {
 
 }
 
-messageAction.prototype.process = function(jsonBuff) {
-  switch (jsonBuff.messageId) {
-    case 'LEGEND_MESSAGES':
-      jsonBuff.action = 'update_legend'
-  }
-
-
-};
-
-var derp = {
-  'LEGEND_MESSAGES': {
-    callback: function(args) {
-      merge(this.legendMessage, args)
+var actionList = {
+  'LEGEND_MESSAGES': function(jsonBuff) {
+    // actions on public members...
+    merge(this.legendMessage, jsonBuff.message);
+    // final emit to client??
+    this.emit('doneParsing', 'client', jsonBuff);
+  },
+  'KA': function(jsonBuff) {
+    this.emit('doneParsing', 'client', jsonBuff)
+  },
+  'SELF_DESCRIBE': function(jsonBuff) {
+    var mapping = ["MTU", "Protocol version", "Identity",
+      "Firmware version", "Hardware version", "Extended detail"
+    ];
+    var temp = {}
+    for (var i = 0; i < jsonBuff.message.length; i++) {
+      temp[mapping[i]] = jsonBuff.message[i];
     }
+    jsonBuff.message = temp;
+    this.emit('doneParsing', 'client', jsonBuff);
   }
 }
 

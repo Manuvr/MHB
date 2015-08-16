@@ -4,10 +4,12 @@
 var inherits = require('util').inherits;
 var ee = require('events').EventEmitter;
 
+var merge = require('lodash.merge');
 var receiver = require('./mCore/receiver.js');
 var messageParser = require('./mCore/messageParser.js');
 var mLegend = require('./mCore/messageLegend.js');
 var mFlags = require('./mCore/messageFlags.js');
+var messageAction = require('./mCore/messageAction.js')
 
 // Config for mConnector to act on
 var config = {
@@ -32,21 +34,23 @@ function mCore() {
   var that = this;
   this.config = config;
   this.parent = this; // freaky way of doing a chained assignment from session
+
   this.receiver = new receiver();
   this.messageParser = new messageParser(mLegend, mFlags)
-  this.messageAction
+
+  this.outMsgQueue = [];
 
   // input listeners
-  this.on('toEngine', toEngine)
-  this.on('toCore', toCore)
+  this.on('toEngine', toEngine);
+  this.on('toCore', toCore);
+  this.on('doneParsing', fromEngine);
 
   this.receiver.parser.on('readable', function() {
     var jsonBuff;
     while (jsonBuff = that.receiver.parser.read()) {
       that.messageParser.parse(jsonBuff);
-      that.messageAction.process(jsonBuff);
+      messageAction(jsonBuff.messageId).bind(that)(jsonBuff);
     }
-
   });
 
 
