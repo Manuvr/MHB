@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-
+    "dissolve": "^0.3.3"
   },
   "devDependencies": {
     "eslint": "^1.1.0"
