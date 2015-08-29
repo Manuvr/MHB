@@ -15,7 +15,6 @@ var engines = [];
  */
 function session(transport, core) {
   ee.call(this);
-  var that = this;
 
   this.transport = transport;
 
@@ -26,6 +25,8 @@ function session(transport, core) {
   }
   // initial assignment
   this.engine = this.core;
+
+  var that = this;
 
   // sender emits... logic shouldn't go here
   var toCore = function(type, data) {
@@ -49,11 +50,11 @@ function session(transport, core) {
   var fromCore = function(type, data) {
     switch (type) {
       case 'data':
-        that.toTransport('data', data);
+        toTransport('data', data);
         break;
       case 'log': // passthrough
       default:
-        that.toClient('core', type, data);
+        toClient('core', type, data);
     }
   }
 
@@ -61,13 +62,13 @@ function session(transport, core) {
     switch (type) {
       case 'client':
         if (data.message === 'SELF_DESCRIBE') {
-          that.swapEngine(data.args[0], data.args[1]) // ?? Need to inspect JSONbuff
+          swapEngine(data.args[0], data.args[1]) // ?? Need to inspect JSONbuff
         }
-        that.toClient('engine', type, data)
+        toClient('engine', type, data)
         break;
       case 'log': // passthrough
       default:
-        that.toClient('engine', type, data);
+        toClient('engine', type, data);
     }
   }
 
@@ -78,7 +79,7 @@ function session(transport, core) {
         break;
       case 'log': // passthrough
       default:
-        that.toClient('transport', type, data)
+        toClient('transport', type, data)
     }
   }
 
@@ -90,10 +91,10 @@ function session(transport, core) {
   var fromClient = function(destination, type, data) {
     switch (destination) {
       case 'transport':
-        that.toTransport(type, data);
+        toTransport(type, data);
         break;
       case 'engine':
-        that.toEngine(type, data);
+        toEngine(type, data);
         break;
       case 'session':
         // deal with state or something?
@@ -113,12 +114,12 @@ function session(transport, core) {
         that.engine.removeListener('fromEngine', fromEngine);
         that.engine = new engines[i](that.engine)
         that.engine.on('fromEngine', fromEngine);
-        that.toClient('session', 'log', 'Found engine for ' + name + ', ' +
+        toClient('session', 'log', 'Found engine for ' + name + ', ' +
           version)
         break;
       }
     }
-    that.toClient('session', 'log', 'No version found in self-describe.')
+    toClient('session', 'log', 'No version found in self-describe.')
   };
 
   // CONNECTED LISTENERS

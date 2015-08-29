@@ -185,6 +185,12 @@ function promptUserForDirective() {
         case 'test':         // Print a list of instantiated transports.
           sessions.actor0.emit('fromClient', 'engine', 'send', ''); 
           break;
+        case 'desync0':         // Print a list of instantiated transports.
+          sessions.actor0.emit('fromClient', 'engine', 'sync', ''); 
+          break;
+        case 'desync1':         // Print a list of instantiated transports.
+          sessions.actor1.emit('fromClient', 'engine', 'sync', ''); 
+          break;
         case 'troll':
           troll();
           break;

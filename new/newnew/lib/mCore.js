@@ -1,5 +1,7 @@
 'use strict'
 
+var SYNC_PACKET_DEF = new Buffer(0x04, 0x00, 0x00, 0x55);
+
 // template for DHB middle-man interaction
 var inherits = require('util').inherits;
 var ee = require('events').EventEmitter;
@@ -55,7 +57,7 @@ function mCore() {
     that.emit('fromEngine', type, data)
   }
   var fromCore = function(type, data) {
-    that.emit('fromEngine', type, data)
+    that.emit('fromCore', type, data)
   }
 
   // Inputs from session
@@ -64,6 +66,10 @@ function mCore() {
       case 'send':
         // build new
         that.buildBuffer(that.defs, that.types, data);
+        break;
+      case 'sync':
+        // Initiate a sync cycle. We notice the desync first.
+        fromCore('data', SYNC_PACKET_DEF);
         break;
       case 'state':
         // do something

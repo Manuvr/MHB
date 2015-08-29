@@ -85,7 +85,7 @@ function mTransport() {
 
 
   this.on('fromDevice', function(type, data) {
-    that.fromTransport(type, data);
+    fromTransport(type, data);
   });
 
   // will depend on transport library....

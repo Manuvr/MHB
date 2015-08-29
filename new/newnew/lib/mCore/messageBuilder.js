@@ -3,7 +3,7 @@
  * Credit: https://github.com/matanamir/int24
  */
 var writeUInt24LE = function(buf, offset, value) {
-	verifuint(value, 0xffffff);
+	Math.floor(value, 0xffffff)
 	buf[offset + 2] = (value & 0xff0000) >>> 16;
 	buf[offset + 1] = (value & 0x00ff00) >>> 8;
 	buf[offset] = value & 0x0000ff;
@@ -28,8 +28,8 @@ function getPotentialArgFormsByCardinality(messageDef, card) {
   var return_value = {};
   for (var argForm in messageDef.argForms) {
     if (messageDef.argForms.hasOwnProperty(argForm)) {
-      if (argForm.length() == card) {
-        return_value[return_value.length()] = argForm;
+      if (argForm.length == card) {
+        return_value[return_value.length] = argForm;
       }
     }
   }
@@ -54,8 +54,8 @@ var formPacketBuffer = function(messageID, uniqueID, argBuffObj) {
 	var headBuf = new Buffer(4);
 	var midBuf = new Buffer(4);
 
-	if (argBuffObj && argBuffObj.length()) {
-		writeUInt24LE(headBuf, 0, argBuffObj.length() + 8);
+	if (argBuffObj && argBuffObj.length) {
+		writeUInt24LE(headBuf, 0, argBuffObj.length + 8);
 		midBuf.writeUInt16LE(uniqueID, 0);
 		midBuf.writeUInt16LE(messageID, 2);
 		checkBuf = Buffer.concat([midBuf, argBuffObj]);
@@ -67,7 +67,7 @@ var formPacketBuffer = function(messageID, uniqueID, argBuffObj) {
 	}
 
 	// calculate the checksum, and then add them together
-	for (var i = 0; i < checkBuf.length(); i++) {
+	for (var i = 0; i < checkBuf.length; i++) {
 		buffSum += checkBuf.readUInt8(i);
 	}
 	buffSum += 0x55;
@@ -92,12 +92,12 @@ var packOwnLegendMessages = function(msg_defs) {
 		if (msg_defs.hasOwnProperty(msg_def)) {
 			// If this isn't prototypical cruft, we count it in the tally.
 			required_size += 4; // +4 for the obligatory fields: flags (16-bit) and messageId (16-bit).
-			required_size += msg_def.def.length() + 1; // +(some more) for the string to represent the message class.
+			required_size += msg_def.def.length + 1; // +(some more) for the string to represent the message class.
 			for (var argForm in msg_def.argForms) {
 				if (msg_def.argForms.hasOwnProperty(argForm)) {
 					// At this point, argForm should be one of (possibly many) valid argument forms
 					//   for the msg_def we are operating on. Now we're just adding bytes....
-					required_size += argForm.length() + 1; // +1 for the null-terminator.
+					required_size += argForm.length + 1; // +1 for the null-terminator.
 				}
 			}
 			required_size++; // +1 for the second consecutive null-terminator to denote the end of this def.
@@ -118,14 +118,14 @@ var packOwnLegendMessages = function(msg_defs) {
 			offset += 4;
 
 			return_value.write(msg_def.def, offset, 'ascii'); // +(some more) for the string to represent the message class.
-			offset += msg_def.def.length();
+			offset += msg_def.def.length;
 			return_value[offset++] = 0;
 
 			for (var argForm in msg_def.argForms) {
 				if (msg_def.argForms.hasOwnProperty(argForm)) {
 					// At this point, argForm should be one of (possibly many) valid argument forms
 					//   for the msg_def we are operating on. Now we're just adding bytes....
-					for (var n = 0; n < argForm.length(); n++) {
+					for (var n = 0; n < argForm.length; n++) {
 						return_value[offset++] = argForm[n];
 					}
 					return_value[offset++] = 0;
@@ -162,22 +162,22 @@ var packOwnLegendMessages = function(msg_defs) {
 */
 var builder = function(messageDef, types, jsonBuff) {
   var return_value = false;
-  var chosen_unique_id = (undefined !== jsonBuff.uniqueId) ? jsonBuff.uniqueId : this.generateUniqueId();
+  var chosen_unique_id = (undefined !== jsonBuff.uniqueId) ? jsonBuff.uniqueId : generateUniqueId();
   
   var flattened_args = false;
   
-  if (jsonBuff.args && jsonBuff.args.length() > 0) {
-    var arg_forms = getPotentialArgFormsByCardinality(messageDef, jsonBuff.args.length());
+  if (jsonBuff.args && jsonBuff.args.length > 0) {
+    var arg_forms = getPotentialArgFormsByCardinality(messageDef, jsonBuff.args.length);
     // At this point, if we have more than one potential match, we will need to start
     //   eliminating options based on examining the types of the arguments, or something
     //   hopefully smarter. 
     // TODO: For now this only proceeds if there is one match.
-    if (arg_forms.length() != 1) {
+    if (arg_forms.length != 1) {
       return false;
     }
     var parseType;
     var temp_buffer;
-    for (var i = 0; i < arg_forms.length(); i++) {
+    for (var i = 0; i < arg_forms.length; i++) {
       parseType = types[arg_forms[i]];
       temp_buffer = parseType.write(jsonBuff.args[i]);
       
@@ -186,7 +186,7 @@ var builder = function(messageDef, types, jsonBuff) {
     }
   }  
   
-  return_value = this.formPacketBuffer(messageDef.code, chosen_unique_id, flattened_args);
+  return_value = formPacketBuffer(messageDef.code, chosen_unique_id, flattened_args);
   
   if (return_value) {
     // If we got a buffer back, we know that we succeeded, and we should now
