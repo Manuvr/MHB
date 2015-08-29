@@ -4,14 +4,13 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "bluetooth-serial-port": "^1.2.4",
     "chalk": "^1.1.1",
     "dissolve": "^0.3.3",
-    "lodash.merge": "^3.3.2",
-    "prompt": "^0.2.14",
-    "bluetooth-serial-port": "^1.2.4",
-    "dissolve": "^0.3.3",
     "lodash.mapkeys": "^3.8.0",
-    "lodash.merge": "^3.3.2"
+    "lodash.merge": "^3.3.2",
+    "node-uuid": "^1.4.3",
+    "prompt": "^0.2.14"
   },
   "devDependencies": {
     "eslint": "^1.1.0"
@@ -22,4 +21,3 @@
   "author": "",
   "license": "ISC"
 }
-

@@ -3,6 +3,7 @@
 // template for DHB middle-man interaction
 var inherits = require('util').inherits;
 var ee = require('events').EventEmitter;
+var uuid = require('node-uuid');
 
 var merge = require('lodash.merge');
 var receiver = require('./mCore/receiver.js');
@@ -38,6 +39,7 @@ function mCore() {
   var that = this;
   this.config = config;
   this.parent = this; // freaky way of doing a chained assignment from session
+  this.uuid = uuid.v4();
 
   this.receiver = new receiver();
   this.messageParser = new messageParser(mLegend, mFlags)

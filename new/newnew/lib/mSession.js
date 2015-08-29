@@ -134,6 +134,18 @@ function session(transport, core) {
 }
 inherits(session, ee);
 
+
+/**
+ * This returns a new session object with the given transport
+ * @param  {object} transport Requires a "new-ed" mTransport
+ * @return {object} Returns an "newed" session object
+ */
+session.prototype.toString = function() {
+  return ('UUID: ' + this.core.uuid);
+}
+
+
+
 // EXPOSED SESSION FACTORY
 
 /**
@@ -168,5 +180,6 @@ mSession.prototype.replaceCore = function(core) {
 mSession.prototype.init = function(transport) {
   return new session(transport);
 }
+
 
 module.exports = mSession;

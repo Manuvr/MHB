@@ -67,7 +67,7 @@ sessions.bt_session.on('toClient', function(origin, type, data) {
 function listSessions() {
   for (var ses in sessions) {
     if (sessions.hasOwnProperty(ses)) {
-      console.log(chalk.green.bold('NAME OF SESSION') + chalk.gray('Some data about the session.'));
+      console.log(chalk.green.bold(sessions[ses].toString()) + chalk.gray(''));
   	}
   }
 }

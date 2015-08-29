@@ -5,6 +5,7 @@ var inherits = require('util').inherits;
 var ee = require('events').EventEmitter;
 // may want to subscribe to global emitter?
 
+
 //require device library
 //
 
@@ -40,7 +41,7 @@ function mTransport() {
   var that = this;
 
   this.connAddress = "";
-
+  
   var toTransport = function(type, data) {
     switch (type) {
       case 'connect':
