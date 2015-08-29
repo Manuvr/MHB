@@ -16,6 +16,9 @@ function ackCheck(jsonBuff) {
 
 }
 
+// THIS MUST BE CALLED WITH A .BIND() FROM THE PARENT TO GET THE "THIS"
+// TO WORK PROPERLY...
+
 var actionList = {
   'LEGEND_MESSAGES': function(jsonBuff) {
     // actions on public members...

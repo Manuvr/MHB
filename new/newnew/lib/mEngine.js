@@ -29,9 +29,9 @@ function customBuild(data) {
 
 
 /**
-* This is where functionality specific to the Manuvrable ought to be cased-off.
-*
-*/
+ * This is where functionality specific to the Manuvrable ought to be cased-off.
+ *
+ */
 function customRead(data) {
   // manipulate parsed data with switch case
   return data;
@@ -87,7 +87,7 @@ function mEngine(parent) {
     }
   }
 };
-util.inherits(mEngine, ee);
+inherits(mEngine, ee);
 
 mEngine.prototype.getConfig = function() {
   return config;

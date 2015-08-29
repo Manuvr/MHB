@@ -7,7 +7,11 @@
     "chalk": "^1.1.1",
     "dissolve": "^0.3.3",
     "lodash.merge": "^3.3.2",
-    "prompt": "^0.2.14"
+    "prompt": "^0.2.14",
+    "bluetooth-serial-port": "^1.2.4",
+    "dissolve": "^0.3.3",
+    "lodash.mapkeys": "^3.8.0",
+    "lodash.merge": "^3.3.2"
   },
   "devDependencies": {
     "eslint": "^1.1.0"
@@ -18,3 +22,4 @@
   "author": "",
   "license": "ISC"
 }
+

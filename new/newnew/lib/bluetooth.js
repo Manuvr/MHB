@@ -41,22 +41,6 @@ function mTransport() {
 
   this.connAddress = "";
 
-  // from local EE
-  this.on('toTransport', toTransport);
-
-  // from device
-  this.device = new bt.BluetoothSerialPort();
-
-  this.device.on('data', function() {
-    that.fromTransport('data', arguments[0])
-  });
-  this.device.on('found', function() {
-    that.fromTransport('found', [arguments[0], arguments[1]])
-  });
-  this.device.on('closed', function() {
-    that.fromTransport('closed', arguments[0])
-  })
-
   // From local EE to Device functions
   var toTransport = function(type, data) {
     switch (type) {
@@ -109,6 +93,24 @@ function mTransport() {
       }
     }
     // will depend on transport library....
+
+  // LISTENERS
+  // from local EE
+  this.on('toTransport', toTransport);
+
+  // from device
+  this.device = new bt.BluetoothSerialPort();
+
+  this.device.on('data', function() {
+    that.fromTransport('data', arguments[0])
+  });
+  this.device.on('found', function() {
+    that.fromTransport('found', [arguments[0], arguments[1]])
+  });
+  this.device.on('closed', function() {
+    that.fromTransport('closed', arguments[0])
+  })
+
 };
 
 inherits(mTransport, ee);
