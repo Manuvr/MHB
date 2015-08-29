@@ -11,11 +11,11 @@ var writeUInt24LE = function(buf, offset, value) {
 
 
 /**
-* Generates a new uniqueID in a 16-bit range.
-* Never chooses zero, despite it being a valid choice for this field. Zero is spooky.
-*/
+ * Generates a new uniqueID in a 16-bit range.
+ * Never chooses zero, despite it being a valid choice for this field. Zero is spooky.
+ */
 var generateUniqueId = function() {
-  return Math.random() * (65535 - 1) + 1;
+	return Math.random() * (65535 - 1) + 1;
 }
 
 
@@ -25,15 +25,15 @@ var generateUniqueId = function() {
  *   B) An empty set, if no such arg forms are found.
  */
 function getPotentialArgFormsByCardinality(messageDef, card) {
-  var return_value = {};
-  for (var argForm in messageDef.argForms) {
-    if (messageDef.argForms.hasOwnProperty(argForm)) {
-      if (argForm.length == card) {
-        return_value[return_value.length] = argForm;
-      }
-    }
-  }
-  return return_value;
+	var return_value = {};
+	for (var argForm in messageDef.argForms) {
+		if (messageDef.argForms.hasOwnProperty(argForm)) {
+			if (argForm.length == card) {
+				return_value[return_value.length] = argForm;
+			}
+		}
+	}
+	return return_value;
 }
 
 
@@ -141,7 +141,7 @@ var packOwnLegendMessages = function(msg_defs) {
 
 /**
 * Call this with a plush message in jsonBuff, the messageDef by which it is to be
-*   interpreted, and the types in which it is to be encoded. It will either return 
+*   interpreted, and the types in which it is to be encoded. It will either return
 *   false on error, or a formed buffer that represents the packet to be sent over
 *   the transport.
 *
@@ -155,45 +155,49 @@ var packOwnLegendMessages = function(msg_defs) {
 * Sample object follows:
 
 {
-  
+
   "args" : []
 }
 
 */
 var builder = function(messageDef, types, jsonBuff) {
-  var return_value = false;
-  var chosen_unique_id = (undefined !== jsonBuff.uniqueId) ? jsonBuff.uniqueId : generateUniqueId();
-  
-  var flattened_args = false;
-  
-  if (jsonBuff.args && jsonBuff.args.length > 0) {
-    var arg_forms = getPotentialArgFormsByCardinality(messageDef, jsonBuff.args.length);
-    // At this point, if we have more than one potential match, we will need to start
-    //   eliminating options based on examining the types of the arguments, or something
-    //   hopefully smarter. 
-    // TODO: For now this only proceeds if there is one match.
-    if (arg_forms.length != 1) {
-      return false;
-    }
-    var parseType;
-    var temp_buffer;
-    for (var i = 0; i < arg_forms.length; i++) {
-      parseType = types[arg_forms[i]];
-      temp_buffer = parseType.write(jsonBuff.args[i]);
-      
-      // Safely accumulate into collected_buffer...
-      flattened_args = (flattened_args) ? Buffer.concat([flattened_args, temp_buffer]) : temp_buffer;
-    }
-  }  
-  
-  return_value = formPacketBuffer(messageDef.code, chosen_unique_id, flattened_args);
-  
-  if (return_value) {
-    // If we got a buffer back, we know that we succeeded, and we should now
-    //   mutate the jsonBuff appropriately.
-    jsonBuff.uniqueId = chosen_unique_id;
-  }
-  return return_value;
+	var return_value = false;
+	var chosen_unique_id = (undefined !== jsonBuff.uniqueId) ? jsonBuff.uniqueId :
+		generateUniqueId();
+
+	var flattened_args = false;
+
+	if (jsonBuff.args && jsonBuff.args.length > 0) {
+		var arg_forms = getPotentialArgFormsByCardinality(messageDef, jsonBuff.args.length);
+		// At this point, if we have more than one potential match, we will need to start
+		//   eliminating options based on examining the types of the arguments, or something
+		//   hopefully smarter.
+		// TODO: For now this only proceeds if there is one match.
+		if (arg_forms.length != 1) {
+			return false;
+		}
+		var parseType;
+		var temp_buffer;
+		for (var i = 0; i < arg_forms.length; i++) {
+			parseType = types[arg_forms[i]];
+			temp_buffer = parseType.write(jsonBuff.args[i]);
+
+			// Safely accumulate into collected_buffer...
+			flattened_args = (flattened_args) ? Buffer.concat([flattened_args,
+				temp_buffer
+			]) : temp_buffer;
+		}
+	}
+
+	return_value = formPacketBuffer(jsonBuff.messageId, chosen_unique_id,
+		flattened_args);
+
+	// if (return_value) {
+	// 	// If we got a buffer back, we know that we succeeded, and we should now
+	// 	//   mutate the jsonBuff appropriately.
+	// 	jsonBuff.uniqueId = chosen_unique_id;
+	// }
+	return return_value;
 }
 
 

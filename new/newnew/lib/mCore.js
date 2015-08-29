@@ -1,6 +1,6 @@
 'use strict'
 
-var SYNC_PACKET_DEF = new Buffer(0x04, 0x00, 0x00, 0x55);
+var SYNC_PACKET_DEF = new Buffer([0x04, 0x00, 0x00, 0x55], 'hex');
 
 // template for DHB middle-man interaction
 var inherits = require('util').inherits;
@@ -16,7 +16,7 @@ var messageAction = require('./mCore/messageAction.js');
 var messageBuilder = require('./mCore/messageBuilder.js')
 
 var types = require('./mCore/types.js');
-var defs = require('./mCore/messageLegend');
+var defs = require('./mCore/messageLegend.js');
 
 // Config for mConnector to act on
 var config = {
@@ -46,7 +46,7 @@ function mCore() {
   this.receiver = new receiver();
   this.messageParser = new messageParser(mLegend, mFlags)
   this.buildBuffer = messageBuilder;
-  
+
   this.defs = types;
   this.types = defs;
 
@@ -65,7 +65,12 @@ function mCore() {
     switch (type) {
       case 'send':
         // build new
-        that.buildBuffer(that.defs, that.types, data);
+        var built = that.buildBuffer(that.defs, that.types, data)
+        if (built) {
+          fromCore('data', built);
+        } else {
+          console.log('wut')
+        }
         break;
       case 'sync':
         // Initiate a sync cycle. We notice the desync first.
@@ -100,7 +105,7 @@ function mCore() {
   this.receiver.parser.on('readable', function() {
     var jsonBuff;
     while (jsonBuff = that.receiver.parser.read()) {
-      that.messageParser.parse(that.defs, that.types, jsonBuff);
+      that.messageParser.parse(jsonBuff);
       messageAction(jsonBuff.messageId).bind(that)(jsonBuff);
     }
   });

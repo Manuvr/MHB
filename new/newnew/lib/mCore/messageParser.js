@@ -164,6 +164,7 @@ function getPotentialArgForms(messageDef, len, types) {
 
 function typeParse(jsonBuff, commands, types) {
   var handler = commands[jsonBuff.messageId];
+  var outObj = []; // instantiate an output object
 
   // check to see if the buffer is empty
   if ([] !== jsonBuff.raw && jsonBuff.raw.length !== 0) {
@@ -175,7 +176,6 @@ function typeParse(jsonBuff, commands, types) {
 
     if (handlers.length > 0) {
       for (var argForm in handlers) {
-        var outObj = []; // instantiate an output object
         var buffLen = jsonBuff.raw.length;
 
         var i = 0;
@@ -231,10 +231,9 @@ function typeParse(jsonBuff, commands, types) {
           // If we have used all the bytes, and we are also at the end of the form spec, we
           //   take it as an indication of success. Populate the jsonBuff with the arguments
           //   we parsed and return. No need to look at additional argForms.
-          jsonBuff.args = outObj;
-          return jsonBuff;
-        } 
-        else {
+          //jsonBuff.args = outObj;
+          return outObj;
+        } else {
           // If something is still out-of-balance, we continue the loop and try the next
           //   argForm that met the length criteria.
         }
@@ -248,7 +247,7 @@ function typeParse(jsonBuff, commands, types) {
     // I'm an empty array!
     //console.log('No args present');
   }
-  return jsonBuff;
+  return outObj;
 }
 
 /**
@@ -306,18 +305,16 @@ function MessageParser(commands, types) {
 }
 
 MessageParser.prototype.parse = function(jsonBuff) {
-
-  if (!that.commands.hasOwnProperty(jsonBuff.messageId)) {
+  if (!this.commands.hasOwnProperty(jsonBuff.messageId)) {
     console.log('No messageID. (no arguments will be parsed) ', jsonBuff);
     return false;
   }
-  jsonBuff.messageCode = jsonBuff.messageId;
-  jsonBuff.messageId = that.commands[jsonBuff.messageId].def;
-  jsonBuff.flag = that.commands[jsonBuff.messageId].flag;
+  jsonBuff.messageDef = this.commands[jsonBuff.messageId].def;
+  jsonBuff.flag = this.commands[jsonBuff.messageId].flag;
   jsonBuff.args = [];
   jsonBuff.message = jsonBuff.messageCode === 11 ?
-    legendMessage(jsonBuff, that.commands, that.types) : typeParse(jsonBuff,
-      that.commands, that.types);
+    legendMessage(jsonBuff, this.commands, this.types) : typeParse(jsonBuff,
+      this.commands, this.types);
   delete jsonBuff.raw;
   delete jsonBuff.totalLength;
   delete jsonBuff.checkSum;

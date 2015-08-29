@@ -76,6 +76,7 @@ function Receiver() {
               .tap(function() {
                 if (bufferCompare(this.vars.check, syncPacket)) {
                   that.waitingForSync = false;
+                  console.log('back in sync!!')
                 }
               });
           }
@@ -105,7 +106,7 @@ function Receiver() {
               console.log('Received sync packet, sending back...');
               // Send sync back to ManuvrOS
               // We need to work this out... shouldn't be automatic
-              that.initSync();
+              initSync();
             } else {
               that.waitingForSync = true;
             }
