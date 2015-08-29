@@ -311,12 +311,6 @@ var sampleObject = {
   "args": []
 }
 
-// monkey patch
-sessions.actor0.emit('fromClient', 'engine', 'sync', '');
-sessions.actor0.emit('fromClient', 'engine', 'sync', '');
-sessions.actor1.emit('fromClient', 'engine', 'sync', '');
-sessions.actor1.emit('fromClient', 'engine', 'sync', '');
-
 function promptUserForDirective() {
   console.log(chalk.white(packageJSON.name + '  v' + packageJSON.version));
   prompt.get([{
@@ -339,10 +333,10 @@ function promptUserForDirective() {
           sessions.actor0.emit('fromClient', 'engine', 'send', sampleObject);
           break;
         case 'desync0': // Print a list of instantiated transports.
-          sessions.actor0.emit('fromClient', 'engine', 'sync', '');
+          sessions.actor0.emit('fromClient', 'engine', 'badsync', '');
           break;
         case 'desync1': // Print a list of instantiated transports.
-          sessions.actor1.emit('fromClient', 'engine', 'sync', '');
+          sessions.actor1.emit('fromClient', 'engine', 'badsync', '');
           break;
         case 'troll':
           troll();

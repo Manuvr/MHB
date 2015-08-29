@@ -51,6 +51,7 @@ var dataCheck = function(jsonBuff) {
 
 // this will be exposed
 function Receiver() {
+  this.ee = ee;
   this.waitingForSync = true;
   this.connected = false;
   this.maxLength = 32000;
@@ -58,8 +59,10 @@ function Receiver() {
   this.timer = undefined;
   var that = this;
 
-  var initSync = function() {
+  var toggleSync = function() {
     // send a sync packet
+      waitingForSync = !waitingForSync;
+      ee.emit('outOfSync', waitingForSync);
   }
 
   this.parser = Dissolve().loop(function(end) {
@@ -75,7 +78,7 @@ function Receiver() {
             this.buffer('check', 4)
               .tap(function() {
                 if (bufferCompare(this.vars.check, syncPacket)) {
-                  that.waitingForSync = false;
+                  toggleSync();
                   console.log('back in sync!!')
                 }
               });
@@ -97,7 +100,7 @@ function Receiver() {
             if (this.vars.totalLength >= that.maxLength) {
               console.log(
                 'Something is WAY too big; dropping to sync mode...');
-              that.waitingForSync = true;
+              toggleSync();
             } else {
               this.buffer('raw', this.vars.totalLength - 4);
             }
@@ -106,9 +109,9 @@ function Receiver() {
               console.log('Received sync packet, sending back...');
               // Send sync back to ManuvrOS
               // We need to work this out... shouldn't be automatic
-              initSync();
+              ee.emit('syncInSync');
             } else {
-              that.waitingForSync = true;
+              toggleSync();
             }
           } else {
             console.log('INVALID PACKET');

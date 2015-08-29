@@ -44,6 +44,19 @@ function mCore() {
   this.uuid = uuid.v4();
 
   this.receiver = new receiver();
+  
+  this.receiver.ee.on('syncInSync', function() {
+  });
+  
+  this.receiver.ee.on('outOfSync', function(outOfSync) {
+      if(outOfSync) {
+        fromCore('data', SYNC_PACKET_DEF);
+      }
+      else {
+        // We must have just become sync'd.
+      }
+  });
+  
   this.messageParser = new messageParser(mLegend, mFlags)
   this.buildBuffer = messageBuilder;
 
@@ -72,15 +85,15 @@ function mCore() {
           console.log('wut')
         }
         break;
-      case 'sync':
-        // Initiate a sync cycle. We notice the desync first.
-        fromCore('data', SYNC_PACKET_DEF);
+      case 'badsync':
+        // Initiate a malformed sync packet. We notice the desync first.
+        fromCore('data', new Buffer(45));
         break;
       case 'state':
         // do something
         break;
       default:
-        that.mCore('log', "not a valid type")
+        fromCore('log', "not a valid type")
         break;
     }
   }
@@ -92,7 +105,7 @@ function mCore() {
         that.receiver.parser.write(data);
         break;
       default:
-        that.fromEngine('log', "not a valid type")
+        fromEngine('log', "not a valid type")
         break;
     }
   }
@@ -105,6 +118,7 @@ function mCore() {
   this.receiver.parser.on('readable', function() {
     var jsonBuff;
     while (jsonBuff = that.receiver.parser.read()) {
+      // Try to extract meaning from the parsed packet.
       that.messageParser.parse(jsonBuff);
       messageAction(jsonBuff.messageId).bind(that)(jsonBuff);
     }
