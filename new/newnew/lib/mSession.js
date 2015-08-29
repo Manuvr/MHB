@@ -136,12 +136,11 @@ inherits(session, ee);
 
 
 /**
- * This returns a new session object with the given transport
- * @param  {object} transport Requires a "new-ed" mTransport
- * @return {object} Returns an "newed" session object
+ * The core is what actually represents the state of the session, and thus
+ *   it is the source of the unique identifier.
  */
 session.prototype.toString = function() {
-  return ('UUID: ' + this.core.uuid);
+  return ('UUID: ' + this.core.uuid + '  Transport type: ' + constructor.name);
 }
 
 

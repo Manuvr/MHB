@@ -43,6 +43,8 @@ function mCore() {
 
   this.receiver = new receiver();
   this.messageParser = new messageParser(mLegend, mFlags)
+  this.buildBuffer = messageBuilder;
+  
   this.defs = types;
   this.types = defs;
 
@@ -61,7 +63,7 @@ function mCore() {
     switch (type) {
       case 'send':
         // build new
-        that.buildBuffer(data);
+        that.buildBuffer(that.defs, that.types, data);
         break;
       case 'state':
         // do something

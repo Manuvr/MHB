@@ -151,6 +151,14 @@ var packOwnLegendMessages = function(msg_defs) {
 * messageDef will contain a set of argForms, many of which might fit the jsonBuff.
 *   A best-attempt will be made to choose the correct argForm for the task until we
 *   think of a way to unambiguously dictate it when needed.
+*
+* Sample object follows:
+
+{
+  
+  "args" : []
+}
+
 */
 var builder = function(messageDef, types, jsonBuff) {
   var return_value = false;

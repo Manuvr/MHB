@@ -32,7 +32,9 @@ prompt.delimiter = '';
 var mSession    = require('./lib/mSession.js');  // session factory
 var mEngine     = require('./lib/mEngine.js');   //  DHB
 var BTTransport = require('./lib/bluetooth.js'); // bluetooth
-//var LBTransport = require('./lib/loopback.js'); // bluetooth
+var LBTransport = require('./lib/loopback.js'); // bluetooth
+
+var lb = new LBTransport();
 
 var transports  = {};
 transports.bt_transport = BTTransport;
@@ -43,6 +45,14 @@ var sessionGenerator = new mSession();
 var sessions   = {};
 sessions.bt_session = sessionGenerator.init(new BTTransport());
 //var lb_session = sessionGenerator.init(new LBTransport());
+
+
+
+// By passing in the transports, we are returned sessions. When a session is successfully
+//   setup, the actor variable will become a reference to the specific kind of manuvrable
+//   that connected to the given transport.
+sessions.actor0 = sessionGenerator.init(lb.transport0);
+sessions.actor1 = sessionGenerator.init(lb.transport1);
 
 
 // Now, for each session that we have, we should dd or toClient listener.
@@ -67,7 +77,7 @@ sessions.bt_session.on('toClient', function(origin, type, data) {
 function listSessions() {
   for (var ses in sessions) {
     if (sessions.hasOwnProperty(ses)) {
-      console.log(chalk.green.bold(sessions[ses].toString()) + chalk.gray(''));
+      console.log(chalk.green.bold(ses) + chalk.gray(sessions[ses].toString()));
   	}
   }
 }
@@ -171,6 +181,9 @@ function promptUserForDirective() {
           break;
         case 'tlist':        // Print a list of instantiated transports.
           listTransports();
+          break;
+        case 'test':         // Print a list of instantiated transports.
+          sessions.actor0.emit('fromClient', 'engine', 'send', ''); 
           break;
         case 'troll':
           troll();
