@@ -9,7 +9,11 @@ var receiver = require('./mCore/receiver.js');
 var messageParser = require('./mCore/messageParser.js');
 var mLegend = require('./mCore/messageLegend.js');
 var mFlags = require('./mCore/messageFlags.js');
-var messageAction = require('./mCore/messageAction.js')
+var messageAction = require('./mCore/messageAction.js');
+var messageBuilder = require('./mCore/messageBuilder.js')
+
+var types = require('./mCore/types.js');
+var defs = require('./mCore/messageLegend');
 
 // Config for mConnector to act on
 var config = {
@@ -37,22 +41,10 @@ function mCore() {
 
   this.receiver = new receiver();
   this.messageParser = new messageParser(mLegend, mFlags)
+  this.defs = types;
+  this.types = defs;
 
   this.outMsgQueue = [];
-
-  // input listeners
-  this.on('toEngine', toEngine);
-  this.on('toCore', toCore);
-  this.on('doneParsing', fromEngine);
-
-  this.receiver.parser.on('readable', function() {
-    var jsonBuff;
-    while (jsonBuff = that.receiver.parser.read()) {
-      that.messageParser.parse(jsonBuff);
-      messageAction(jsonBuff.messageId).bind(that)(jsonBuff);
-    }
-  });
-
 
   // Emits OUT
   var fromEngine = function(type, data) {
@@ -90,8 +82,21 @@ function mCore() {
     }
   }
 
+  // input listeners
+  this.on('toEngine', toEngine);
+  this.on('toCore', toCore);
+  this.on('doneParsing', fromEngine);
+
+  this.receiver.parser.on('readable', function() {
+    var jsonBuff;
+    while (jsonBuff = that.receiver.parser.read()) {
+      that.messageParser.parse(that.defs, that.types, jsonBuff);
+      messageAction(jsonBuff.messageId).bind(that)(jsonBuff);
+    }
+  });
+
 };
-util.inherits(mCore, ee);
+inherits(mCore, ee);
 
 mCore.prototype.getConfig = function() {
   return config;

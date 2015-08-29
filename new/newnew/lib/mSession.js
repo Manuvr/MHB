@@ -3,7 +3,7 @@ var inherits = require('util').inherits;
 var ee = require('events').EventEmitter;
 
 // Global default MHB and engine list;
-var MHB = require('./MHB.js')
+var MHB = require('./mCore.js')
 var engines = [];
 
 // class function for actual sessions
@@ -20,16 +20,6 @@ function session(transport, core) {
   }
   // initial assignment
   this.engine = this.core;
-
-  // CONNECTED LISTENERS
-
-  //fromCore is ALWAYS the initial listener...
-  this.core.on('fromCore', fromCore);
-  this.transport.on('fromTransport', fromTransport);
-  this.on('fromClient', fromClient);
-
-  // needs to be removed and reset to the new Engine when changing...
-  this.engine.on('fromEngine', fromEngine);
 
   // sender emits... logic shouldn't go here
   var toCore = function(type, data) {
@@ -124,6 +114,17 @@ function session(transport, core) {
     }
     that.toClient('session', 'log', 'No version found in self-describe.')
   };
+
+  // CONNECTED LISTENERS
+
+  //fromCore is ALWAYS the initial listener...
+  this.core.on('fromCore', fromCore);
+  this.transport.on('fromTransport', fromTransport);
+  this.on('fromClient', fromClient);
+
+  // needs to be removed and reset to the new Engine when changing...
+  this.engine.on('fromEngine', fromEngine);
+
 }
 inherits(session, ee);
 

@@ -2,18 +2,18 @@
 
 // this is where the Express app would live
 var mSession = require('./lib/mSession.js'); // session factory
-var mCore = require('./lib/mCore.js'); // MHB
 var mEngine = require('./lib/mEngine.js'); //  DHB
-var mTransport = require('./lib/mTransport.js'); // bluetooth
+var mTransport = require('./lib/bluetooth.js'); // bluetooth
 
-var sessionMaster = new mSession();
+var sessionGenerator = new mSession();
 
-sessionMaster.addCore(new mCore());
-sessionMaster.addEngine(new mEngine());
-sessionMaster.addTransport(new mTransport());
+//sessionGenerator.addEngine(new mEngine());
+var session = sessionGenerator.init(new mTransport());
 
-connector.on('message', function(arg) {
-  console.log(arg);
+session.on('toClient', function(origin, type, data) {
+  console.log(
+    "from:" + origin + "/n" +
+    "type:" + type + "/n" +
+    "data:" + data
+  );
 })
-
-newSession.send('okay', 'moar Data')
