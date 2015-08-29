@@ -3,12 +3,22 @@
  *
  */
 'use strict'
+require('look').start();
 
 //TODO: There is probably a better means of reading this from the package.json....
 var packageJSON = require('./package.json');
 
 var util = require('util');
 
+var memwatch = require('memwatch-next');
+
+memwatch.on('leak', function(info) {
+  console.log("memwatch: " + info)
+});
+
+memwatch.on('stats', function(stats) {
+  console.log("stats: " + stats)
+});
 
 /****************************************************************************************************
  * We are using chalk for console formatting.                                                        *
