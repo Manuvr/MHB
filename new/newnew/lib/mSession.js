@@ -6,7 +6,13 @@ var ee = require('events').EventEmitter;
 var MHB = require('./mCore.js')
 var engines = [];
 
-// class function for actual sessions
+
+/**
+ * A generated session object constructor
+ * @class
+ * @param  {object} transport An instantiated mTransport
+ * @param  {object} core      An instantiated mCore
+ */
 function session(transport, core) {
   ee.call(this);
   var that = this;
@@ -129,19 +135,36 @@ function session(transport, core) {
 inherits(session, ee);
 
 // EXPOSED SESSION FACTORY
+
+/**
+ * Constructor information for mSession
+ * @class {object} This is the empty generator class
+ */
 function mSession() {
   this.core = MHB;
 }
 
-// sample public method
+/**
+ * Adds an "mEngine" to the engine search array
+ * @param  {function} engine This requires an UNINSTANTIATED mEngine function
+ */
 mSession.prototype.addEngine = function(engine) {
   engines.push(engine);
 }
 
+/**
+ * Replaces the MHB default core (not reccomended)
+ * @param  {object} core This requires an INSTANTIATED mCore
+ */
 mSession.prototype.replaceCore = function(core) {
   this.core = core;
 }
 
+/**
+ * This returns a new session object with the given transport
+ * @param  {object} transport Requires a "new-ed" mTransport
+ * @return {object} Returns an "newed" session object
+ */
 mSession.prototype.init = function(transport) {
   return new session(transport);
 }

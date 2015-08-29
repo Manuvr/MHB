@@ -7,7 +7,7 @@ var mTransport = require('./lib/bluetooth.js'); // bluetooth
 
 var sessionGenerator = new mSession();
 
-//sessionGenerator.addEngine(new mEngine());
+sessionGenerator.addEngine(mEngine);
 var session = sessionGenerator.init(new mTransport());
 
 session.on('toClient', function(origin, type, data) {

@@ -18,7 +18,7 @@ var config = {
     'address': 'string',
     'connect': 'button',
     'disconnect': 'button',
-    'getConfig':  'button'
+    'getConfig': 'button'
   },
   outputs: {
     'connect': 'action',
@@ -30,20 +30,20 @@ var config = {
 
 
 /**
-* Constructs an entangled pair of transports that constitute a cross-over cable.
-*/
+ * Constructs an entangled pair of transports that constitute a cross-over cable.
+ */
 function pairConstructor() {
   this.transport0 = new mTransport();
   this.transport1 = new mTransport();
-  
+
   var that = this;
-  
+
   this.transport0.on('toDevice', function(type, data) {
     that.transport1.emit('fromDevice', type, data);
-  }
+  })
   this.transport1.on('toDevice', function(type, data) {
     that.transport0.emit('fromDevice', type, data);
-  }
+  })
 }
 
 
@@ -55,14 +55,6 @@ function mTransport() {
   var that = this;
 
   this.address = Math.random();
-
-  // from local EE
-  this.on('toTransport', toTransport);
-
-
-  this.on('fromDevice', function(type, data) {
-    that.fromTransport(type, data);
-  });
 
   // From local EE to Device functions
   var toTransport = function(type, data) {
@@ -78,16 +70,25 @@ function mTransport() {
 
   // from device to local EE functions
   var fromTransport = function(type, args) {
-      switch (type) {
-        case 'data':
-          that.emit('fromTransport', 'data', args);
-          break;
-        default:
-          console.log('No condition for this emit: ' + args);
-          break;
-      }
+    switch (type) {
+      case 'data':
+        that.emit('fromTransport', 'data', args);
+        break;
+      default:
+        console.log('No condition for this emit: ' + args);
+        break;
     }
-    // will depend on transport library....
+  }
+
+  // from local EE
+  this.on('toTransport', toTransport);
+
+
+  this.on('fromDevice', function(type, data) {
+    that.fromTransport(type, data);
+  });
+
+  // will depend on transport library....
 };
 
 inherits(mTransport, ee);

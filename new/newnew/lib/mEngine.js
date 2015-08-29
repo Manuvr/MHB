@@ -27,7 +27,6 @@ function customBuild(data) {
   return data
 }
 
-
 /**
  * This is where functionality specific to the Manuvrable ought to be cased-off.
  *
@@ -43,10 +42,6 @@ function mEngine(parent) {
   var that = this;
   this.config = config;
   this.parent = parent;
-
-  // listeners
-  this.on('toEngine', toEngine)
-  this.parent.on('fromEngine', fromParent)
 
   // Emits to session
   var fromEngine = function(type, data) {
@@ -86,6 +81,11 @@ function mEngine(parent) {
 
     }
   }
+
+  // listeners
+  this.on('toEngine', toEngine)
+  this.parent.on('fromEngine', fromParent)
+
 };
 inherits(mEngine, ee);
 
