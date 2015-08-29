@@ -44,6 +44,9 @@ function pairConstructor() {
   this.transport1.on('toDevice', function(type, data) {
     that.transport0.emit('fromDevice', type, data);
   })
+  
+  this.transport0.emit('fromTransport', 'connected', true);
+  this.transport1.emit('fromTransport', 'connected', true);
 }
 
 

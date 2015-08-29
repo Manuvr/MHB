@@ -64,18 +64,26 @@ function session(transport, core) {
         if (data.message === 'SELF_DESCRIBE') {
           swapEngine(data.args[0], data.args[1]) // ?? Need to inspect JSONbuff
         }
-        toClient('engine', type, data)
+        //toClient('engine', type, data)
+        break;
+      case 'transport':
+        toTransport('connected', false);
         break;
       case 'log': // passthrough
       default:
-        toClient('engine', type, data);
+        //toClient('engine', type, data);
     }
+    toClient('engine', type, data)
   }
 
   var fromTransport = function(type, data) {
     switch (type) {
       case 'data':
-        that.core.emit('toCore', 'data', data)
+        toCore('data', data)
+        break;
+      case 'connected':
+        console.log("herap" + data)
+        toCore('connected', data);
         break;
       case 'log': // passthrough
       default:

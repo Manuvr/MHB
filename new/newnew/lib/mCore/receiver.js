@@ -61,8 +61,8 @@ function Receiver() {
 
   var toggleSync = function() {
     // send a sync packet
-      waitingForSync = !waitingForSync;
-      ee.emit('outOfSync', waitingForSync);
+      that.waitingForSync = !that.waitingForSync;
+      ee.emit('outOfSync', that.waitingForSync);
   }
 
   this.parser = Dissolve().loop(function(end) {

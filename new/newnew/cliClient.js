@@ -3,7 +3,6 @@
  *
  */
 'use strict'
-require('look').start();
 
 //TODO: There is probably a better means of reading this from the package.json....
 var packageJSON = require('./package.json');

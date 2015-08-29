@@ -1,6 +1,6 @@
 'use strict'
 
-var SYNC_PACKET_DEF = new Buffer([0x04, 0x00, 0x00, 0x55], 'hex');
+var SYNC_PACKET_DEF = new Buffer([0x04, 0x00, 0x00, 0x55, 0x04, 0x00, 0x00, 0x55, 0x04, 0x00, 0x00, 0x55, 0x04, 0x00, 0x00, 0x55], 'hex');
 
 // template for DHB middle-man interaction
 var inherits = require('util').inherits;
@@ -42,6 +42,21 @@ function mCore() {
   this.config = config;
   this.parent = this; // freaky way of doing a chained assignment from session
   this.uuid = uuid.v4();
+  this.timer;
+  
+  this.syncCount = 0;
+  
+  var sendSync = function(){
+    if(that.syncCount < 25){
+      that.timer = setInterval( function(){
+          that.receiver.parser.write(SYNC_PACKET_DEF);
+          that.syncCount++;
+      }, 500)
+    } else {
+      clearInterval(that.timer);
+      fromEngine('');
+    }
+  }
 
   this.receiver = new receiver();
   
@@ -53,6 +68,9 @@ function mCore() {
         fromCore('data', SYNC_PACKET_DEF);
       }
       else {
+        clearInterval(that.timer);
+        that.syncCount = 0;
+        // Start sending KA
         // We must have just become sync'd.
       }
   });
@@ -104,6 +122,12 @@ function mCore() {
       case 'data':
         that.receiver.parser.write(data);
         break;
+      case 'connected':
+        console.log('AM I CONNECTED? ' + data + "!!!!");
+        if(data) { 
+          sendSync()
+        }
+        break;
       default:
         fromEngine('log', "not a valid type")
         break;
@@ -123,7 +147,11 @@ function mCore() {
       messageAction(jsonBuff.messageId).bind(that)(jsonBuff);
     }
   });
-
+  
+  
+  // DERETE MERRRR
+  sendSync();
+  
 };
 inherits(mCore, ee);
 
