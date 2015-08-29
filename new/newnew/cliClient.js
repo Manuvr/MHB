@@ -27,8 +27,63 @@ prompt.delimiter = '';
 
 
 /****************************************************************************************************
+* Let's bring in the MHB stuff...                                                                   *
+****************************************************************************************************/
+var mSession    = require('./lib/mSession.js');  // session factory
+var mEngine     = require('./lib/mEngine.js');   //  DHB
+var BTTransport = require('./lib/bluetooth.js'); // bluetooth
+//var LBTransport = require('./lib/loopback.js'); // bluetooth
+
+var transports  = {};
+transports.bt_transport = BTTransport;
+
+
+var sessionGenerator = new mSession();
+
+var sessions   = {};
+sessions.bt_session = sessionGenerator.init(new BTTransport());
+//var lb_session = sessionGenerator.init(new LBTransport());
+
+
+// Now, for each session that we have, we should dd or toClient listener.
+
+sessions.bt_session.on('toClient', function(origin, type, data) {
+  console.log(
+    chalk.gray.bold("from:" + origin + "\n\t" +
+    "type:" + type + "\n\t" +
+    "data:" + data
+  ));
+})
+
+
+
+/****************************************************************************************************
 * Functions that just print things.                                                                 *
 ****************************************************************************************************/
+
+/*
+*
+*/
+function listSessions() {
+  for (var ses in sessions) {
+    if (sessions.hasOwnProperty(ses)) {
+      console.log(chalk.green.bold('NAME OF SESSION') + chalk.gray('Some data about the session.'));
+  	}
+  }
+}
+
+
+/*
+*
+*/
+function listTransports() {
+  for (var ses in sessions) {
+    if (sessions.hasOwnProperty(ses)) {
+      console.log(chalk.green.bold('NAME OF TRANSPORT') + chalk.gray('Some data about the transport factory.'));
+  	}
+  }
+}
+
 
 /*
 *
@@ -111,11 +166,16 @@ function promptUserForDirective() {
     }
     else {
       switch(result.directive) {
+        case 'slist':        // Print a list of instantiated sessions.
+          listSessions();
+          break;
+        case 'tlist':        // Print a list of instantiated transports.
+          listTransports();
+          break;
         case 'troll':
           troll();
           break;
         case 'history':      // Print a history of our directives.
-          
           break;
         case 'nodestack':    // Tell node to print a trace of this process.
           console.trace();
