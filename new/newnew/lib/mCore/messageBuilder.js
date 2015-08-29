@@ -1,5 +1,3 @@
-//var int24 = require('int24');
-
 /*
  * Thanks matanamir... Just needed this one function
  * Credit: https://github.com/matanamir/int24
