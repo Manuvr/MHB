@@ -7,10 +7,11 @@ var ee = require('events').EventEmitter;
 
 // sample config for transport parameters
 var config = {
+  name: 'Loopback',
   state: {
-    'connected': 'boolean',
-    'listening': 'boolean',
-    'address': 'string'
+    'connected': {type: 'boolean',   value: false},
+    'listening': {type: 'boolean',   value: false},
+    'address':   {type: 'string',    value: ''}
   },
   inputs: {
     'scan': 'button',
@@ -45,6 +46,8 @@ function pairConstructor() {
     that.transport0.emit('fromDevice', type, data);
   })
   
+  this.transport0.config.state.connected.value = true;
+  this.transport1.config.state.connected.value = true;
   this.transport0.emit('fromTransport', 'connected', true);
   this.transport1.emit('fromTransport', 'connected', true);
 }
@@ -57,7 +60,8 @@ function mTransport() {
   // set scope for private methods
   var that = this;
 
-  this.address = Math.random();
+  this.config  = JSON.parse(JSON.stringify(config));
+  this.config.state.address.value = Math.random().toString();
 
   // From local EE to Device functions
   var toTransport = function(type, data) {
@@ -95,5 +99,25 @@ function mTransport() {
 };
 
 inherits(mTransport, ee);
+
+/* Is this transport listening for conections? */
+mTransport.prototype.isListening = function(optional) {
+  return this.config.state.listening.value;
+}
+
+/* Is this transport connected to something? */
+mTransport.prototype.isConnected = function() {
+  return this.config.state.connected.value;
+}
+
+/* Is this transport connected to something? */
+mTransport.prototype.getName = function() {
+  return this.config.name;
+}
+
+
+mTransport.prototype.getConfig = function() {
+  return config;
+}
 
 module.exports = pairConstructor;

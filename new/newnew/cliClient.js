@@ -105,9 +105,11 @@ sessions.actor1.on('toClient', function(origin, type, data) {
 function listSessions() {
   for (var ses in sessions) {
     if (sessions.hasOwnProperty(ses)) {
-      console.log(chalk.green.bold(ses) + chalk.gray(sessions[ses].toString()));
+      console.log(chalk.green.bold(ses) + '\t' + chalk.white(sessions[ses].toString()));
+      console.log(chalk.gray(sessions[ses].toJSON()));
     }
   }
+  console.log('\n');
 }
 
 
@@ -121,6 +123,7 @@ function listTransports() {
         'Some data about the transport factory.'));
     }
   }
+  console.log('\n');
 }
 
 

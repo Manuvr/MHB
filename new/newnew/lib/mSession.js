@@ -145,11 +145,24 @@ inherits(session, ee);
 
 
 /**
+ * Return a human-readable string representing the session.
  * The core is what actually represents the state of the session, and thus
  *   it is the source of the unique identifier.
  */
 session.prototype.toString = function() {
-  return ('UUID: ' + this.core.uuid + '  Transport type: ' + constructor.name);
+  return ('UUID: ' + this.core.uuid + '   Via ' + this.transport.getName() + ' which is ' + (this.transport.isConnected() ?'connected':'unconnected'));
+}
+
+
+/**
+ */
+session.prototype.toJSON = function() {
+  var return_obj = {};
+  return_obj.session   = {uuid: this.core.uuid};
+  
+  return_obj.transport = this.transport;
+  return_obj.engine    = this.core.getConfig();
+  return JSON.stringify(return_obj);
 }
 
 

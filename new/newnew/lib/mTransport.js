@@ -11,10 +11,11 @@ var ee = require('events').EventEmitter;
 
 // sample config for transport parameters
 var config = {
+  name: 'Unspecified',
   state: {
-    'connected': 'boolean',
-    'listening': 'boolean',
-    'address': 'string'
+    'connected': {type: 'boolean',   value: false},
+    'listening': {type: 'boolean',   value: false},
+    'address':   {type: 'string',    value: ''}
   },
   inputs: {
     'scan': 'button',
@@ -84,7 +85,7 @@ function mTransport() {
         break;
     }
   }
-
+  
   // from local EE
   this.on('toTransport', toTransport);
 
@@ -107,5 +108,25 @@ function mTransport() {
 };
 
 inherits(mTransport, ee);
+
+/* Is this transport listening for conections? */
+mTransport.prototype.isListening = function(optional) {
+  return this.config.state.listening.value;
+}
+
+/* Is this transport connected to something? */
+mTransport.prototype.isConnected = function() {
+  return this.config.state.connected.value;
+}
+
+/* Is this transport connected to something? */
+mTransport.prototype.getName = function() {
+  return this.config.name;
+}
+
+
+mTransport.prototype.getConfig = function() {
+  return config;
+}
 
 module.exports = mTransport;
