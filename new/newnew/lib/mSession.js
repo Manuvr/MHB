@@ -17,6 +17,11 @@ function session(transport, core) {
   ee.call(this);
 
   this.transport = transport;
+  if (!this.transport.config) {
+    // If the instanceof does not have a transport config,
+    //   then we need to give it one.
+    this.transport.config = JSON.parse(JSON.stringify(transport.getConfig()));
+  }
 
   if (core === undefined) {
     this.core = new MHB();

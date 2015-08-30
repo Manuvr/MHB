@@ -4,12 +4,8 @@
  */
 'use strict'
 
-//TODO: There is probably a better means of reading this from the package.json....
-var packageJSON = require('./package.json');
-
 var util = require('util');
 var logo = require('./manuvrLogo');
-
 var memwatch = require('memwatch-next');
 
 memwatch.on('leak', function(info) {
@@ -20,15 +16,32 @@ memwatch.on('stats', function(stats) {
   console.log("stats: " + stats)
 });
 
-/****************************************************************************************************
- * We are using chalk for console formatting.                                                        *
- ****************************************************************************************************/
 
+
+/****************************************************************************************************
+ * This is the configuration for this client and some meta-awareness.                                *
+ ****************************************************************************************************/
+var packageJSON = require('./package.json');
+var config = {
+  verbosity: 7
+};
+
+
+/****************************************************************************************************
+ * Small utility functions...                                                                        *
+ ****************************************************************************************************/
+function isFunction(fxn) {
+  return (typeof fxn === 'function');
+}
+
+
+/****************************************************************************************************
+ * We are using chalk and cli-table for console formatting.                                          *
+ ****************************************************************************************************/
+var Table = require('cli-table');
 var chalk = require('chalk');
 // Let's take some some time to setup some CLI styles.
 var error = chalk.bold.red;
-
-var Table = require('cli-table');
 
 
 /****************************************************************************************************
@@ -127,19 +140,25 @@ function listSessions() {
 
       for (var key in sesObj) {
         if (sesObj.hasOwnProperty(key) && sesObj[key]) {
-          table_ses.push([key.toString(), sesObj[key].toString()]);
+          if ((config.verbosity > 3) || !isFunction(sesObj[key])) {
+            table_ses.push([key.toString(), sesObj[key].toString()]);
+          }
         }
       }
       
       for (var key in sesObj.engine) {
         if (sesObj.engine.hasOwnProperty(key) && sesObj.engine[key]) {
-          table_eng.push([key.toString(), sesObj.engine[key].toString()]);
+          if ((config.verbosity > 3) || !isFunction(sesObj.engine[key])) {
+            table_eng.push([key.toString(), sesObj.engine[key].toString()]);
+          }
         }
       }
       
       for (var key in sesObj.transport) {
         if (sesObj.transport.hasOwnProperty(key) && sesObj.transport[key]) {
-          table_trn.push([key.toString(), sesObj.transport[key].toString()]);
+          if ((config.verbosity > 3) || !isFunction(sesObj[key])) {
+            table_trn.push([key.toString(), sesObj.transport[key].toString()]);
+          }
         }
       }
 
@@ -156,14 +175,23 @@ function listSessions() {
  *
  */
 function printUsage() {
-  console.log(chalk.white(
-    "MHB Debug Console\n========================================================================"
+  var table = new Table({
+    chars: { 'top': '' , 'top-mid': '' , 'top-left': '' , 'top-right': ''
+           , 'bottom': '' , 'bottom-mid': '' , 'bottom-left': '' , 'bottom-right': ''
+           , 'left': '' , 'left-mid': '' , 'mid': '' , 'mid-mid': ''
+           , 'right': '' , 'right-mid': '' , 'middle': ' ' },
+    style: { 'padding-left': 0, 'padding-right': 0 }
+  });
+  
+  //table.push([chalk.white(''), chalk.gray()]);
+  table.push([chalk.magenta('(s)list'),      chalk.grey(''),       chalk.white('List all instantiated sessions.')]);
+  table.push([chalk.magenta('(v)erbosity'),  chalk.grey('[0-7]'),  chalk.white('Print or change the console\'s verbosity.')]);
+  table.push([chalk.magenta('(m)anuvr'),     chalk.grey(''),       chalk.white('Our logo is so awesome...')]);
+  table.push([chalk.magenta('(q)uit'),       chalk.grey(''),       chalk.white('Cleanup and exit the program.')]);
+  console.log(chalk.white.bold(
+    "MHB Debug Console   v" + packageJSON.version+"\n========================================================================"
   ));
-  console.log(chalk.cyan('msglegend    ') + chalk.gray(
-    'Display the message legend.'));
-  console.log(chalk.cyan('nodestack    ') + chalk.gray('Dump the stack-trace.'));
-  console.log(chalk.cyan('quit         ') + chalk.gray(
-    'Cleanup and exit the program.'));
+  console.log(table.toString());
 }
 
 
@@ -173,19 +201,31 @@ var sampleObject = {
   "args": []
 }
 
+
+
 function promptUserForDirective() {
-  console.log(chalk.white(packageJSON.name + '  v' + packageJSON.version));
   prompt.get([{
     name: 'directive',
-    description: 'Directive> '.cyan
+    description: 'Directive> '.magenta
   }], function(prompt_err, result) {
     if (prompt_err) {
       console.log(error('\nno. die. ' + prompt_err));
       process.exit(1);
     } else {
-      switch (result.directive) {
+      var args      = result.directive.toString().split(' ');
+      var directive = args.shift();
+      
+      switch (directive) {
         case 'slist': // Print a list of instantiated sessions.
+        case 's': 
           listSessions();
+          break;
+        case 'verbosity': // Set or print the current log verbosity.
+        case 'v': 
+          if (args.length > 0) {
+            config.verbosity = args[0];
+          }
+          console.log('Console verbosity is presently ' + chalk.green(config.verbosity)+'.');
           break;
         case 'test': // 
           console.log(util.inspect(sampleObject));
@@ -197,7 +237,8 @@ function promptUserForDirective() {
         case 'desync1': // Print a list of instantiated transports.
           sessions.actor1.emit('fromClient', 'engine', 'badsync', '');
           break;
-        case 'troll':
+        case 'manuvr':
+        case 'm': 
           logo();
           break;
         case 'history': // Print a history of our directives.
@@ -207,10 +248,11 @@ function promptUserForDirective() {
           break;
         case 'quit': // Return 0 for no-error-on-exit.
         case 'exit':
+        case 'q': 
           process.exit();
           break;
         default: // Show user help and usage info.
-          console.log(result);
+          //console.log(result);
           printUsage();
           break;
       }
@@ -227,6 +269,7 @@ function promptUserForDirective() {
  * Execution begins below this block.                                                                *
  ****************************************************************************************************/
 
+console.log(chalk.white(packageJSON.name + '  v' + packageJSON.version));
 prompt.start(); // Start prompt running.
 
 
