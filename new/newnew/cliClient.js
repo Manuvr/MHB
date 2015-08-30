@@ -82,32 +82,37 @@ sessions.actor1 = sessionGenerator.init(lb.transport1);
 
 
 // Now, for each session that we have, we should dd or toClient listener.
+function toClientAggregation(ses, origin, type, data) {
+  switch (type) {
+    case 'log':    // Client is getting a log from somewhere.
+      if (data[1] && data[1] <= config.verbosity) {
+        console.log(chalk.cyan.bold(ses.getUUID() + ' (' + origin + "):\t") + chalk.gray(data[0]));
+      }
+      break;
+    case '':
+      break;
+    default:
+      console.log(
+        chalk.cyan.bold(ses.getUUID() + ' (' + origin + "):\n\t" +
+          "type:" + type + "\n\t" +
+          "data:" + util.inspect(data)
+        ));
+      break;
+  }
+}
+
 
 sessions.bt_session.on('toClient', function(origin, type, data) {
-  console.log(
-    chalk.gray.bold("from:" + origin + "\n\t" +
-      "type:" + type + "\n\t" +
-      "data:" + JSON.stringify(data, {
-        depth: 3
-      })
-    ));
-})
+  toClientAggregation(sessions.bt_session, origin, type, data);
+});
 
 sessions.actor0.on('toClient', function(origin, type, data) {
-  console.log(
-    chalk.gray.bold("from:" + origin + "\n\t" +
-      "type:" + type + "\n\t" +
-      "data:" + util.inspect(data)
-    ));
-})
+  toClientAggregation(sessions.actor0, origin, type, data);
+});
 
 sessions.actor1.on('toClient', function(origin, type, data) {
-  console.log(
-    chalk.gray.bold("from:" + origin + "\n\t" +
-      "type:" + type + "\n\t" +
-      "data:" + util.inspect(data)
-    ));
-})
+  toClientAggregation(sessions.actor1, origin, type, data);
+});
 
 
 /****************************************************************************************************

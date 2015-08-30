@@ -43,8 +43,8 @@ var dataCheck = function(jsonBuff) {
   if (jsonBuff.checkSum === buffSum) {
     return true;
   } else {
-    console.log('ERROR! Supplied checksum: ' + jsonBuff.checkSum +
-      ' Calculated: ' + buffSum);
+    // Packet failed the checksum.
+    toggleSync('checksum failure ('+buffSum+' versus '+jsonBuff.checkSum+')');
     return false;
   }
 };
@@ -59,10 +59,10 @@ function Receiver() {
   this.timer = undefined;
   var that = this;
 
-  var toggleSync = function() {
-    // send a sync packet
-      that.waitingForSync = !that.waitingForSync;
-      ee.emit('outOfSync', that.waitingForSync);
+  var toggleSync = function(reason) {
+    if (!reason) reason = 'reason not given';
+    that.waitingForSync = !that.waitingForSync;
+    ee.emit('outOfSync', that.waitingForSync, reason);
   }
 
   this.parser = Dissolve().loop(function(end) {
@@ -79,7 +79,6 @@ function Receiver() {
               .tap(function() {
                 if (bufferCompare(this.vars.check, syncPacket)) {
                   toggleSync();
-                  console.log('back in sync!!')
                 }
               });
           }
@@ -98,23 +97,22 @@ function Receiver() {
           delete this.vars.check;
           if (this.vars.totalLength > 4) {
             if (this.vars.totalLength >= that.maxLength) {
-              console.log(
-                'Something is WAY too big; dropping to sync mode...');
-              toggleSync();
+              // An incoming packet exceeded our stated MTU.
+              toggleSync('MTU exceeded');
             } else {
               this.buffer('raw', this.vars.totalLength - 4);
             }
           } else if (this.vars.totalLength === 4) {
             if (this.vars.checkSum === 0x55) {
-              console.log('Received sync packet, sending back...');
               // Send sync back to ManuvrOS
               // We need to work this out... shouldn't be automatic
               ee.emit('syncInSync');
             } else {
-              toggleSync();
+              toggleSync('invalid sync packet');
             }
           } else {
-            console.log('INVALID PACKET');
+            // Invalid packet. 
+            toggleSync('incomprehensible length ('+this.vars.totalLength+')');
           }
         })
         .tap(function() {

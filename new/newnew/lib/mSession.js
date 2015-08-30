@@ -16,6 +16,8 @@ var engines = [];
 function session(transport, core) {
   ee.call(this);
 
+  this.uuid = '';
+
   this.transport = transport;
   if (!this.transport.config) {
     // If the instanceof does not have a transport config,
@@ -30,6 +32,8 @@ function session(transport, core) {
   }
   // initial assignment
   this.engine = this.core;
+  
+  this.uuid = this.core.uuid;  // We inherit core's UUID.
 
   var that = this;
 
@@ -87,7 +91,7 @@ function session(transport, core) {
         toCore('data', data)
         break;
       case 'connected':
-        console.log("herap" + data)
+        toClient('transport', 'log', ['Connection change: ' + data, 4]);
         toCore('connected', data);
         break;
       case 'log': // passthrough
@@ -113,7 +117,7 @@ function session(transport, core) {
         // deal with state or something?
         break;
       default:
-        console.log("Unknown emit destination: " + destination + " | " + type);
+        toClient('session', 'log', ['Unknown emit destination: ' + destination + " | " + type, 2]);
     }
   };
 
@@ -127,12 +131,11 @@ function session(transport, core) {
         that.engine.removeListener('fromEngine', fromEngine);
         that.engine = new engines[i](that.engine)
         that.engine.on('fromEngine', fromEngine);
-        toClient('session', 'log', 'Found engine for ' + name + ', ' +
-          version)
+        toClient('session', 'log', ['Found engine for ' + name + ', ' + version, 4]);
         break;
       }
     }
-    toClient('session', 'log', 'No version found in self-describe.')
+    toClient('session', 'log', ['No version found in self-describe.', 2])
   };
 
   // CONNECTED LISTENERS
@@ -154,8 +157,9 @@ inherits(session, ee);
  * The core is what actually represents the state of the session, and thus
  *   it is the source of the unique identifier.
  */
-session.prototype.toString = function() {
-  return ('UUID: ' + this.core.uuid + '   Via ' + this.transport.getName() + ' which is ' + (this.transport.isConnected() ?'connected':'unconnected'));
+session.prototype.getUUID = function() {
+  //return ('UUID: ' + this.core.uuid + '   Via ' + this.transport.getName() + ' which is ' + (this.transport.isConnected() ?'connected':'unconnected'));
+  return this.core.uuid;
 }
 
 
@@ -209,6 +213,7 @@ mSession.prototype.addEngine = function(engine) {
  */
 mSession.prototype.replaceCore = function(core) {
   this.core = core;
+  this.uuid = this.core.uuid;
 }
 
 /**

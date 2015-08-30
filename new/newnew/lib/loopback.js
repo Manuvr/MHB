@@ -68,7 +68,7 @@ function mTransport() {
         that.emit('toDevice', type, data);
         break;
       default:
-        console.log('loopback wut? ' + data);
+        fromTransport('log', ['Loopback wut?', 7]);
         break;
     }
   }
@@ -79,8 +79,9 @@ function mTransport() {
       case 'data':
         that.emit('fromTransport', 'data', args);
         break;
+      case 'log':
       default:
-        console.log('No condition for this emit: ' + args);
+        that.emit('fromTransport', type, args);
         break;
     }
   }

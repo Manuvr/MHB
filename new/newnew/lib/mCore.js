@@ -61,17 +61,20 @@ function mCore() {
   this.receiver = new receiver();
   
   this.receiver.ee.on('syncInSync', function() {
+    fromCore('log', ['Received sync packet, sending back...', 6]);
   });
   
-  this.receiver.ee.on('outOfSync', function(outOfSync) {
+  this.receiver.ee.on('outOfSync', function(outOfSync, reason) {
       if(outOfSync) {
         fromCore('data', SYNC_PACKET_DEF);
+        fromCore('log', ['Became desync\'d because ' + reason + '.', 6]);
       }
       else {
         clearInterval(that.timer);
         that.syncCount = 0;
         // Start sending KA
         // We must have just become sync'd.
+        fromCore('log', ['Became sync\'d.', 6]);
       }
   });
   
@@ -100,7 +103,7 @@ function mCore() {
         if (built) {
           fromCore('data', built);
         } else {
-          console.log('wut')
+          fromCore('log', ['TODO: Was wut', 3]);
         }
         break;
       case 'badsync':
@@ -111,7 +114,7 @@ function mCore() {
         // do something
         break;
       default:
-        fromCore('log', "not a valid type")
+        fromCore('log', ['Not a valid type.', 2]);
         break;
     }
   }
@@ -123,13 +126,13 @@ function mCore() {
         that.receiver.parser.write(data);
         break;
       case 'connected':
-        console.log('AM I CONNECTED? ' + data + "!!!!");
+        fromEngine('log', ['AM I CONNECTED? ' + data, 5]);
         if(data) { 
           sendSync()
         }
         break;
       default:
-        fromEngine('log', "not a valid type")
+        fromEngine('log', ['Not a valid type.', 2]);
         break;
     }
   }

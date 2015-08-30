@@ -62,9 +62,8 @@ function mTransport() {
       case 'address':
         that.address = data;
       default:
-        console.log('wut? ' + data);
+        fromTransport('log', ['toTransport wut?', 7]);
         break;
-
     }
   }
 
@@ -80,8 +79,9 @@ function mTransport() {
       case 'found':
         that.emit('fromTransport', 'scanResult', [args[0], args[1]])
         break;
+      case 'log':
       default:
-        console.log('No condition for this emit: ' + args);
+        that.emit('fromTransport', type, args);
         break;
     }
   }

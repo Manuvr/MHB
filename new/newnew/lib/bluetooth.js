@@ -60,7 +60,7 @@ function mTransport() {
         break;
       case 'data':
         that.device.write(data, function(err, bytesWritten) {
-          if (err) console.log(err);
+          if (err) fromTransport('log', [err, 2]);
         });
         break;
       case 'scan':
@@ -72,7 +72,7 @@ function mTransport() {
       case 'address':
         that.address = data;
       default:
-        console.log('wut? ' + data);
+        fromTransport('log', ['Bluetooth wut?', 7]);
         break;
 
     }
@@ -80,22 +80,23 @@ function mTransport() {
 
   // from device to local EE functions
   var fromTransport = function(type, args) {
-      switch (type) {
-        case 'data':
-          that.emit('fromTransport', 'data', args);
-          break;
-        case 'closed':
-          that.emit('fromTransport', 'disconnect')
-          break;
-        case 'found':
-          that.emit('fromTransport', 'scanResult', [args[0], args[1]])
-          break;
-        default:
-          console.log('No condition for this emit: ' + args);
-          break;
-      }
+    switch (type) {
+      case 'data':
+        that.emit('fromTransport', 'data', args);
+        break;
+      case 'closed':
+        that.emit('fromTransport', 'disconnect')
+        break;
+      case 'found':
+        that.emit('fromTransport', 'scanResult', [args[0], args[1]])
+        break;
+      case 'log':
+      default:
+        that.emit('fromTransport', type, args);
+        break;
     }
-    // will depend on transport library....
+  }
+  // will depend on transport library....
 
   // LISTENERS
   // from local EE
