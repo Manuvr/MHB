@@ -39,7 +39,7 @@ function openLogFile(path) {
   fs.open(path, 'ax', 
     function(err, fd) {
       if (err) {
-        console.log('Failed to create log file ('+path+') with error ('+err+'). Logging disabled.');
+        console.log(chalk.error('Failed to create log file ('+path+') with error ('+err+'). Logging disabled.'));
       }
       else {
         current_log_file = fd;
@@ -53,11 +53,12 @@ function openLogFile(path) {
 function saveConfig(callback) {
   if (config.dirty) {
     delete config.dirty;
+    config.writtenByVersion = packageJSON.version;
     if (!callback) {
       callback = function(err) {
         if (err) {
           config.dirty = true;
-          console.log('Error saving configuration: ' + err);
+          console.log(chalk.error('Error saving configuration: ') + err);
         }
         else {
           console.log('Config was saved.');
@@ -68,7 +69,7 @@ function saveConfig(callback) {
     fs.writeFile('./config.json', JSON.stringify(config), callback);
   }
   else {
-    // If we con't need to save, fire the callback with no error condition.
+    // If we don't need to save, fire the callback with no error condition.
     if (callback) callback(false);
   }
 }
@@ -109,7 +110,7 @@ function loadConfig(path) {
               fs.mkdir(config.logPath, 
                 function(err) {
                   if (err) {
-                    console.log('Log directory ('+config.logPath+') does not exist and could not be created. Logging disabled.');
+                    console.log(chalk.error('Log directory ('+config.logPath+') does not exist and could not be created. Logging disabled.'));
                   }
                   else {
                     openLogFile(config.logPath + 'mhb-' + Math.floor(new Date() / 1000) + '.log');
@@ -376,7 +377,8 @@ function promptUserForDirective() {
         case 'c':
           dumpConfiguration();
           break;
-        case 'saveconfig': // Save the current configuration.
+        case 'saveconfig': // Force-Save the current configuration.
+          config.dirty = true;
           saveConfig();
           break;
         case 'test': // 
