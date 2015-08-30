@@ -64,7 +64,7 @@ function mEngine(parent) {
         // do something
         break;
       default:
-        that.fromEngine('log', "not a valid type")
+        that.fromEngine('log', ["not a valid type", 2])
         break;
     }
   }

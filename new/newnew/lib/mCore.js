@@ -108,6 +108,7 @@ function mCore() {
         break;
       case 'badsync':
         // Initiate a malformed sync packet. We notice the desync first.
+        fromCore('log', ['Sending bad data via transport. Trying to initiate a desync....', 4]);
         fromCore('data', new Buffer(45));
         break;
       case 'state':
