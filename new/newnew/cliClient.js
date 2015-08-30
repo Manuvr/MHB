@@ -22,10 +22,10 @@ memwatch.on('stats', function(stats) {
  * This is the configuration for this client and some meta-awareness.                                *
  ****************************************************************************************************/
 var packageJSON = require('./package.json');
-var config = {
-  verbosity: 7
-};
+var fs          = require('fs');
 
+var config = {};
+var current_log_file = false;
 
 /****************************************************************************************************
  * Small utility functions...                                                                        *
@@ -33,6 +33,99 @@ var config = {
 function isFunction(fxn) {
   return (typeof fxn === 'function');
 }
+
+
+function openLogFile(path) {
+  fs.open(path, 'ax', 
+    function(err, fd) {
+      if (err) {
+        console.log('Failed to create log file ('+path+') with error ('+err+'). Logging disabled.');
+      }
+      else {
+        current_log_file = fd;
+      }
+    }
+  );
+}
+
+
+/* Save the current config, if it is dirty. */
+function saveConfig(callback) {
+  if (config.dirty) {
+    delete config.dirty;
+    if (!callback) {
+      callback = function(err) {
+        if (err) {
+          config.dirty = true;
+          console.log('Error saving configuration: ' + err);
+        }
+        else {
+          console.log('Config was saved.');
+        }
+      }
+    }
+    
+    fs.writeFile('./config.json', JSON.stringify(config), callback);
+  }
+  else {
+    // If we con't need to save, fire the callback with no error condition.
+    if (callback) callback(false);
+  }
+}
+
+/*
+* Tries to load a conf file from the given path, or the default path if no path
+*   is provided. If config load fails, function will populate config with a default
+*   and mark it dirty.
+*/
+function loadConfig(path) {
+  if (!path) {
+    path = './config.json';
+  }
+  fs.readFile(path, 'ascii',
+    function(err, data) {
+      if (err) {
+        // Hmmmm... We failed to read a config file. Generate a default.
+        console.log('Failed to read configuration from ' + path + '. Using defaults...');
+        config = {
+          dirty:     true,
+          verbosity: 7,
+          logPath:   './logs/'
+        };
+      }
+      else {
+        config = JSON.parse(data);
+      }
+      
+      // Now we should setup logging if we need it...
+      if (config.logPath) {
+        fs.exists(config.logPath, 
+          function(exists) {
+            if (exists) {
+              openLogFile(config.logPath + 'mhb-' + Math.floor(new Date() / 1000) + '.log');
+            }
+            else {
+              fs.mkdir(config.logPath, 
+                function(err) {
+                  if (err) {
+                    console.log('Log directory ('+config.logPath+') does not exist and could not be created. Logging disabled.');
+                  }
+                  else {
+                    openLogFile(config.logPath + 'mhb-' + Math.floor(new Date() / 1000) + '.log');
+                  }
+                }
+              );
+            }
+          }
+        );
+      }
+    }
+  );
+}
+
+
+// Load configuration.
+loadConfig();
 
 
 /****************************************************************************************************
@@ -87,6 +180,10 @@ function toClientAggregation(ses, origin, type, data) {
     case 'log':    // Client is getting a log from somewhere.
       if (data[1] && data[1] <= config.verbosity) {
         console.log(chalk.cyan.bold(ses.getUUID() + ' (' + origin + "):\t") + chalk.gray(data[0]));
+      }
+      if (current_log_file) {
+        // Write to the log file if we have one open.
+        fs.writeSync(current_log_file, new Date()+'\t'+ses.getUUID() + ' (' + origin + "):\t"+data[0]+'\n');
       }
       break;
     case '':
@@ -208,6 +305,29 @@ var sampleObject = {
 
 
 
+
+function quit() {
+  // Write a config file if the conf is dirty.
+  saveConfig(function(err) {
+    if (err) {
+      console.log('Failed to save config prior to exit. Changes will be lost.');
+    }
+    if (current_log_file) {
+      fs.close(current_log_file, function(err) {
+        if (err) {
+          console.log('Failed to close the log file. It will be closed when our process ends in a moment.');
+        }
+        process.exit();  // An hero...
+      });
+    }
+    else {
+      process.exit();  // An hero...
+    }
+  });
+}
+
+
+
 function promptUserForDirective() {
   prompt.get([{
     name: 'directive',
@@ -254,7 +374,7 @@ function promptUserForDirective() {
         case 'quit': // Return 0 for no-error-on-exit.
         case 'exit':
         case 'q': 
-          process.exit();
+          quit();
           break;
         default: // Show user help and usage info.
           //console.log(result);
