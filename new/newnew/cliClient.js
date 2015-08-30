@@ -27,6 +27,7 @@ var chalk = require('chalk');
 // Let's take some some time to setup some CLI styles.
 var error = chalk.bold.red;
 
+var Table = require('cli-table');
 
 
 /****************************************************************************************************
@@ -103,28 +104,51 @@ sessions.actor1.on('toClient', function(origin, type, data) {
  *
  */
 function listSessions() {
+  var table = new Table({
+      head: [chalk.white.bold('Name'), chalk.white.bold('Session'), chalk.white.bold('Transport'), chalk.white.bold('Engine')],
+      chars: {'top':'─','top-mid':'┬','top-left':'┌','top-right':'┐','bottom':'─','bottom-mid':'┴','bottom-left':'└','bottom-right':'┘','left':'│','left-mid':'├','mid':'─','mid-mid':'┼','right':'│','right-mid':'┤','middle':'│'},
+      style: {'padding-left': 0, 'padding-right': 0}
+  });
+  
   for (var ses in sessions) {
     if (sessions.hasOwnProperty(ses)) {
-      console.log(chalk.green.bold(ses) + '\t' + chalk.white(sessions[ses].toString()));
-      console.log(chalk.gray(sessions[ses].toJSON()));
+      var sesObj = sessions[ses];
+
+      var inner_table_style = { chars: { 'top': '' , 'top-mid': '' , 'top-left': '' , 'top-right': ''
+         , 'bottom': '' , 'bottom-mid': '' , 'bottom-left': '' , 'bottom-right': ''
+         , 'left': ' ' , 'left-mid': '─' , 'mid': '─' , 'mid-mid': '┼'
+         , 'right': ' ' , 'right-mid': '─' , 'middle': '│' },
+         style: {'padding-left': 0, 'padding-right': 0}
+      };
+      var table_ses = new Table(inner_table_style);
+      var table_eng = new Table(inner_table_style);
+      var table_trn = new Table(inner_table_style);
+
+      for (var key in sesObj) {
+        if (sesObj.hasOwnProperty(key) && sesObj[key]) {
+          table_ses.push([key.toString(), sesObj[key].toString()]);
+        }
+      }
+      
+      for (var key in sesObj.engine) {
+        if (sesObj.engine.hasOwnProperty(key) && sesObj.engine[key]) {
+          table_eng.push([key.toString(), sesObj.engine[key].toString()]);
+        }
+      }
+      
+      for (var key in sesObj.transport) {
+        if (sesObj.transport.hasOwnProperty(key) && sesObj.transport[key]) {
+          table_trn.push([key.toString(), sesObj.transport[key].toString()]);
+        }
+      }
+
+      table.push([chalk.green(ses), chalk.white(table_ses.toString()), chalk.gray(table_trn.toString()), chalk.gray(table_eng.toString())]);
     }
   }
-  console.log('\n');
+  console.log(table.toString() + '\n');
 }
 
 
-/*
- *
- */
-function listTransports() {
-  for (var ses in sessions) {
-    if (sessions.hasOwnProperty(ses)) {
-      console.log(chalk.green.bold('NAME OF TRANSPORT') + chalk.gray(
-        'Some data about the transport factory.'));
-    }
-  }
-  console.log('\n');
-}
 
 
 /*
@@ -142,7 +166,7 @@ function printUsage() {
 }
 
 /*
- *	PrObLeM???
+ *  PrObLeM???
  */
 function troll() {
   console.log("\n");
@@ -327,10 +351,7 @@ function promptUserForDirective() {
         case 'slist': // Print a list of instantiated sessions.
           listSessions();
           break;
-        case 'tlist': // Print a list of instantiated transports.
-          listTransports();
-          break;
-        case 'test': // Print a list of instantiated transports.
+        case 'test': // 
           console.log(util.inspect(sampleObject));
           sessions.actor0.emit('fromClient', 'engine', 'send', sampleObject);
           break;

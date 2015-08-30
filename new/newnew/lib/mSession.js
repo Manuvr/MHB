@@ -156,12 +156,25 @@ session.prototype.toString = function() {
 
 /**
  */
-session.prototype.toJSON = function() {
+session.prototype.toJSON = function(unit) {
   var return_obj = {};
-  return_obj.session   = {uuid: this.core.uuid};
   
-  return_obj.transport = this.transport;
-  return_obj.engine    = this.core.getConfig();
+  switch (unit) {
+    case 'session':
+      return_obj = {uuid: this.core.uuid};
+      break;
+    case 'engine':
+      return_obj = this.core.getConfig();
+      break;
+    case 'transport':
+      return_obj = this.transport;
+      break;
+    default:
+      return_obj.session   = {uuid: this.core.uuid};
+      return_obj.transport = this.transport;
+      return_obj.engine    = this.core.getConfig();
+      break;
+  }
   return JSON.stringify(return_obj);
 }
 
