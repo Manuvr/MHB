@@ -88,9 +88,10 @@ function loadConfig(path) {
         // Hmmmm... We failed to read a config file. Generate a default.
         console.log('Failed to read configuration from ' + path + '. Using defaults...');
         config = {
-          dirty:     true,
-          verbosity: 7,
-          logPath:   './logs/'
+          dirty:            true,
+          writtenByVersion: packageJSON.version,
+          verbosity:        7,
+          logPath:          './logs/'
         };
       }
       else {
@@ -271,6 +272,23 @@ function listSessions() {
 }
 
 
+function dumpConfiguration() {
+  var table = new Table({
+    chars: { 'top': '' , 'top-mid': '' , 'top-left': '' , 'top-right': ''
+           , 'bottom': '' , 'bottom-mid': '' , 'bottom-left': '' , 'bottom-right': ''
+           , 'left': '' , 'left-mid': '' , 'mid': '' , 'mid-mid': ''
+           , 'right': '' , 'right-mid': '' , 'middle': ' ' },
+    style: { 'padding-left': 0, 'padding-right': 0 }
+  });
+
+  for (var key in config) {
+    if (config.hasOwnProperty(key) && config[key] && (key !== 'dirty')) {
+      table.push([chalk.cyan(key), chalk.white(config[key].toString())]);
+    }
+  }
+  
+  console.log(chalk.white.bold("==< MHB Config (")+(config.dirty ? chalk.red.bold('dirty') : chalk.green.bold('saved'))+chalk.white.bold(") >======================================================================\n") + table.toString()+'\n');
+}
 
 
 /*
@@ -288,6 +306,8 @@ function printUsage() {
   //table.push([chalk.white(''), chalk.gray()]);
   table.push([chalk.magenta('(s)list'),      chalk.grey(''),       chalk.white('List all instantiated sessions.')]);
   table.push([chalk.magenta('(v)erbosity'),  chalk.grey('[0-7]'),  chalk.white('Print or change the console\'s verbosity.')]);
+  table.push([chalk.magenta('(c)onfig'),     chalk.grey(''),       chalk.white('Show the current configuration.')]);
+  table.push([chalk.magenta('saveconfig'),   chalk.grey(''),       chalk.white('Save the configuration.')]);
   table.push([chalk.magenta('(m)anuvr'),     chalk.grey(''),       chalk.white('Our logo is so awesome...')]);
   table.push([chalk.magenta('(q)uit'),       chalk.grey(''),       chalk.white('Cleanup and exit the program.')]);
   console.log(chalk.white.bold(
@@ -351,6 +371,13 @@ function promptUserForDirective() {
             config.verbosity = args[0];
           }
           console.log('Console verbosity is presently ' + chalk.green(config.verbosity)+'.');
+          break;
+        case 'config': // Show the configuration.
+        case 'c':
+          dumpConfiguration();
+          break;
+        case 'saveconfig': // Save the current configuration.
+          saveConfig();
           break;
         case 'test': // 
           console.log(util.inspect(sampleObject));
