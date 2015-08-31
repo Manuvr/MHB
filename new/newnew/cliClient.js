@@ -335,6 +335,7 @@ function printUsage() {
   table.push([chalk.magenta('(c)onfig'),     chalk.white(''),       chalk.grey('Show the current configuration.')]);
   table.push([chalk.magenta('saveconfig'),   chalk.white(''),       chalk.grey('Save the configuration (dirty or not).')]);
   table.push([chalk.magenta('(m)anuvr'),     chalk.white(''),       chalk.grey('Our logo is so awesome...')]);
+  table.push([chalk.magenta('(h)elp'),       chalk.white(''),       chalk.grey('This.')]);
   table.push([chalk.magenta('(q)uit'),       chalk.white(''),       chalk.grey('Cleanup and exit the program.')]);
   console.log(chalk.white.bold(
     "==< MHB Debug Console   v" + packageJSON.version+" >================================================================================"
@@ -490,6 +491,8 @@ function promptUserForDirective() {
             break;
           }
           // No break on purpose.
+        case 'help':
+        case 'h':
         default: // Show user help and usage info.
           printUsage();
           break;
