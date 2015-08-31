@@ -244,23 +244,30 @@ function listSessions() {
 
       for (var key in sesObj) {
         if (sesObj.hasOwnProperty(key) && sesObj[key] && (key !== '_events')) {
-          if ((config.verbosity > 3) || !isFunction(sesObj[key])) {
-            table_ses.push([key.toString(), sesObj[key].toString()]);
+          // Only show the things that are part of this object, that are defined, and are not _events.
+          if ((key !== 'engine') && (key !== 'transport')) {
+            // We itemive the keys above separately.
+            if ((config.verbosity >= 6) || !isFunction(sesObj[key])) {
+              table_ses.push([key.toString(), sesObj[key].toString()]);
+            }
           }
         }
       }
       
       for (var key in sesObj.engine) {
         if (sesObj.engine.hasOwnProperty(key) && sesObj.engine[key] && (key !== '_events')) {
-          if ((config.verbosity > 3) || !isFunction(sesObj.engine[key])) {
-            table_eng.push([key.toString(), sesObj.engine[key].toString()]);
+          if ((key !== 'uuid')) {
+            // We conceive of uuid as belonging to the session.
+            if ((config.verbosity >= 6) || !isFunction(sesObj.engine[key])) {
+              table_eng.push([key.toString(), sesObj.engine[key].toString()]);
+            }
           }
         }
       }
       
       for (var key in sesObj.transport) {
         if (sesObj.transport.hasOwnProperty(key) && sesObj.transport[key] && (key !== '_events')) {
-          if ((config.verbosity > 3) || !isFunction(sesObj[key])) {
+          if ((config.verbosity >= 6) || !isFunction(sesObj[key])) {
             table_trn.push([key.toString(), sesObj.transport[key].toString()]);
           }
         }
