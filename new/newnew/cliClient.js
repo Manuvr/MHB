@@ -229,7 +229,7 @@ var logo = require('./manuvrLogo');  // This is the Manuvr logo.
 /*
  * Print a listing of instantiated sessions, along with their subcomponents.
  */
-function listSessions() {
+function listSessions(filter) {
   var table = new Table({
       head: [chalk.white.bold('Name'), chalk.white.bold('Session'), chalk.white.bold('Transport'), chalk.white.bold('Engine')],
       chars: {'top':'─','top-mid':'┬','top-left':'┌','top-right':'┐','bottom':'─','bottom-mid':'┴','bottom-left':'└','bottom-right':'┘','left':'│','left-mid':'├','mid':'─','mid-mid':'┼','right':'│','right-mid':'┤','middle':'│'},
@@ -238,50 +238,52 @@ function listSessions() {
   
   for (var ses in sessions) {
     if (sessions.hasOwnProperty(ses)) {
-      var sesObj = sessions[ses];
-
-      var inner_table_style = { chars: { 'top': '' , 'top-mid': '' , 'top-left': '' , 'top-right': ''
-         , 'bottom': '' , 'bottom-mid': '' , 'bottom-left': '' , 'bottom-right': ''
-         , 'left': ' ' , 'left-mid': '─' , 'mid': '─' , 'mid-mid': '┼'
-         , 'right': ' ' , 'right-mid': '─' , 'middle': '│' },
-         style: {'padding-left': 0, 'padding-right': 0}
-      };
-      var table_ses = new Table(inner_table_style);
-      var table_eng = new Table(inner_table_style);
-      var table_trn = new Table(inner_table_style);
-
-      for (var key in sesObj) {
-        if (sesObj.hasOwnProperty(key) && sesObj[key] && (key !== '_events')) {
-          // Only show the things that are part of this object, that are defined, and are not _events.
-          if ((key !== 'engine') && (key !== 'transport')) {
-            // We itemive the keys above separately.
+      if ((0 === filter.length) || (-1 != filter.indexOf(ses))) {
+        var sesObj = sessions[ses];
+  
+        var inner_table_style = { chars: { 'top': '' , 'top-mid': '' , 'top-left': '' , 'top-right': ''
+           , 'bottom': '' , 'bottom-mid': '' , 'bottom-left': '' , 'bottom-right': ''
+           , 'left': ' ' , 'left-mid': '─' , 'mid': '─' , 'mid-mid': '┼'
+           , 'right': ' ' , 'right-mid': '─' , 'middle': '│' },
+           style: {'padding-left': 0, 'padding-right': 0}
+        };
+        var table_ses = new Table(inner_table_style);
+        var table_eng = new Table(inner_table_style);
+        var table_trn = new Table(inner_table_style);
+  
+        for (var key in sesObj) {
+          if (sesObj.hasOwnProperty(key) && sesObj[key] && (key !== '_events')) {
+            // Only show the things that are part of this object, that are defined, and are not _events.
+            if ((key !== 'engine') && (key !== 'transport')) {
+              // We itemive the keys above separately.
+              if ((config.verbosity >= 6) || !isFunction(sesObj[key])) {
+                table_ses.push([key.toString(), sesObj[key].toString()]);
+              }
+            }
+          }
+        }
+        
+        for (var key in sesObj.engine) {
+          if (sesObj.engine.hasOwnProperty(key) && sesObj.engine[key] && (key !== '_events')) {
+            if ((key !== 'uuid')) {
+              // We conceive of uuid as belonging to the session.
+              if ((config.verbosity >= 6) || !isFunction(sesObj.engine[key])) {
+                table_eng.push([key.toString(), sesObj.engine[key].toString()]);
+              }
+            }
+          }
+        }
+        
+        for (var key in sesObj.transport) {
+          if (sesObj.transport.hasOwnProperty(key) && sesObj.transport[key] && (key !== '_events')) {
             if ((config.verbosity >= 6) || !isFunction(sesObj[key])) {
-              table_ses.push([key.toString(), sesObj[key].toString()]);
+              table_trn.push([key.toString(), sesObj.transport[key].toString()]);
             }
           }
         }
+  
+        table.push([chalk.green(ses), chalk.white(table_ses.toString()), chalk.gray(table_trn.toString()), chalk.gray(table_eng.toString())]);
       }
-      
-      for (var key in sesObj.engine) {
-        if (sesObj.engine.hasOwnProperty(key) && sesObj.engine[key] && (key !== '_events')) {
-          if ((key !== 'uuid')) {
-            // We conceive of uuid as belonging to the session.
-            if ((config.verbosity >= 6) || !isFunction(sesObj.engine[key])) {
-              table_eng.push([key.toString(), sesObj.engine[key].toString()]);
-            }
-          }
-        }
-      }
-      
-      for (var key in sesObj.transport) {
-        if (sesObj.transport.hasOwnProperty(key) && sesObj.transport[key] && (key !== '_events')) {
-          if ((config.verbosity >= 6) || !isFunction(sesObj[key])) {
-            table_trn.push([key.toString(), sesObj.transport[key].toString()]);
-          }
-        }
-      }
-
-      table.push([chalk.green(ses), chalk.white(table_ses.toString()), chalk.gray(table_trn.toString()), chalk.gray(table_eng.toString())]);
     }
   }
   console.log(table.toString() + '\n');
@@ -387,7 +389,7 @@ function promptUserForDirective() {
       switch (directive) {
         case 'slist': // Print a list of instantiated sessions.
         case 's': 
-          listSessions();
+          listSessions(args);
           break;
         case 'verbosity': // Set or print the current log verbosity.
         case 'v': 
