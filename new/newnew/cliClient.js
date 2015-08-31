@@ -34,6 +34,17 @@ function isFunction(fxn) {
 }
 
 
+/*
+* Extends the given input string to a fixed length by padding it with character.
+*/
+function extendToFixedLength(input, length, character) {
+  while (input.length < length) {
+    input += character;
+  }
+  return input;
+}
+
+
 function openLogFile(path) {
   fs.open(path, 'ax', 
     function(err, fd) {
@@ -312,7 +323,7 @@ function dumpConfiguration() {
     }
   }
   
-  console.log(chalk.white.bold("==< MHB Config (")+(config.dirty ? chalk.red.bold('dirty') : chalk.green.bold('saved'))+chalk.white.bold(") >======================================================================\n") + table.toString()+'\n');
+  console.log(chalk.white.bold(extendToFixedLength("==< MHB Config ("+(config.dirty ? chalk.red.bold('dirty') : chalk.green.bold('saved'))+') >', 128, '=')) + "\n" + table.toString()+'\n');
 }
 
 
@@ -329,7 +340,7 @@ function printUsage(current_mode) {
   });
   
   console.log(chalk.white.bold(
-    "==< MHB Debug Console   v" + packageJSON.version+" >================================================================================"
+    extendToFixedLength("==< MHB Debug Console   v" + packageJSON.version+' >', 128, '=')
   ));
 
   // These are mode-specific commands.

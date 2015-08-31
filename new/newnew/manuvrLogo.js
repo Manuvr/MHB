@@ -1,6 +1,5 @@
 var decompress = function() {
-  var data = [[" ",153,0],
-  ["\n",1,0],
+  var data = [["\n",1,0],
   [" ",74,0],
   [":",1,0],
   [";",5,1],
