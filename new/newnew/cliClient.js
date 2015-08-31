@@ -38,7 +38,7 @@ function openLogFile(path) {
   fs.open(path, 'ax', 
     function(err, fd) {
       if (err) {
-        console.log(chalk.error('Failed to create log file ('+path+') with error ('+err+'). Logging disabled.'));
+        console.log(error('Failed to create log file ('+path+') with error ('+err+'). Logging disabled.'));
       }
       else {
         current_log_file = fd;
@@ -57,7 +57,7 @@ function saveConfig(callback) {
       callback = function(err) {
         if (err) {
           config.dirty = true;
-          console.log(chalk.error('Error saving configuration: ') + err);
+          console.log(error('Error saving configuration: ') + err);
         }
         else {
           console.log('Config was saved.');
@@ -109,7 +109,7 @@ function loadConfig(path) {
               fs.mkdir(config.logPath, 
                 function(err) {
                   if (err) {
-                    console.log(chalk.error('Log directory ('+config.logPath+') does not exist and could not be created. Logging disabled.'));
+                    console.log(error('Log directory ('+config.logPath+') does not exist and could not be created. Logging disabled.'));
                   }
                   else {
                     openLogFile(config.logPath + 'mhb-' + Math.floor(new Date() / 1000) + '.log');
@@ -144,6 +144,10 @@ var error = chalk.bold.red;
 var prompt = require('prompt');
 prompt.message = '';
 prompt.delimiter = '';
+
+// These are state-tracking variables for our modal CLI.
+var cli_mode       = [];
+var session_in_use = '';
 
 
 /****************************************************************************************************
@@ -325,16 +329,18 @@ function printUsage() {
   });
   
   //table.push([chalk.white(''), chalk.gray()]);
-  table.push([chalk.magenta('(s)list'),      chalk.grey(''),       chalk.white('List all instantiated sessions.')]);
-  table.push([chalk.magenta('(v)erbosity'),  chalk.grey('[0-7]'),  chalk.white('Print or change the console\'s verbosity.')]);
-  table.push([chalk.magenta('(c)onfig'),     chalk.grey(''),       chalk.white('Show the current configuration.')]);
-  table.push([chalk.magenta('saveconfig'),   chalk.grey(''),       chalk.white('Save the configuration.')]);
-  table.push([chalk.magenta('(m)anuvr'),     chalk.grey(''),       chalk.white('Our logo is so awesome...')]);
-  table.push([chalk.magenta('(q)uit'),       chalk.grey(''),       chalk.white('Cleanup and exit the program.')]);
+  table.push([chalk.magenta('(s)ession'),    chalk.white('[name]'), chalk.grey('If no name is provided, lists all instantiated sessions. Otherwise, lists the named session.')]);
+  table.push([chalk.magenta('(u)se'),        chalk.white('name'),   chalk.grey('Changes to the session modal under the given name.')]);
+  table.push([chalk.magenta('(v)erbosity'),  chalk.white('[0-7]'),  chalk.grey('Print or change the console\'s verbosity.')]);
+  table.push([chalk.magenta('(c)onfig'),     chalk.white(''),       chalk.grey('Show the current configuration.')]);
+  table.push([chalk.magenta('saveconfig'),   chalk.white(''),       chalk.grey('Save the configuration (dirty or not).')]);
+  table.push([chalk.magenta('(m)anuvr'),     chalk.white(''),       chalk.grey('Our logo is so awesome...')]);
+  table.push([chalk.magenta('(q)uit'),       chalk.white(''),       chalk.grey('Cleanup and exit the program.')]);
   console.log(chalk.white.bold(
-    "MHB Debug Console   v" + packageJSON.version+"\n========================================================================"
+    "==< MHB Debug Console   v" + packageJSON.version+" >================================================================================"
   ));
   console.log(table.toString());
+  console.log(chalk.white('To back out from an active mode, strike <Enter>. When done from the root of the modal tree, this will print this help text.'));
 }
 
 
@@ -375,9 +381,16 @@ function quit() {
 */
 function promptUserForDirective() {
   var exit_in_progress = false;
+  var cli_mode_string = '';
+  
+  for (var i = 0; i < cli_mode.length; i++) {
+    cli_mode_string += cli_mode[i] + ' ';
+  }
+  cli_mode_string.trim();
+  
   prompt.get([{
     name: 'directive',
-    description: 'ManuvrHostBridge> '.magenta
+    description: (cli_mode_string.length > 0 ? cli_mode_string+'>' : 'ManuvrHostBridge> ').magenta
   }], function(prompt_err, result) {
     if (prompt_err) {
       console.log(error('\nno. die. ' + prompt_err));
@@ -387,9 +400,48 @@ function promptUserForDirective() {
       var directive = args.shift();
       
       switch (directive) {
-        case 'slist': // Print a list of instantiated sessions.
+        case 'session': // Print a list of instantiated sessions.
         case 's': 
           listSessions(args);
+          break;
+        case 'use':     // User is indicating that ve wants to use the named session.
+        case 'u':
+          {
+            var list_sessions_brief = false;
+            if (0 == args.length) {
+              console.log(error('There exists more than one session. You must therefore name it explicitly.'));
+              list_sessions_brief = true;
+            }
+            else {
+              if (1 < args.length) {
+                console.log(error('\'use\' only accepts one argument (the name of an extant session).'));
+                list_sessions_brief = true;
+              }
+              else {
+                var ses = args.shift();
+                if (!sessions.hasOwnProperty(ses)) {
+                  console.log(error('There is not a session named \''+ses+'\'.'));
+                  list_sessions_brief = true;
+                }
+                else {
+                  session_in_use = ses;
+                  prompt.message = chalk.green('(' + ses + ') ');
+                  if (cli_mode.indexOf('session') == -1) {
+                    cli_mode.push('session');
+                  }
+                  console.log('Now using session ' + chalk.green(session_in_use)+'.');
+                }
+              }
+            }
+
+            if (list_sessions_brief) {
+              for (ses in sessions) {
+                if (sessions.hasOwnProperty(ses)) {
+                  console.log(chalk.green(ses));
+                }
+              }
+            }
+          }
           break;
         case 'verbosity': // Set or print the current log verbosity.
         case 'v': 
@@ -428,6 +480,16 @@ function promptUserForDirective() {
           exit_in_progress = true;
           quit();
           break;
+        case '':
+          if (cli_mode.length > 0) {
+            cli_mode.pop();
+            if (0 == cli_mode.length) {
+              prompt.message = '';
+              session_in_use = '';
+            }
+            break;
+          }
+          // No break on purpose.
         default: // Show user help and usage info.
           printUsage();
           break;
