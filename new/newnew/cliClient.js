@@ -319,7 +319,7 @@ function dumpConfiguration() {
 /*
  * Inline help.
  */
-function printUsage() {
+function printUsage(current_mode) {
   var table = new Table({
     chars: { 'top': '' , 'top-mid': '' , 'top-left': '' , 'top-right': ''
            , 'bottom': '' , 'bottom-mid': '' , 'bottom-left': '' , 'bottom-right': ''
@@ -328,20 +328,33 @@ function printUsage() {
     style: { 'padding-left': 0, 'padding-right': 0 }
   });
   
-  //table.push([chalk.white(''), chalk.gray()]);
-  table.push([chalk.magenta('(s)ession'),    chalk.white('[name]'), chalk.grey('If no name is provided, lists all instantiated sessions. Otherwise, lists the named session.')]);
-  table.push([chalk.magenta('(u)se'),        chalk.white('name'),   chalk.grey('Changes to the session modal under the given name.')]);
+  console.log(chalk.white.bold(
+    "==< MHB Debug Console   v" + packageJSON.version+" >================================================================================"
+  ));
+
+  // These are mode-specific commands.
+  switch (current_mode) {
+    case 'session':
+      table.push([chalk.magenta('connect'),      chalk.white('[address]'), chalk.grey('Connect to a given counterparty with optional address.')]);
+      table.push([chalk.magenta('disconnect'),   chalk.white(''),          chalk.grey('Disconnect from counterparty.')]);
+      break;
+    default:
+      //table.push([chalk.white(''), chalk.gray()]);
+      table.push([chalk.magenta('(s)ession'),    chalk.white('[name]'),    chalk.grey('If no name is provided, lists all instantiated sessions. Otherwise, lists the named session.')]);
+      table.push([chalk.magenta('(u)se'),        chalk.white('name'),      chalk.grey('Changes to the session modal under the given name.')]);
+      table.push([chalk.magenta('(c)onfig'),     chalk.white(''),          chalk.grey('Show the current configuration.')]);
+      break;
+  }
+
+  // These are globally-accessable commands.
   table.push([chalk.magenta('(v)erbosity'),  chalk.white('[0-7]'),  chalk.grey('Print or change the console\'s verbosity.')]);
-  table.push([chalk.magenta('(c)onfig'),     chalk.white(''),       chalk.grey('Show the current configuration.')]);
   table.push([chalk.magenta('saveconfig'),   chalk.white(''),       chalk.grey('Save the configuration (dirty or not).')]);
   table.push([chalk.magenta('(m)anuvr'),     chalk.white(''),       chalk.grey('Our logo is so awesome...')]);
   table.push([chalk.magenta('(h)elp'),       chalk.white(''),       chalk.grey('This.')]);
   table.push([chalk.magenta('(q)uit'),       chalk.white(''),       chalk.grey('Cleanup and exit the program.')]);
-  console.log(chalk.white.bold(
-    "==< MHB Debug Console   v" + packageJSON.version+" >================================================================================"
-  ));
+  
   console.log(table.toString());
-  console.log(chalk.white('To back out from an active mode, strike <Enter>. When done from the root of the modal tree, this will print this help text.'));
+  console.log(chalk.white('\nTo back out from an active mode, strike <Enter>. When done from the root of the modal tree, this will print this help text.'));
 }
 
 
@@ -494,7 +507,7 @@ function promptUserForDirective() {
         case 'help':
         case 'h':
         default: // Show user help and usage info.
-          printUsage();
+          printUsage(cli_mode.length ? cli_mode[0] : '');
           break;
       }
     }
