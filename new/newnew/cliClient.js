@@ -5,7 +5,6 @@
 'use strict'
 
 var util = require('util');
-var logo = require('./manuvrLogo');
 var memwatch = require('memwatch-next');
 
 memwatch.on('leak', function(info) {
@@ -151,32 +150,37 @@ prompt.delimiter = '';
  * Let's bring in the MHB stuff...                                                                   *
  ****************************************************************************************************/
 var mSession = require('./lib/mSession.js'); // session factory
-var mEngine = require('./lib/mEngine.js'); //  DHB
+var sessionGenerator = new mSession();       
+
+var mEngine = require('./lib/mEngine.js');   // DHB
+
+
 var BTTransport = require('./lib/bluetooth.js'); // bluetooth
 var LBTransport = require('./lib/loopback.js'); // bluetooth
 
-var lb = new LBTransport();
-
+// We track instantiated transports with this object.
 var transports = {};
 transports.bt_transport = BTTransport;
+transports.loopback     = LBTransport;
 
+var lb = new LBTransport();
 
-var sessionGenerator = new mSession();
-
+// We track instantiated sessions with this object.
 var sessions = {};
-sessions.bt_session = sessionGenerator.init(new BTTransport());
-//var lb_session = sessionGenerator.init(new LBTransport());
-
-
 
 // By passing in the transports, we are returned sessions. When a session is successfully
 //   setup, the actor variable will become a reference to the specific kind of manuvrable
 //   that connected to the given transport.
+sessions.bt_session = sessionGenerator.init(new BTTransport());
 sessions.actor0 = sessionGenerator.init(lb.transport0);
 sessions.actor1 = sessionGenerator.init(lb.transport1);
 
 
-// Now, for each session that we have, we should dd or toClient listener.
+/*
+* This function is where all toClient callbacks are funneled to, if they
+*   are not specifically handled elsewhere. Common client broadcasts should
+*   probably be handled here.
+*/
 function toClientAggregation(ses, origin, type, data) {
   switch (type) {
     case 'log':    // Client is getting a log from somewhere.
@@ -201,6 +205,9 @@ function toClientAggregation(ses, origin, type, data) {
 }
 
 
+// Now, for each session that we have, we should add the toClient listener.
+// This is the means by which events are passed from other components to be
+//   shown to the user, sent via API, etc...
 sessions.bt_session.on('toClient', function(origin, type, data) {
   toClientAggregation(sessions.bt_session, origin, type, data);
 });
@@ -217,9 +224,10 @@ sessions.actor1.on('toClient', function(origin, type, data) {
 /****************************************************************************************************
  * Functions that just print things.                                                                 *
  ****************************************************************************************************/
+var logo = require('./manuvrLogo');  // This is the Manuvr logo.
 
 /*
- *
+ * Print a listing of instantiated sessions, along with their subcomponents.
  */
 function listSessions() {
   var table = new Table({
@@ -280,6 +288,9 @@ function listSessions() {
 }
 
 
+/*
+* Print our currently-active configuration to the console.
+*/
 function dumpConfiguration() {
   var table = new Table({
     chars: { 'top': '' , 'top-mid': '' , 'top-left': '' , 'top-right': ''
@@ -300,7 +311,7 @@ function dumpConfiguration() {
 
 
 /*
- *
+ * Inline help.
  */
 function printUsage() {
   var table = new Table({
@@ -333,7 +344,9 @@ var sampleObject = {
 
 
 
-
+/*
+* This fxn does the cleanup required to exit gracefully, and then ends the process.
+*/
 function quit() {
   // Write a config file if the conf is dirty.
   saveConfig(function(err) {
@@ -355,11 +368,14 @@ function quit() {
 }
 
 
-
+/*
+* The prompt and user-input handling function.
+*/
 function promptUserForDirective() {
+  var exit_in_progress = false;
   prompt.get([{
     name: 'directive',
-    description: 'Directive> '.magenta
+    description: 'ManuvrHostBridge> '.magenta
   }], function(prompt_err, result) {
     if (prompt_err) {
       console.log(error('\nno. die. ' + prompt_err));
@@ -404,23 +420,22 @@ function promptUserForDirective() {
           break;
         case 'history': // Print a history of our directives.
           break;
-        case 'nodestack': // Tell node to print a trace of this process.
-          console.trace();
-          break;
         case 'quit': // Return 0 for no-error-on-exit.
         case 'exit':
-        case 'q': 
+        case 'q':
+          exit_in_progress = true;
           quit();
           break;
         default: // Show user help and usage info.
-          //console.log(result);
           printUsage();
           break;
       }
     }
 
     console.log("\n");
-    promptUserForDirective();
+    if (!exit_in_progress) {
+      promptUserForDirective();
+    }
   });
 }
 
