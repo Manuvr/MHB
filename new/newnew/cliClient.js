@@ -487,7 +487,21 @@ function promptUserForDirective() {
           break;
         case 'liveconfig': // Show the configuration.
         case 'lc':
-          sessions.actor0.emit('fromClient', 'session', 'getLiveConfig');
+          if (session_in_use) {
+            sessions[session_in_use].emit('fromClient', 'session', 'getLiveConfig');
+          }
+          else if (args.length > 0) {
+            var ses = args.shift();
+            if (!sessions.hasOwnProperty(ses)) {
+              console.log(error('Session \''+ses+'\' was not found.'));
+            }
+            else {
+              sessions[ses].emit('fromClient', 'session', 'getLiveConfig');
+            }
+          }
+          else {
+            console.log(error('You need to specify a session inline or with \'use\'.'));
+          }
           break;
         case 'saveconfig': // Force-Save the current configuration.
           config.dirty = true;
