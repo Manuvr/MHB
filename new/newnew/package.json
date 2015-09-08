@@ -12,7 +12,8 @@
     "lodash.mapkeys": "^3.8.0",
     "lodash.merge": "^3.3.2",
     "node-uuid": "^1.4.3",
-    "prompt": "^0.2.14"
+    "prompt": "^0.2.14",
+    "serialport": "^1.7.4"
   },
   "devDependencies": {
     "eslint": "^1.1.0",
