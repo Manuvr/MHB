@@ -37,20 +37,37 @@ function mTransport(port) {
   // set scope for private methods
   var that = this;
 
-  var device = new SerialPort(port, {}, false);
+  var device = null;
 
-  device.on("open", function () {
-    that.emit('fromTransport', 'connected', true);
-      
-    device.on('data', function(data) {
-      that.fromTransport('data', data);
-    });
-  });
-  
   // From local EE to Device functions
   var toTransport = function(type, data) {
     switch (type) {
       case 'connect':
+        if (data.shift()) {
+          var port = data.shift();
+          if (port) {
+            var options = data.shift();
+            if (!options) {
+              options = {baudrate:  115200};
+            }
+            that.device = new SerialPort(port, options, false);
+            // TODO: Make this look better.
+            device.on("open", function () {
+              that.emit('fromTransport', 'connected', true);
+                
+              device.on('data', function(data) {
+                that.fromTransport('data', data);
+              });
+            });
+          }
+        }
+        else if (that.device && that.device.isOpen()) {
+          // Disconnect...
+          that.device.close();
+        }
+        else {
+          // Port not open. Do nothing.
+        }
         that.device.open();
         break;
       case 'data':

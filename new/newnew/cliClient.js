@@ -170,8 +170,9 @@ var sessionGenerator = new mSession();
 var mEngine = require('./lib/mEngine.js');   // DHB
 
 
-var BTTransport = require('./lib/bluetooth.js'); // bluetooth
-var LBTransport = require('./lib/loopback.js'); // bluetooth
+var BTTransport = require('./lib/bluetooth.js');    // bluetooth
+var SPTransport = require('./lib/mtSerialPort.js'); // serialport
+var LBTransport = require('./lib/loopback.js');     // loopback
 
 // We track instantiated transports with this object.
 var transports = {};
@@ -189,6 +190,7 @@ var sessions = {};
 sessions.bt_session = sessionGenerator.init(new BTTransport());
 sessions.actor0 = sessionGenerator.init(lb.transport0);
 sessions.actor1 = sessionGenerator.init(lb.transport1);
+sessions.serial = sessionGenerator.init(new SPTransport());
 
 
 /*
@@ -233,6 +235,10 @@ sessions.actor0.on('toClient', function(origin, type, data) {
 
 sessions.actor1.on('toClient', function(origin, type, data) {
   toClientAggregation(sessions.actor1, origin, type, data);
+});
+
+sessions.serial.on('toClient', function(origin, type, data) {
+  toClientAggregation(sessions.serial, origin, type, data);
 });
 
 
@@ -478,6 +484,10 @@ function promptUserForDirective() {
         case 'config': // Show the configuration.
         case 'c':
           dumpConfiguration();
+          break;
+        case 'liveconfig': // Show the configuration.
+        case 'lc':
+          sessions.actor0.emit('fromClient', 'session', 'getLiveConfig');
           break;
         case 'saveconfig': // Force-Save the current configuration.
           config.dirty = true;

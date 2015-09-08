@@ -39,9 +39,6 @@ function mTransport() {
   // set scope for private methods
   var that = this;
   
-  // We update our attached session with our local address...
-  this.transport1.emit('fromTransport', 'localAddress', 'BlueToothAdapter');
-
   // From local EE to Device functions
   var toTransport = function(type, data) {
     switch (type) {
@@ -122,6 +119,8 @@ function mTransport() {
     that.fromTransport('closed', arguments[0])
   })
 
+  // We update our attached session with our local address...
+  fromTransport('localAddress', 'BlueToothAdapter');
 };
 
 inherits(mTransport, ee);
