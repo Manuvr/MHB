@@ -17,10 +17,10 @@ var config = {
   inputs: {
     'scan':          {label:  'Scan',              type: 'none'},
     'data':          {label:  'Data',              type: 'buffer'},
-    'connect':       {label:  'Connect', desc: ['Address'], type: 'array'}
+    'connect':       {label:  'Connect', desc: ['Connect', 'Address'], type: 'array'}
   },
   outputs: {
-    'connected':     {type:   'boolean',        type:  'boolean'},
+    'connected':     {type:   'boolean',        state: 'connected'},
     'scanResult':    {label:  ['Address'],      type:  'array'},
     'localAddress':  {label:  'Local Address',  type:  'string',  state: 'localAddress'},
     'remoteAddress': {label:  'Remote Address', type:  'string',  state: 'remoteAddress'},
@@ -31,26 +31,52 @@ var config = {
 
 /**
  * Constructs an entangled pair of transports that constitute a cross-over cable.
+ * This method is an oddity specific to a loopback. Normal transports don't need
+ *   a method like this because they are not creating both sides of the link.
  */
 function pairConstructor() {
   this.transport0 = new mTransport();
   this.transport1 = new mTransport();
 
   var that = this;
+  
+  var transport0_addr = Math.random().toString();
+  var transport1_addr = Math.random().toString();
 
   this.transport0.on('toDevice', function(type, data) {
-    that.transport1.emit('fromDevice', type, data);
-  })
-  this.transport1.on('toDevice', function(type, data) {
-    that.transport0.emit('fromDevice', type, data);
-  })
+    switch (type) {
+      case 'scan':
+        // This is an oddity specific to a loopback.
+        that.transport1.emit('fromDevice', 'scanResult', [transport0_addr]);
+        break;
+      default:
+        that.transport1.emit('fromDevice', type, data);
+        break;
+    }
+  });
   
-  this.transport0.emit('fromTransport', 'localAddress', Math.random().toString());
-  this.transport1.emit('fromTransport', 'localAddress', Math.random().toString());
+  this.transport1.on('toDevice', function(type, data) {
+    switch (type) {
+      case 'scan':
+        // This is an oddity specific to a loopback.
+        that.transport0.emit('fromDevice', 'scanResult', [transport1_addr]);
+        break;
+      default:
+        that.transport0.emit('fromDevice', type, data);
+        break;
+    }
+  });
+  
+  
+  // We update our attached session with our local address...
+  this.transport0.emit('fromTransport', 'localAddress', transport0_addr);
+  this.transport1.emit('fromTransport', 'localAddress', transport1_addr);
   
   //this.transport0.emit('fromTransport', 'connected', true);
   //this.transport1.emit('fromTransport', 'connected', true);
 }
+
+
 
 
 // EXPOSED OBJECT / CONSTRUCTOR
@@ -68,6 +94,12 @@ function mTransport() {
         that.emit('fromTransport', 'connected', data);
         break;
       case 'data':
+        that.emit('toDevice', type, data);
+        break;
+      case 'config':
+        that.emit('fromTransport', 'config', config);
+        break;
+      case 'scan':
         that.emit('toDevice', type, data);
         break;
       default:

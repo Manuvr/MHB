@@ -11,27 +11,25 @@ var ee = require('events').EventEmitter;
 
 // sample config for transport parameters
 var config = {
-  name: 'Unspecified',
+  name: 'mTransport',
   state: {
-    'connected': {type: 'boolean',   value: false},
-    'listening': {type: 'boolean',   value: false},
-    'address':   {type: 'string',    value: ''}
+    'connected'      : {type: 'boolean',  value: false},
+    'listening'      : {type: 'boolean',  value: true},
+    'localAddress'   : {type: 'string',   value: ''},
+    'remoteAddress'  : {type: 'string',   value: ''}
   },
   inputs: {
-    'scan': 'button',
-    'data': 'buffer',
-    'address': 'string',
-    'connect': 'button',
-    'disconnect': 'button',
-    'getConfig': 'button'
+    'scan':          {label:  'Scan',              type: 'none'},
+    'data':          {label:  'Data',              type: 'buffer'},
+    'connect':       {label:  'Connect', desc: ['Connect'], type: 'array'}
   },
   outputs: {
-    'connect': 'action',
-    'disconnect': 'action',
-    'scanResult': 'string',
+    'connected':     {type:   'boolean',        state: 'connected'},
+    'scanResult':    {label:  ['Address'],      type:  'array'},
+    'localAddress':  {label:  'Local Address',  type:  'string',  state: 'localAddress'},
+    'remoteAddress': {label:  'Remote Address', type:  'string',  state: 'remoteAddress'},
     'log': 'log'
   }
-  // etc
 };
 
 // EXPOSED OBJECT / CONSTRUCTOR
@@ -77,7 +75,7 @@ function mTransport() {
         that.emit('fromTransport', 'disconnect')
         break;
       case 'found':
-        that.emit('fromTransport', 'scanResult', [args[0], args[1]])
+        that.emit('fromTransport', 'scanResult', [args[0]])
         break;
       case 'log':
       default:
@@ -96,7 +94,7 @@ function mTransport() {
     that.fromTransport('data', arguments[0])
   });
   this.device.on('found', function() {
-    that.fromTransport('found', [arguments[0], arguments[1]])
+    that.fromTransport('found', [arguments[0]])
   });
   this.device.on('closed', function() {
     that.fromTransport('closed', arguments[0])
