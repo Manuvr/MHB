@@ -1,7 +1,11 @@
 'use strict'
 var inherits = require('util').inherits;
 var ee = require('events').EventEmitter;
-var cloneDeep = require('lodash.clonedeep');
+
+var inspect = require('util').inspect;
+
+var _cloneDeep = require('lodash.clonedeep');
+var _has = require('lodash.has');
 
 // Global default MHB and engine list;
 var MHB = require('./mCore.js')
@@ -82,19 +86,18 @@ function session(transport, core) {
         toTransport('connected', false);
         break;
       case 'config':
-        that.config['engine'] = cloneDeep(data);
+        that.config['engine'] = _cloneDeep(data);
         break;
       case 'log': // passthrough
       default:
         //toClient('engine', type, data);
     }
-    if (that.config.hasOwnProperty('engine')) {
-      if (that.config.engine.hasOwnProperty(type)) {
-        if (that.config.engine['type'].hasOwnProperty('state')) {
-          that.config.engine.state[that.config.transport['type'].state] =
-            data;
-        }
-      }
+    if (_has(that.config, ['engine', 'outputs', type, 'state']) && data !==
+      undefined) {
+      that.config.engine.state[that.config.engine.outputs[type].state].value =
+        data;
+    } else {
+      // didn't find a state to update...
     }
     toClient('engine', type, data)
   }
@@ -109,18 +112,18 @@ function session(transport, core) {
         toCore('connected', data);
         break;
       case 'config':
-        that.config['transport'] = cloneDeep(data);
+        that.config['transport'] = _cloneDeep(data);
         break;
       case 'log': // passthrough
       default:
     }
-    if (that.config.hasOwnProperty('transport')) {
-      if (that.config.transport.hasOwnProperty(type)) {
-        if (that.config.transport['type'].hasOwnProperty('state')) {
-          that.config.transport.state[that.config.transport['type'].state] =
-            data;
-        }
-      }
+    // updates the state value based on the "outputs" definition.
+    if (_has(that.config, ['transport', 'outputs', type, 'state']) && data !==
+      undefined) {
+      that.config.transport.state[that.config.transport.outputs[type].state].value =
+        data;
+    } else {
+      // didn't find a state to update...
     }
     toClient('transport', type, data)
   }
@@ -135,12 +138,16 @@ function session(transport, core) {
       case 'session':
         switch (type) {
           case 'setClientConfig':
-            that.config['client'] = cloneDeep(data);
+            that.config['client'] = _cloneDeep(data);
             break;
           case 'getLiveConfig':
             // passes the config object by REFERENCE.  Client should NOT
             // manipulate this (only issue actions)
             toClient('session', 'config', that.config);
+            break;
+          case 'connect':
+            toTransport(type, data);
+            break;
           default:
             // log?
         }
@@ -183,7 +190,7 @@ function session(transport, core) {
 
   // instantiates local config, passes in the session config and requests
   // other configs
-  this.config['session'] = cloneDeep(config);
+  this.config['session'] = _cloneDeep(config);
 
   // CONNECTED LISTENERS
 

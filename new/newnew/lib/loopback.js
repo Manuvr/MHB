@@ -126,7 +126,7 @@ function mTransport() {
     switch (type) {
       case 'connect':
         that.emit('toDevice', 'connected', data);
-        that.emit('fromTransport', 'connected', data);
+        fromTransport('connected', data);
         break;
       case 'data':
         that.emit('toDevice', type, data);
