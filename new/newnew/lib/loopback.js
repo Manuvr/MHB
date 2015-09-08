@@ -9,22 +9,21 @@ var ee = require('events').EventEmitter;
 var config = {
   name: 'Loopback',
   state: {
-    'connected': {type: 'boolean',   value: false},
-    'listening': {type: 'boolean',   value: false},
-    'address':   {type: 'string',    value: ''}
+    'connected'      : {type: 'boolean',  value: false},
+    'listening'      : {type: 'boolean',  value: true},
+    'localAddress'   : {type: 'string',   value: ''},
+    'remoteAddress'  : {type: 'string',   value: ''}
   },
   inputs: {
-    'scan': 'button',
-    'data': 'buffer',
-    'address': 'string',
-    'connect': 'button',
-    'disconnect': 'button',
-    'getConfig': 'button'
+    'scan':          {label:  'Scan',              type: 'none'},
+    'data':          {label:  'Data',              type: 'buffer'},
+    'connect':       {label:  'Connect', desc: ['Address'], type: 'array'}
   },
   outputs: {
-    'connect': 'action',
-    'disconnect': 'action',
-    'scanResult': 'string',
+    'connected':     {type:   'boolean',        type:  'boolean'},
+    'scanResult':    {label:  ['Address'],      type:  'array'},
+    'localAddress':  {label:  'Local Address',  type:  'string',  state: 'localAddress'},
+    'remoteAddress': {label:  'Remote Address', type:  'string',  state: 'remoteAddress'},
     'log': 'log'
   }
 };
@@ -46,8 +45,11 @@ function pairConstructor() {
     that.transport0.emit('fromDevice', type, data);
   })
   
-  this.transport0.emit('fromTransport', 'connected', true);
-  this.transport1.emit('fromTransport', 'connected', true);
+  this.transport0.emit('fromTransport', 'localAddress', Math.random().toString());
+  this.transport1.emit('fromTransport', 'localAddress', Math.random().toString());
+  
+  //this.transport0.emit('fromTransport', 'connected', true);
+  //this.transport1.emit('fromTransport', 'connected', true);
 }
 
 
@@ -58,12 +60,13 @@ function mTransport() {
   // set scope for private methods
   var that = this;
 
-  this.config  = JSON.parse(JSON.stringify(config));
-  this.config.state.address.value = Math.random().toString();
-
   // From local EE to Device functions
   var toTransport = function(type, data) {
     switch (type) {
+      case 'connect':
+        that.emit('toDevice', 'connected', data);
+        that.emit('fromTransport', 'connected', data);
+        break;
       case 'data':
         that.emit('toDevice', type, data);
         break;
@@ -76,6 +79,9 @@ function mTransport() {
   // from device to local EE functions
   var fromTransport = function(type, args) {
     switch (type) {
+      case 'connected':
+        that.emit('fromTransport', 'connected', args);
+        break;
       case 'data':
         that.emit('fromTransport', 'data', args);
         break;
@@ -99,8 +105,5 @@ function mTransport() {
 
 inherits(mTransport, ee);
 
-mTransport.prototype.getConfig = function() {
-  return config;
-}
 
 module.exports = pairConstructor;

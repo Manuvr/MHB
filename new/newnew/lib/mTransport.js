@@ -109,8 +109,4 @@ function mTransport() {
 
 inherits(mTransport, ee);
 
-mTransport.prototype.getConfig = function() {
-  return config;
-}
-
 module.exports = mTransport;
