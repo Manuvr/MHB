@@ -17,8 +17,7 @@
     "serialport": "^1.7.4"
   },
   "devDependencies": {
-    "eslint": "^1.1.0",
-    "memwatch-next": "^0.2.9"
+    "eslint": "^1.1.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
