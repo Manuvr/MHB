@@ -88,6 +88,9 @@ function session(transport, core) {
       default:
         //toClient('engine', type, data);
     }
+    if (that.config.engine['type'].hasOwnProperty('state')) {
+      that.config.engine.state[that.config.transport['type'].state] = data;
+    }
     toClient('engine', type, data)
   }
 
@@ -105,8 +108,11 @@ function session(transport, core) {
         break;
       case 'log': // passthrough
       default:
-        toClient('transport', type, data)
     }
+    if (that.config.transport['type'].hasOwnProperty('state')) {
+      that.config.transport.state[that.config.transport['type'].state] = data;
+    }
+    toClient('transport', type, data)
   }
 
   // this is essentially our inbound API. May want to expand this a bit?
