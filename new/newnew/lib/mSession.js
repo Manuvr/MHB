@@ -26,11 +26,6 @@ function session(transport, core) {
 
   this.transport = transport;
 
-  // instantiates local config and passes in the session config;
-  this.config = {
-    'session': cloneDeep(config)
-  };
-
   if (core === undefined) {
     this.core = new MHB();
   } else {
@@ -145,7 +140,9 @@ function session(transport, core) {
     }
   };
 
+
   // special case functions
+
   var swapEngine = function(name, version) {
     var engineConfig;
     for (var i = 0; i < engines.length; i++) {
@@ -158,11 +155,20 @@ function session(transport, core) {
         toClient('session', 'log', ['Found engine for ' + name + ', ' +
           version, 4
         ]);
+        // double check this later...
+        toEngine('config');
         break;
       }
     }
     toClient('session', 'log', ['No version found in self-describe.', 2])
   };
+
+  // instantiates local config, passes in the session config and requests
+  // other configs
+  this.config = {};
+  this.config['session'] = cloneDeep(config);
+  toEngine('config');
+  toTransport('config');
 
   // CONNECTED LISTENERS
 

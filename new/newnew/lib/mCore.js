@@ -1,6 +1,8 @@
 'use strict'
 
-var SYNC_PACKET_DEF = new Buffer([0x04, 0x00, 0x00, 0x55, 0x04, 0x00, 0x00, 0x55, 0x04, 0x00, 0x00, 0x55, 0x04, 0x00, 0x00, 0x55], 'hex');
+var SYNC_PACKET_DEF = new Buffer([0x04, 0x00, 0x00, 0x55, 0x04, 0x00, 0x00,
+  0x55, 0x04, 0x00, 0x00, 0x55, 0x04, 0x00, 0x00, 0x55
+], 'hex');
 
 // template for DHB middle-man interaction
 var inherits = require('util').inherits;
@@ -43,14 +45,14 @@ function mCore() {
   this.parent = this; // freaky way of doing a chained assignment from session
   this.uuid = uuid.v4();
   this.timer;
-  
+
   this.syncCount = 0;
-  
-  var sendSync = function(){
-    if(that.syncCount < 25){
-      that.timer = setInterval( function(){
-          that.receiver.parser.write(SYNC_PACKET_DEF);
-          that.syncCount++;
+
+  var sendSync = function() {
+    if (that.syncCount < 25) {
+      that.timer = setInterval(function() {
+        that.receiver.parser.write(SYNC_PACKET_DEF);
+        that.syncCount++;
       }, 500)
     } else {
       clearInterval(that.timer);
@@ -59,25 +61,24 @@ function mCore() {
   }
 
   this.receiver = new receiver();
-  
+
   this.receiver.ee.on('syncInSync', function() {
     fromCore('log', ['Received sync packet, sending back...', 6]);
   });
-  
+
   this.receiver.ee.on('outOfSync', function(outOfSync, reason) {
-      if(outOfSync) {
-        fromCore('data', SYNC_PACKET_DEF);
-        fromCore('log', ['Became desync\'d because ' + reason + '.', 6]);
-      }
-      else {
-        clearInterval(that.timer);
-        that.syncCount = 0;
-        // Start sending KA
-        // We must have just become sync'd.
-        fromCore('log', ['Became sync\'d.', 6]);
-      }
+    if (outOfSync) {
+      fromCore('data', SYNC_PACKET_DEF);
+      fromCore('log', ['Became desync\'d because ' + reason + '.', 6]);
+    } else {
+      clearInterval(that.timer);
+      that.syncCount = 0;
+      // Start sending KA
+      // We must have just become sync'd.
+      fromCore('log', ['Became sync\'d.', 6]);
+    }
   });
-  
+
   this.messageParser = new messageParser(mLegend, mFlags)
   this.buildBuffer = messageBuilder;
 
@@ -108,12 +109,17 @@ function mCore() {
         break;
       case 'badsync':
         // Initiate a malformed sync packet. We notice the desync first.
-        fromCore('log', ['Sending bad data via transport. Trying to initiate a desync....', 4]);
+        fromCore('log', [
+          'Sending bad data via transport. Trying to initiate a desync....',
+          4
+        ]);
         fromCore('data', new Buffer(45));
         break;
       case 'state':
         // do something
         break;
+      case 'config':
+        fromEngine('config', config);
       default:
         fromCore('log', ['Not a valid type.', 2]);
         break;
@@ -128,7 +134,7 @@ function mCore() {
         break;
       case 'connected':
         fromEngine('log', ['AM I CONNECTED? ' + data, 5]);
-        if(data) { 
+        if (data) {
           sendSync()
         }
         break;
@@ -151,11 +157,11 @@ function mCore() {
       messageAction(jsonBuff.messageId).bind(that)(jsonBuff);
     }
   });
-  
-  
+
+
   // DERETE MERRRR
   sendSync();
-  
+
 };
 inherits(mCore, ee);
 
