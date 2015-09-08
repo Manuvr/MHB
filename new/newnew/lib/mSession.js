@@ -88,8 +88,13 @@ function session(transport, core) {
       default:
         //toClient('engine', type, data);
     }
-    if (that.config.engine['type'].hasOwnProperty('state')) {
-      that.config.engine.state[that.config.transport['type'].state] = data;
+    if (that.config.hasOwnProperty('engine')) {
+      if (that.config.engine.hasOwnProperty(type)) {
+        if (that.config.engine['type'].hasOwnProperty('state')) {
+          that.config.engine.state[that.config.transport['type'].state] =
+            data;
+        }
+      }
     }
     toClient('engine', type, data)
   }
@@ -109,8 +114,13 @@ function session(transport, core) {
       case 'log': // passthrough
       default:
     }
-    if (that.config.transport['type'].hasOwnProperty('state')) {
-      that.config.transport.state[that.config.transport['type'].state] = data;
+    if (that.config.hasOwnProperty('transport')) {
+      if (that.config.transport.hasOwnProperty(type)) {
+        if (that.config.transport['type'].hasOwnProperty('state')) {
+          that.config.transport.state[that.config.transport['type'].state] =
+            data;
+        }
+      }
     }
     toClient('transport', type, data)
   }
