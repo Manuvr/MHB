@@ -3,14 +3,23 @@
 var ee = require('events').EventEmitter;
 var inherits = require('util').inherits;
 
-function wut() {
-  console.log(this.a)
-};
+var merge = require('lodash.merge');
 
 
-function derp() {
-  var a = "guy"
-  wut.bind(this)()
+var a = {
+  "hey": "im from a"
 }
 
-derp();
+var b = {
+  "guy": "im from b",
+  "hey": "this is b-hey"
+}
+
+var derp = {
+  "hey": "derp"
+};
+merge(derp, a, b);
+
+console.log(derp);
+
+console.log(a);

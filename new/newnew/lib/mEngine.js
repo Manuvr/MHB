@@ -3,6 +3,7 @@
 // template for DHB middle-man interaction
 var inherits = require('util').inherits;
 var ee = require('events').EventEmitter;
+var merge = require('lodash.merge');
 
 // Config for mConnector to act on... pulled in to the constructor.
 var config = {
@@ -76,6 +77,8 @@ function mEngine(parent) {
         that.fromEngine(type, customRead(data));
       case 'log':
         that.fromEngine(type, data);
+      case 'config':
+        that.fromEngine(type, merge({}, data, config))
       default:
         // something random from parent
 

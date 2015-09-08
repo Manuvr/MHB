@@ -16,20 +16,20 @@ var glove = manuvrFactory.init(bluetooth);
 
 glove.on('toClient', function(origin, type, data) {
   console.log(origin + "(" + type + "): " + data)
-  
+
 */
 
 
 // Require our dependencies
-var mSession     = require('./mSession.js'); // session factory
-var mCore        = require('./mCore.js');    // MHB... this comes as part of the mSession
+var mSession = require('./mSession.js'); // session factory
+//var mCore        = require('./mCore.js');    // MHB... this comes as part of the mSession
 
 // These are the dependencies that are up to the user's use-case. We need at least these
 // two things....
 //   1) A transport to move bytes around.
 //   2) A driver that responds to a Manuvrable that we expect to interact with.
 var lbConnection = require('./loopbackTransport.js'); // The loop-back transport.
-var mEngine      = require('./debugEngine.js');       // The specific manuvrable "driver".
+var mEngine = require('./debugEngine.js'); // The specific manuvrable "driver".
 
 
 // Construct our session manager. It is responsible for pairing engines with transports
@@ -58,5 +58,3 @@ actor0.on('toClient', function(origin, type, data) {
 actor1.on('toClient', function(origin, type, data) {
   console.log('Actor1: ' + origin + "(" + type + "): " + data);
 });
-
-

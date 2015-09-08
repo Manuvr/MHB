@@ -1,11 +1,17 @@
 'use strict'
 var inherits = require('util').inherits;
 var ee = require('events').EventEmitter;
+var cloneDeep = require('lodash.clonedeep');
 
 // Global default MHB and engine list;
 var MHB = require('./mCore.js')
 var engines = [];
 
+var config = {
+  state: {},
+  input: {},
+  output: {}
+};
 
 /**
  * A generated session object constructor
@@ -19,11 +25,11 @@ function session(transport, core) {
   this.uuid = '';
 
   this.transport = transport;
-  if (!this.transport.config) {
-    // If the instanceof does not have a transport config,
-    //   then we need to give it one.
-    this.transport.config = JSON.parse(JSON.stringify(transport.getConfig()));
-  }
+
+  // instantiates local config and passes in the session config;
+  this.config = {
+    'session': cloneDeep(config)
+  };
 
   if (core === undefined) {
     this.core = new MHB();
@@ -32,8 +38,8 @@ function session(transport, core) {
   }
   // initial assignment
   this.engine = this.core;
-  
-  this.uuid = this.core.uuid;  // We inherit core's UUID.
+
+  this.uuid = this.core.uuid; // We inherit core's UUID.
 
   var that = this;
 
@@ -78,6 +84,9 @@ function session(transport, core) {
       case 'transport':
         toTransport('connected', false);
         break;
+      case 'config':
+        that.config['engine'] = cloneDeep(data);
+        break;
       case 'log': // passthrough
       default:
         //toClient('engine', type, data);
@@ -94,6 +103,9 @@ function session(transport, core) {
         toClient('transport', 'log', ['Connection change: ' + data, 4]);
         toCore('connected', data);
         break;
+      case 'config':
+        that.config['transport'] = cloneDeep(data);
+        break;
       case 'log': // passthrough
       default:
         toClient('transport', type, data)
@@ -107,17 +119,29 @@ function session(transport, core) {
   // Current approach assumes client knows about dest and type architecture.
   var fromClient = function(destination, type, data) {
     switch (destination) {
+      case 'session':
+        switch (type) {
+          case 'setClientConfig':
+            that.config['client'] = cloneDeep(data);
+            break;
+          case 'getLiveConfig':
+            // passes the config object by REFERENCE.  Client should NOT
+            // manipulate this (only issue actions)
+            toClient('session', 'config', that.config);
+          default:
+            // log?
+        }
+        break;
       case 'transport':
         toTransport(type, data);
         break;
       case 'engine':
         toEngine(type, data);
         break;
-      case 'session':
-        // deal with state or something?
-        break;
       default:
-        toClient('session', 'log', ['Unknown emit destination: ' + destination + " | " + type, 2]);
+        toClient('session', 'log', ['Unknown emit destination: ' +
+          destination + " | " + type, 2
+        ]);
     }
   };
 
@@ -131,7 +155,9 @@ function session(transport, core) {
         that.engine.removeListener('fromEngine', fromEngine);
         that.engine = new engines[i](that.engine)
         that.engine.on('fromEngine', fromEngine);
-        toClient('session', 'log', ['Found engine for ' + name + ', ' + version, 4]);
+        toClient('session', 'log', ['Found engine for ' + name + ', ' +
+          version, 4
+        ]);
         break;
       }
     }
@@ -167,10 +193,12 @@ session.prototype.getUUID = function() {
  */
 session.prototype.toJSON = function(unit) {
   var return_obj = {};
-  
+
   switch (unit) {
     case 'session':
-      return_obj = {uuid: this.core.uuid};
+      return_obj = {
+        uuid: this.core.uuid
+      };
       break;
     case 'engine':
       return_obj = this.core.getConfig();
@@ -179,15 +207,15 @@ session.prototype.toJSON = function(unit) {
       return_obj = this.transport;
       break;
     default:
-      return_obj.session   = {uuid: this.core.uuid};
+      return_obj.session = {
+        uuid: this.core.uuid
+      };
       return_obj.transport = this.transport;
-      return_obj.engine    = this.core.getConfig();
+      return_obj.engine = this.core.getConfig();
       break;
   }
   return JSON.stringify(return_obj);
 }
-
-
 
 // EXPOSED SESSION FACTORY
 

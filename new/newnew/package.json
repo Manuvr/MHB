@@ -8,6 +8,7 @@
     "chalk": "^1.1.1",
     "cli-table": "^0.3.1",
     "dissolve": "^0.3.3",
+    "lodash.clonedeep": "^3.0.2",
     "lodash.mapkeys": "^3.8.0",
     "lodash.merge": "^3.3.2",
     "node-uuid": "^1.4.3",
