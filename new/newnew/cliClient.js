@@ -5,15 +5,15 @@
 'use strict'
 
 var util = require('util');
-var memwatch = require('memwatch-next');
-
-memwatch.on('leak', function(info) {
-  console.log("memwatch: " + info)
-});
-
-memwatch.on('stats', function(stats) {
-  console.log("stats: " + stats)
-});
+// var memwatch = require('memwatch-next');
+//
+// memwatch.on('leak', function(info) {
+//   console.log("memwatch: " + info)
+// });
+//
+// memwatch.on('stats', function(stats) {
+//   console.log("stats: " + stats)
+// });
 
 
 
