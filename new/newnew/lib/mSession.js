@@ -24,6 +24,8 @@ function session(transport, core) {
 
   this.uuid = '';
 
+  this.config = {};
+
   this.transport = transport;
 
   if (core === undefined) {
@@ -165,10 +167,7 @@ function session(transport, core) {
 
   // instantiates local config, passes in the session config and requests
   // other configs
-  this.config = {};
   this.config['session'] = cloneDeep(config);
-  toEngine('config');
-  toTransport('config');
 
   // CONNECTED LISTENERS
 
@@ -180,6 +179,9 @@ function session(transport, core) {
   // needs to be removed and reset to the new Engine when changing...
   this.engine.on('fromEngine', fromEngine);
 
+  // instantiation emits (AFTER LISTENERS!!!)
+  toEngine('config');
+  toTransport('config');
 }
 inherits(session, ee);
 

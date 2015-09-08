@@ -9,21 +9,57 @@ var ee = require('events').EventEmitter;
 var config = {
   name: 'Loopback',
   state: {
-    'connected'      : {type: 'boolean',  value: false},
-    'listening'      : {type: 'boolean',  value: true},
-    'localAddress'   : {type: 'string',   value: ''},
-    'remoteAddress'  : {type: 'string',   value: ''}
+    'connected': {
+      type: 'boolean',
+      value: false
+    },
+    'listening': {
+      type: 'boolean',
+      value: true
+    },
+    'localAddress': {
+      type: 'string',
+      value: ''
+    },
+    'remoteAddress': {
+      type: 'string',
+      value: ''
+    }
   },
   inputs: {
-    'scan':          {label:  'Scan',              type: 'none'},
-    'data':          {label:  'Data',              type: 'buffer'},
-    'connect':       {label:  'Connect', desc: ['Connect', 'Address'], type: 'array'}
+    'scan': {
+      label: 'Scan',
+      type: 'none'
+    },
+    'data': {
+      label: 'Data',
+      type: 'buffer'
+    },
+    'connect': {
+      label: 'Connect',
+      desc: ['Connect', 'Address'],
+      type: 'array'
+    }
   },
   outputs: {
-    'connected':     {type:   'boolean',        state: 'connected'},
-    'scanResult':    {label:  ['Address'],      type:  'array'},
-    'localAddress':  {label:  'Local Address',  type:  'string',  state: 'localAddress'},
-    'remoteAddress': {label:  'Remote Address', type:  'string',  state: 'remoteAddress'},
+    'connected': {
+      type: 'boolean',
+      state: 'connected'
+    },
+    'scanResult': {
+      label: ['Address'],
+      type: 'array'
+    },
+    'localAddress': {
+      label: 'Local Address',
+      type: 'string',
+      state: 'localAddress'
+    },
+    'remoteAddress': {
+      label: 'Remote Address',
+      type: 'string',
+      state: 'remoteAddress'
+    },
     'log': 'log'
   }
 };
@@ -39,7 +75,7 @@ function pairConstructor() {
   this.transport1 = new mTransport();
 
   var that = this;
-  
+
   var transport0_addr = Math.random().toString();
   var transport1_addr = Math.random().toString();
 
@@ -54,7 +90,7 @@ function pairConstructor() {
         break;
     }
   });
-  
+
   this.transport1.on('toDevice', function(type, data) {
     switch (type) {
       case 'scan':
@@ -66,16 +102,15 @@ function pairConstructor() {
         break;
     }
   });
-  
-  
+
+
   // We update our attached session with our local address...
   this.transport0.emit('fromTransport', 'localAddress', transport0_addr);
   this.transport1.emit('fromTransport', 'localAddress', transport1_addr);
-  
+
   //this.transport0.emit('fromTransport', 'connected', true);
   //this.transport1.emit('fromTransport', 'connected', true);
 }
-
 
 
 
