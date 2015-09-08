@@ -520,6 +520,40 @@ function promptUserForDirective() {
             console.log(error('You need to specify a session inline or with \'use\'.'));
           }
           break;
+        case 'connect': // Cause the given session to connect.
+          if (session_in_use) {
+            sessions[session_in_use].emit('fromClient', 'session', 'connect', [true]);
+          }
+          else if (args.length > 0) {
+            var ses = args.shift();
+            if (!sessions.hasOwnProperty(ses)) {
+              console.log(error('Session \''+ses+'\' was not found.'));
+            }
+            else {
+              sessions[ses].emit('fromClient', 'session', 'connect', [true]);
+            }
+          }
+          else {
+            console.log(error('You need to specify a session inline or with \'use\'.'));
+          }
+          break;
+        case 'disconnect': // Cause the given session to connect.
+          if (session_in_use) {
+            sessions[session_in_use].emit('fromClient', 'session', 'connect', [false]);
+          }
+          else if (args.length > 0) {
+            var ses = args.shift();
+            if (!sessions.hasOwnProperty(ses)) {
+              console.log(error('Session \''+ses+'\' was not found.'));
+            }
+            else {
+              sessions[ses].emit('fromClient', 'session', 'connect', [false]);
+            }
+          }
+          else {
+            console.log(error('You need to specify a session inline or with \'use\'.'));
+          }
+          break;
         case 'saveconfig': // Force-Save the current configuration.
           config.dirty = true;
           saveConfig();
