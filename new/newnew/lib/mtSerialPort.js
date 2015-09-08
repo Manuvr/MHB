@@ -3,7 +3,8 @@
 // Template for transports (bluetooth, serial, loopback, TCP/IP)
 var inherits = require('util').inherits;
 var ee = require('events').EventEmitter;
-var SerialPort = require("serialport").SerialPort
+var SerialPortStatic = require("serialport");
+var SerialPort = SerialPortStatic.SerialPort;
 // may want to subscribe to global emitter?
 
 
@@ -80,7 +81,7 @@ function mTransport(port) {
         that.emit('fromTransport', 'config', config);
         break;
       case 'scan':
-        serialPort.list(
+        SerialPortStatic.list(
           function (err, ports) {
             if (!err) {
               var port_list = [];
