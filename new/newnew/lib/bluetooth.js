@@ -23,7 +23,7 @@ var config = {
     'connect':       {label:  'Connect', desc: ['Connect', 'MAC', 'Name'], type: 'array'}
   },
   outputs: {
-    'connected':     {type:   'boolean',          type:  'boolean'},
+    'connected':     {type:   'boolean',          state: 'connected'},
     'scanResult':    {label:  ['MAC','Name'],     type:  'array'},
     'localAddress':  {label:  'Local Address',    type:  'string',  state: 'localAddress'},
     'remoteAddress': {label:  'Remote Address',   type:  'string',  state: 'remoteAddress'},
@@ -92,7 +92,7 @@ function mTransport() {
         that.emit('fromTransport', 'data', args);
         break;
       case 'closed':
-        that.emit('fromTransport', 'connected', [false])
+        that.emit('fromTransport', 'connected', false)
         break;
       case 'found':
         that.emit('fromTransport', 'scanResult', [args[0], args[1]])

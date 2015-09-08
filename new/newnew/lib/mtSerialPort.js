@@ -15,11 +15,13 @@ var config = {
     'localAddress'   : {type: 'string',   value: ''}
   },
   inputs: {
+    'scan':          {label:  'Scan',              type: 'none'},
     'data':          {label:  'Data',              type: 'buffer'},
-    'connect':       {label:  'Connect', desc: ['Connect', 'Mode'], type: 'array'}
+    'connect':       {label:  'Connect', desc: ['Connect', 'Port', 'Mode'], type: 'array'}
   },
   outputs: {
     'connected':     {type:   'boolean',        state: 'connected'},
+    'scanResult':    {label:  ['Port'],         type:  'array'},
     'localAddress':  {label:  'Local Address',  type:  'string',  state: 'localAddress'},
     'log': 'log'
   }
@@ -37,7 +39,7 @@ function mTransport(port) {
 
   var device = new SerialPort(port, {}, false);
 
-  serialPort.on("open", function () {
+  device.on("open", function () {
     that.emit('fromTransport', 'connected', true);
       
     device.on('data', function(data) {
@@ -49,17 +51,31 @@ function mTransport(port) {
   var toTransport = function(type, data) {
     switch (type) {
       case 'connect':
-        that.emit('toDevice', 'connected', data);
-        that.device = 
+        that.device.open();
         break;
       case 'data':
         that.emit('toDevice', type, data);
-        serialPort.write("ls\n", function(err, results) {
+        that.device.write(data, function(err, results) {
           fromTransport('log', ['Error while writing to serial port: '+err, 2]);
         });
         break;
       case 'config':
         that.emit('fromTransport', 'config', config);
+        break;
+      case 'scan':
+        serialPort.list(
+          function (err, ports) {
+            if (!err) {
+              var port_list = [];
+              ports.forEach(function(port) {
+                port_list.push(port.comName);
+              });
+              that.emit('fromTransport', 'scanResult', port_list);
+            }
+            else {
+              fromTransport('log', ['Failed to scan serial ports. Err: '+ err, 2]);
+            }
+        });
         break;
       default:
         fromTransport('log', ['SerialPort wut?', 7]);
