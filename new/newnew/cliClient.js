@@ -481,9 +481,26 @@ function promptUserForDirective() {
           }
           console.log('Console verbosity is presently ' + chalk.green(config.verbosity)+'.');
           break;
-        case 'config': // Show the configuration.
+        case 'config':      // Show the configuration.
         case 'c':
           dumpConfiguration();
+          break;
+        case 'scan': // Scan the given session's transport.
+          if (session_in_use) {
+            sessions[session_in_use].emit('fromClient', 'transport', 'scan');
+          }
+          else if (args.length > 0) {
+            var ses = args.shift();
+            if (!sessions.hasOwnProperty(ses)) {
+              console.log(error('Session \''+ses+'\' was not found.'));
+            }
+            else {
+              sessions[ses].emit('fromClient', 'transport', 'scan');
+            }
+          }
+          else {
+            console.log(error('You need to specify a session inline or with \'use\'.'));
+          }
           break;
         case 'liveconfig': // Show the configuration.
         case 'lc':
