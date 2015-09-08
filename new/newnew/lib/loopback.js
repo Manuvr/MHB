@@ -9,22 +9,21 @@ var ee = require('events').EventEmitter;
 var config = {
   name: 'Loopback',
   state: {
-    'connected': {type: 'boolean',   value: false},
-    'listening': {type: 'boolean',   value: false},
-    'address':   {type: 'string',    value: ''}
+    'connected'      : {type: 'boolean',  value: false},
+    'listening'      : {type: 'boolean',  value: true},
+    'localAddress'   : {type: 'string',   value: ''},
+    'remoteAddress'  : {type: 'string',   value: ''}
   },
   inputs: {
-    'scan': 'button',
-    'data': 'buffer',
-    'address': 'string',
-    'connect': 'button',
-    'disconnect': 'button',
-    'getConfig': 'button'
+    'scan':          {label:  'Scan',              type: 'none'},
+    'data':          {label:  'Data',              type: 'buffer'},
+    'connect':       {label:  'Connect', desc: ['Connect', 'Address'], type: 'array'}
   },
   outputs: {
-    'connect': 'action',
-    'disconnect': 'action',
-    'scanResult': 'string',
+    'connected':     {type:   'boolean',        state: 'connected'},
+    'scanResult':    {label:  ['Address'],      type:  'array'},
+    'localAddress':  {label:  'Local Address',  type:  'string',  state: 'localAddress'},
+    'remoteAddress': {label:  'Remote Address', type:  'string',  state: 'remoteAddress'},
     'log': 'log'
   }
 };
@@ -32,23 +31,52 @@ var config = {
 
 /**
  * Constructs an entangled pair of transports that constitute a cross-over cable.
+ * This method is an oddity specific to a loopback. Normal transports don't need
+ *   a method like this because they are not creating both sides of the link.
  */
 function pairConstructor() {
   this.transport0 = new mTransport();
   this.transport1 = new mTransport();
 
   var that = this;
+  
+  var transport0_addr = Math.random().toString();
+  var transport1_addr = Math.random().toString();
 
   this.transport0.on('toDevice', function(type, data) {
-    that.transport1.emit('fromDevice', type, data);
-  })
-  this.transport1.on('toDevice', function(type, data) {
-    that.transport0.emit('fromDevice', type, data);
-  })
+    switch (type) {
+      case 'scan':
+        // This is an oddity specific to a loopback.
+        that.transport1.emit('fromDevice', 'scanResult', [transport0_addr]);
+        break;
+      default:
+        that.transport1.emit('fromDevice', type, data);
+        break;
+    }
+  });
   
-  this.transport0.emit('fromTransport', 'connected', true);
-  this.transport1.emit('fromTransport', 'connected', true);
+  this.transport1.on('toDevice', function(type, data) {
+    switch (type) {
+      case 'scan':
+        // This is an oddity specific to a loopback.
+        that.transport0.emit('fromDevice', 'scanResult', [transport1_addr]);
+        break;
+      default:
+        that.transport0.emit('fromDevice', type, data);
+        break;
+    }
+  });
+  
+  
+  // We update our attached session with our local address...
+  this.transport0.emit('fromTransport', 'localAddress', transport0_addr);
+  this.transport1.emit('fromTransport', 'localAddress', transport1_addr);
+  
+  //this.transport0.emit('fromTransport', 'connected', true);
+  //this.transport1.emit('fromTransport', 'connected', true);
 }
+
+
 
 
 // EXPOSED OBJECT / CONSTRUCTOR
@@ -58,13 +86,20 @@ function mTransport() {
   // set scope for private methods
   var that = this;
 
-  this.config  = JSON.parse(JSON.stringify(config));
-  this.config.state.address.value = Math.random().toString();
-
   // From local EE to Device functions
   var toTransport = function(type, data) {
     switch (type) {
+      case 'connect':
+        that.emit('toDevice', 'connected', data);
+        that.emit('fromTransport', 'connected', data);
+        break;
       case 'data':
+        that.emit('toDevice', type, data);
+        break;
+      case 'config':
+        that.emit('fromTransport', 'config', config);
+        break;
+      case 'scan':
         that.emit('toDevice', type, data);
         break;
       default:
@@ -76,6 +111,9 @@ function mTransport() {
   // from device to local EE functions
   var fromTransport = function(type, args) {
     switch (type) {
+      case 'connected':
+        that.emit('fromTransport', 'connected', args);
+        break;
       case 'data':
         that.emit('fromTransport', 'data', args);
         break;
@@ -99,8 +137,5 @@ function mTransport() {
 
 inherits(mTransport, ee);
 
-mTransport.prototype.getConfig = function() {
-  return config;
-}
 
 module.exports = pairConstructor;

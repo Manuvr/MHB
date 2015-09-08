@@ -12,22 +12,21 @@ var bt = require('bluetooth-serial-port');
 var config = {
   name: 'Bluetooth',
   state: {
-    'connected': {type: 'boolean',   value: false},
-    'listening': {type: 'boolean',   value: false},
-    'address':   {type: 'string',    value: ''}
+    'connected'      : {type: 'boolean',  value: false},
+    'listening'      : {type: 'boolean',  value: false},
+    'localAddress'   : {type: 'string',   value: ''},
+    'remoteAddress'  : {type: 'string',   value: ''}
   },
   inputs: {
-    'scan': 'button',
-    'data': 'buffer',
-    'address': 'string',
-    'connect': 'button',
-    'disconnect': 'button',
-    'getConfig': 'button'
+    'scan':          {label:  'Scan',                           type: 'none'},
+    'data':          {label:  'Data',                           type: 'buffer'},
+    'connect':       {label:  'Connect', desc: ['Connect', 'MAC', 'Name'], type: 'array'}
   },
   outputs: {
-    'connect': 'action',
-    'disconnect': 'action',
-    'scanResult': 'string',
+    'connected':     {type:   'boolean',          type:  'boolean'},
+    'scanResult':    {label:  ['MAC','Name'],     type:  'array'},
+    'localAddress':  {label:  'Local Address',    type:  'string',  state: 'localAddress'},
+    'remoteAddress': {label:  'Remote Address',   type:  'string',  state: 'remoteAddress'},
     'log': 'log'
   }
   // etc
@@ -39,38 +38,46 @@ function mTransport() {
 
   // set scope for private methods
   var that = this;
-
-  this.connAddress = "";
-  this.config  = JSON.parse(JSON.stringify(config));
-  this.config.state.address.value = '';  // This is OUR address!
+  
+  // We update our attached session with our local address...
+  this.transport1.emit('fromTransport', 'localAddress', 'BlueToothAdapter');
 
   // From local EE to Device functions
   var toTransport = function(type, data) {
     switch (type) {
       case 'connect':
-        that.device.findSerialPortChannel(address, function(channel) {
-          btSerial.connect(address, channel, function() {
-            //connected
+        if (data.shift()) {
+          var mac_address = data.shift();
+          that.device.findSerialPortChannel(mac_address, function(channel) {
+            btSerial.connect(mac_address, channel, function() {
+              //connected
+              that.emit('fromTransport', 'connected', true);
+              that.emit('fromTransport', 'remoteAddress', mac_address.toString()+ ' ' + channel);
+            }, function() {
+              //failed, but channel acquired
+              that.emit('fromTransport', 'connected', false);
+            });
           }, function() {
-            //failed, but channel acquired
+            //failed, and no channel acquired
+            that.emit('fromTransport', 'connected', false);
           });
-        }, function() {
-          //failed, and no channel acquired
-        });
+        }
+        else {
+          // False means we disconnect.
+          that.device.close();
+        }
         break;
       case 'data':
         that.device.write(data, function(err, bytesWritten) {
           if (err) fromTransport('log', [err, 2]);
         });
         break;
+      case 'config':
+        that.emit('fromTransport', 'config', config);
+        break;
       case 'scan':
         that.device.inquire();
         break;
-      case 'disconnect':
-        that.device.close();
-        break;
-      case 'address':
-        that.address = data;
       default:
         fromTransport('log', ['Bluetooth wut?', 7]);
         break;
@@ -85,7 +92,7 @@ function mTransport() {
         that.emit('fromTransport', 'data', args);
         break;
       case 'closed':
-        that.emit('fromTransport', 'disconnect')
+        that.emit('fromTransport', 'connected', [false])
         break;
       case 'found':
         that.emit('fromTransport', 'scanResult', [args[0], args[1]])
@@ -118,10 +125,5 @@ function mTransport() {
 };
 
 inherits(mTransport, ee);
-
-
-mTransport.prototype.getConfig = function() {
-  return config;
-}
 
 module.exports = mTransport;
