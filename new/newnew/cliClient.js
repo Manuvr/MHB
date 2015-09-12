@@ -199,15 +199,15 @@ sessions.serial = sessionGenerator.init(new SPTransport());
  *   probably be handled here.
  */
 function toClientAggregation(ses, origin, type, data) {
+  var ses_obj = sessions[ses];
   switch (type) {
     case 'log': // Client is getting a log from somewhere.
       if (data[1] && data[1] <= config.verbosity) {
-        console.log(chalk.cyan.bold(ses.getUUID() + ' (' + origin + "):\t") +
-          chalk.gray(data[0]));
+        console.log(chalk.cyan.bold((Date.now()/1000).toString()+'\t'+ses) + chalk.yellow(' (' + origin + "):\t") + chalk.gray(data[0]));
       }
       if (current_log_file) {
         // Write to the log file if we have one open.
-        fs.writeSync(current_log_file, new Date() + '\t' + ses.getUUID() + ' (' +
+        fs.writeSync(current_log_file, new Date() + '\t' + ses_obj.getUUID() + ' (' +
           origin + "):\t" + data[0] + '\n');
       }
       break;
@@ -215,7 +215,7 @@ function toClientAggregation(ses, origin, type, data) {
       break;
     default:
       console.log(
-        chalk.cyan.bold(ses.getUUID() + ' (' + origin + "):\n\t" +
+        chalk.cyan.bold(ses_obj.getUUID() + ' (' + origin + "):\n\t" +
           "type:" + type + "\n\t" +
           "data:" + util.inspect(data, {
             depth: 10
@@ -230,19 +230,19 @@ function toClientAggregation(ses, origin, type, data) {
 // This is the means by which events are passed from other components to be
 //   shown to the user, sent via API, etc...
 sessions.bt_session.on('toClient', function(origin, type, data) {
-  toClientAggregation(sessions.bt_session, origin, type, data);
+  toClientAggregation('bt_session', origin, type, data);
 });
 
 sessions.actor0.on('toClient', function(origin, type, data) {
-  toClientAggregation(sessions.actor0, origin, type, data);
+  toClientAggregation('actor0', origin, type, data);
 });
 
 sessions.actor1.on('toClient', function(origin, type, data) {
-  toClientAggregation(sessions.actor1, origin, type, data);
+  toClientAggregation('actor1', origin, type, data);
 });
 
 sessions.serial.on('toClient', function(origin, type, data) {
-  toClientAggregation(sessions.serial, origin, type, data);
+  toClientAggregation('serial', origin, type, data);
 });
 
 
