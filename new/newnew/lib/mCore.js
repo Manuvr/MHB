@@ -9,33 +9,53 @@ var inherits = require('util').inherits;
 var ee = require('events').EventEmitter;
 var uuid = require('node-uuid');
 
-var merge = require('lodash.merge');
+var merge      = require('lodash.merge');
+var _clonedeep = require('lodash.clonedeep');
+
 var receiver = require('./mCore/receiver.js');
 var messageParser = require('./mCore/messageParser.js');
-var mLegend = require('./mCore/messageLegend.js');
 var mFlags = require('./mCore/messageFlags.js');
-var messageAction = require('./mCore/messageAction.js');
-var messageBuilder = require('./mCore/messageBuilder.js')
-
+var mLegend = require('./mCore/messageLegend.js');
 var types = require('./mCore/types.js');
-var defs = require('./mCore/messageLegend.js');
+var parseAction = require('./mCore/messageAction.js').parseAct;
+var buildAction = require('./mCore/messageAction.js').buildAct;
+var dialogQueues = require('./mCore/messageAction.js').queues;
+var messageBuilder = require('./mCore/messageBuilder.js')
 
 // Config for mConnector to act on
 var config = {
   name: 'MHB',
-  version: '1.0.0',
-  inputs: {
-    'data': 'data'
-  },
-  outputs: { // these will be definitions in connector
-    'ERROR': 'log'
-      //etc
-  },
   state: {
-    'LED_1': 'number',
-    'GLOVE_MODEL': 'string'
+    'connected'      : {type: 'boolean',  value: false},
+    'listening'      : {type: 'boolean',  value: true},
+    'localAddress'   : {type: 'string',   value: ''},
+    'remoteAddress'  : {type: 'string',   value: ''}
+  },
+  inputs: {
+    'scan':          {label:  'Scan',              type: 'none'},
+    'data':          {label:  'Data',              type: 'buffer'},
+    'connect':       {label:  'Connect', desc: ['Connect'], type: 'array'}
+  },
+  outputs: {
+    'connected':     {type:   'boolean',        state: 'connected'},
+    'scanResult':    {label:  ['Address'],      type:  'array'},
+    'localAddress':  {label:  'Local Address',  type:  'string',  state: 'localAddress'},
+    'remoteAddress': {label:  'Remote Address', type:  'string',  state: 'remoteAddress'},
+    'log': 'log'
   }
 };
+
+
+
+
+var KA_MESSAGE = {
+  "messageId":  8,
+  "messageDef": 'KA',
+  "flag":       0,
+  "args":       []
+}
+
+
 
 // mEngine Factory function
 function mCore() {
@@ -47,6 +67,8 @@ function mCore() {
   this.timer;
 
   this.syncCount = 0;
+  
+  this.queues = new dialogQueues();
 
   var sendSync = function() {
     if (that.syncCount < 25) {
@@ -56,9 +78,11 @@ function mCore() {
       }, 500)
     } else {
       clearInterval(that.timer);
-      fromEngine('');
+      //fromEngine('');
+      fromEngine('log', ['This used to be a blank emit. Interval cleared.', 7]);
     }
   }
+
 
   this.receiver = new receiver();
 
@@ -69,21 +93,24 @@ function mCore() {
   this.receiver.ee.on('outOfSync', function(outOfSync, reason) {
     if (outOfSync) {
       fromCore('data', SYNC_PACKET_DEF);
-      fromCore('log', ['Became desync\'d because ' + reason + '.', 6]);
+      fromEngine('log', ['Became desync\'d because ' + reason + '.', 6]);
     } else {
       clearInterval(that.timer);
       that.syncCount = 0;
       // Start sending KA
+      buildAction.bind(that)(KA_MESSAGE);
+
       // We must have just become sync'd.
-      fromCore('log', ['Became sync\'d.', 6]);
+      fromEngine('log', ['Became sync\'d and sent a KA.', 6]);
     }
   });
 
-  this.messageParser = new messageParser(mLegend, mFlags)
   this.buildBuffer = messageBuilder;
 
-  this.defs = types;
-  this.types = defs;
+  this.mLegend  = _clonedeep(mLegend);
+  this.types = types;
+
+  this.messageParser = new messageParser(this.mLegend, mFlags)
 
   this.outMsgQueue = [];
 
@@ -100,16 +127,12 @@ function mCore() {
     switch (type) {
       case 'send':
         // build new
-        var built = that.buildBuffer(that.defs, that.types, data)
-        if (built) {
-          fromCore('data', built);
-        } else {
-          fromCore('log', ['TODO: Was wut', 3]);
-        }
+        data.flag = that.mLegend[data.messageId].flag;
+        buildAction.bind(that)(data);
         break;
       case 'badsync':
         // Initiate a malformed sync packet. We notice the desync first.
-        fromCore('log', [
+        fromEngine('log', [
           'Sending bad data via transport. Trying to initiate a desync....',
           4
         ]);
@@ -121,7 +144,7 @@ function mCore() {
       case 'config':
         fromEngine('config', config);
       default:
-        fromCore('log', ['Not a valid type.', 2]);
+        fromEngine('log', ['Not a valid type.', 2]);
         break;
     }
   }
@@ -147,21 +170,20 @@ function mCore() {
   // input listeners
   this.on('toEngine', toEngine);
   this.on('toCore', toCore);
-  this.on('doneParsing', fromEngine);
+  
+  // Dialog callback signals.
+  this.on('doneParsing',  fromEngine);
+  this.on('doneBuilding', fromCore);
 
   this.receiver.parser.on('readable', function() {
     var jsonBuff;
     while (jsonBuff = that.receiver.parser.read()) {
       // Try to extract meaning from the parsed packet.
       that.messageParser.parse(jsonBuff);
-      messageAction(jsonBuff.messageId).bind(that)(jsonBuff);
+      parseAction.bind(that)(jsonBuff);
+      
     }
   });
-
-
-  // DERETE MERRRR
-  sendSync();
-
 };
 inherits(mCore, ee);
 

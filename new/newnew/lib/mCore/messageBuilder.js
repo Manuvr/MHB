@@ -10,14 +10,6 @@ var writeUInt24LE = function(buf, offset, value) {
 }
 
 
-/**
- * Generates a new uniqueID in a 16-bit range.
- * Never chooses zero, despite it being a valid choice for this field. Zero is spooky.
- */
-var generateUniqueId = function() {
-  return Math.random() * (65535 - 1) + 1;
-}
-
 
 /**
  * Calling this fxn with a messageDef and an integer will return either...
@@ -162,13 +154,11 @@ var packOwnLegendMessages = function(msg_defs) {
 */
 var builder = function(messageDef, types, jsonBuff) {
   var return_value = false;
-  var chosen_unique_id = (undefined !== jsonBuff.uniqueId) ? jsonBuff.uniqueId :
-    generateUniqueId();
 
   var flattened_args = false;
 
   if (jsonBuff.args && jsonBuff.args.length > 0) {
-    var arg_forms = getPotentialArgFormsByCardinality(messageDef, jsonBuff.args.length);
+    var arg_forms = getPotentialArgFormsByCardinality(messageDef[jsonBuff.messageId], jsonBuff.args.length);
     // At this point, if we have more than one potential match, we will need to start
     //   eliminating options based on examining the types of the arguments, or something
     //   hopefully smarter.
@@ -189,13 +179,13 @@ var builder = function(messageDef, types, jsonBuff) {
     }
   }
 
-  return_value = formPacketBuffer(jsonBuff.messageId, chosen_unique_id,
+  return_value = formPacketBuffer(jsonBuff.messageId, jsonBuff.uniqueId,
     flattened_args);
 
   // if (return_value) {
   //   // If we got a buffer back, we know that we succeeded, and we should now
   //   //   mutate the jsonBuff appropriately.
-  //   jsonBuff.uniqueId = chosen_unique_id;
+  //   jsonBuff.uniqueId = jsonBuff.uniqueId;
   // }
   return return_value;
 }

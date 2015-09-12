@@ -2,7 +2,7 @@
 
 var Dissolve = require('dissolve');
 var EventEmitter = require('events').EventEmitter;
-var ee = new EventEmitter();
+
 
 // variables
 var syncPacket = new Buffer([0x04, 0x00, 0x00, 0x55], 'hex');
@@ -29,29 +29,9 @@ var bufferCompare = function(a, b) {
   return true;
 };
 
-// evaluates the checkSum field
-var dataCheck = function(jsonBuff) {
-  var buffSum = 0;
-  if (undefined === jsonBuff.raw) {
-    return false;
-  }
-  for (var i = 0; i < jsonBuff.raw.length; i++) {
-    buffSum += jsonBuff.raw.readUInt8(i);
-  }
-  buffSum += 0x55;
-  buffSum %= 256;
-  if (jsonBuff.checkSum === buffSum) {
-    return true;
-  } else {
-    // Packet failed the checksum.
-    toggleSync('checksum failure ('+buffSum+' versus '+jsonBuff.checkSum+')');
-    return false;
-  }
-};
-
 // this will be exposed
 function Receiver() {
-  this.ee = ee;
+  this.ee = new EventEmitter();
   this.waitingForSync = true;
   this.connected = false;
   this.maxLength = 32000;
@@ -61,10 +41,33 @@ function Receiver() {
 
   var toggleSync = function(reason) {
     if (!reason) reason = 'reason not given';
+    // We are waiting to see sync packets come over the wire.
     that.waitingForSync = !that.waitingForSync;
-    ee.emit('outOfSync', that.waitingForSync, reason);
+    that.ee.emit('outOfSync', that.waitingForSync, reason);
   }
 
+  
+  // evaluates the checkSum field
+  var dataCheck = function(jsonBuff) {
+    var buffSum = 0;
+    if (undefined === jsonBuff.raw) {
+      return false;
+    }
+    for (var i = 0; i < jsonBuff.raw.length; i++) {
+      buffSum += jsonBuff.raw.readUInt8(i);
+    }
+    buffSum += 0x55;
+    buffSum %= 256;
+    if (jsonBuff.checkSum === buffSum) {
+      return true;
+    } else {
+      // Packet failed the checksum.
+      toggleSync('checksum failure ('+buffSum+' versus '+jsonBuff.checkSum+')');
+      return false;
+    }
+  };
+
+  
   this.parser = Dissolve().loop(function(end) {
     if (that.timer) {
       clearTimeout(that.timer)
@@ -106,7 +109,7 @@ function Receiver() {
             if (this.vars.checkSum === 0x55) {
               // Send sync back to ManuvrOS
               // We need to work this out... shouldn't be automatic
-              ee.emit('syncInSync');
+              that.ee.emit('syncInSync');
             } else {
               toggleSync('invalid sync packet');
             }

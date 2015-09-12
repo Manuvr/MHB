@@ -1,9 +1,31 @@
 'use strict';
 
+var messageFlags = require('./messageFlags.js');
+
 // quat: x, y z = between 0 and 1, between 0 and 1
 // acc : force in micro g's
 // gyro: degrees per second
 // mag : micro tesla's
+
+/*
+#define MSG_FLAG_IDEMPOTENT   0x0001      // Indicates that only one of the given message should be enqueue.
+#define MSG_FLAG_EXPORTABLE   0x0002      // Indicates that the message might be sent between systems.
+#define MSG_FLAG_DEMAND_ACK   0x0004      // Demands that a message be acknowledged if sent outbound.
+
+#define MSG_FLAG_RESERVED_C   0x0008      // Reserved flag.
+#define MSG_FLAG_RESERVED_B   0x0010      // Reserved flag.
+#define MSG_FLAG_RESERVED_A   0x0020      // Reserved flag.
+#define MSG_FLAG_RESERVED_9   0x0040      // Reserved flag.
+#define MSG_FLAG_RESERVED_8   0x0080      // Reserved flag.
+#define MSG_FLAG_RESERVED_7   0x0100      // Reserved flag.
+#define MSG_FLAG_RESERVED_6   0x0200      // Reserved flag.
+#define MSG_FLAG_RESERVED_5   0x0400      // Reserved flag.
+#define MSG_FLAG_RESERVED_4   0x0800      // Reserved flag.
+#define MSG_FLAG_RESERVED_3   0x1000      // Reserved flag.
+#define MSG_FLAG_RESERVED_2   0x2000      // Reserved flag.
+#define MSG_FLAG_RESERVED_1   0x4000      // Reserved flag.
+#define MSG_FLAG_RESERVED_0   0x8000      // Reserved flag.
+*/
 
 var messageLegend = {
   //These are the final codes for ManuvrOS. These should be the only things hard-coded, as they
@@ -40,7 +62,7 @@ var messageLegend = {
     def: 'REPLY_FAIL'
   },
   4: {
-    flag: 0,
+    flag: 0x0004,
     argForms: {},
     def: 'SESS_ESTABLISHED'
   }, // Session established.
@@ -50,7 +72,7 @@ var messageLegend = {
     def: 'SESS_HANGUP'
   }, // Session hangup.
   6: {
-    flag: 0,
+    flag: 0x0004,
     argForms: {},
     def: 'SESS_AUTH_CHALLENGE'
   }, // A code for challenge-response authentication.
@@ -64,7 +86,7 @@ var messageLegend = {
   // String:     Hardware version   (IE: "4")
   // String:     Extended detail    (User-defined, optional)
   7: {
-    flag: 0,
+    flag: 0x0004,
     argForms: {
       '1': [8, 14, 14, 14, 14, 14],
       '2': [8, 14, 14, 14, 14, 14, 14]
@@ -73,18 +95,19 @@ var messageLegend = {
   },
 
   8: {
-    flag: 0,
+    //Too slow... :-( flag: messageFlags.DEMAND_ACK,
+    flag: 0x0004,
     argForms: {},
     def: 'KA'
   }, // No args.
 
   10: {
-    flag: 0,
+    flag: 0x0004,
     argForms: {},
     def: 'LEGEND_TYPES'
   }, // No args? Asking for this legend. One arg: Legend provided.
   11: {
-    flag: 0,
+    flag: 0x0004,
     argForms: {},
     def: 'LEGEND_MESSAGES'
   } // No args? Asking for this legend. One arg: Legend provided.
