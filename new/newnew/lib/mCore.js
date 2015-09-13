@@ -47,16 +47,6 @@ var config = {
 
 
 
-
-var KA_MESSAGE = {
-  "messageId":  8,
-  "messageDef": 'KA',
-  "flag":       0,
-  "args":       []
-}
-
-
-
 // mEngine Factory function
 function mCore() {
   ee.call(this);
@@ -98,7 +88,13 @@ function mCore() {
       clearInterval(that.timer);
       that.syncCount = 0;
       // Start sending KA
-      buildAction.bind(that)(KA_MESSAGE);
+      var ka_message = {
+        "messageId":  8,
+        "messageDef": 'KA',
+        "flag":       0,
+        "args":       []
+      };
+      buildAction.bind(that)(ka_message);
 
       // We must have just become sync'd.
       fromEngine('log', ['Became sync\'d and sent a KA.', 6]);

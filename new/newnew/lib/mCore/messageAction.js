@@ -2,7 +2,9 @@
 var merge = require('lodash.merge');
 var mapKeys = require('lodash.mapkeys');
 
-
+// If not specified, messages that demand an acknowledgement will be
+//   retried this many times.
+var DEFAULT_RETRY_COUNT = 3;
 
 /**
  * Generates a new uniqueID in a 16-bit range.
@@ -109,13 +111,13 @@ function buildAct(jsonBuff) {
     case 'REPLY':
     case 'REPLY_RETRY':
     case 'REPLY_FAIL':
-      // TODO: Horridly unsafe. Error-checking recommended.
+    case 'KA':
+      // These are the cases that ignore the outbound queue lock.
       result = this.buildBuffer(this.mLegend, this.types, jsonBuff);
       break;
     // these are "pre-outbound queue" actions  
     case 'SELF_DESCRIBE':
     case 'LEGEND_MESSAGES':
-    case 'KA':
     default:
       if(jsonBuff.flag > -4 && jsonBuff.flag < 0){
          result = jsonBuff.flag;
@@ -143,8 +145,15 @@ function buildAct(jsonBuff) {
     break;
   case -2:
     // retry
-    jsonBuff.flag = this.mLegend[jsonBuff.messageId].flag;
-    this.emit('doneBuilding', 'data', this.buildBuffer(this.mLegend, this.types, jsonBuff));
+    if (!jsonBuff.hasOwnProperty(retries_remaining)) {
+      // If we don't yet have a retry count-down, install one.
+      jsonBuff.retries_remaining = DEFAULT_RETRY_COUNT;
+    }
+    if (jsonBuff.retries_remaining > 0) {
+      jsonBuff.flag = this.mLegend[jsonBuff.messageId].flag;
+      jsonBuff.retries_remaining--;
+      this.emit('doneBuilding', 'data', this.buildBuffer(this.mLegend, this.types, jsonBuff));
+    }
     break;
   case -3:
     // failed ack
