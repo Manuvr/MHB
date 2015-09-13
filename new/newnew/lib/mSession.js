@@ -148,10 +148,15 @@ function session(transport, core) {
           case 'connect':
             toTransport(type, data);
             break;
+          case 'scan':
+            toTransport('scan', data);
+            break;
           default:
             // log?
         }
         break;
+      
+      // TODO: We might phase these out as our debugging needs diminish.
       case 'transport':
         toTransport(type, data);
         break;

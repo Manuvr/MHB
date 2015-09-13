@@ -24,19 +24,6 @@ function queues() {
     // Flush the outbound queue.
     return 0;
   };
-  
-  this.uniqueIdAwaitingACK = function(uid) {
-    
-    return false;
-  };
-  
-  this.outboundBlocked = function() {
-    // Returns true if the outbound queue is prevented from taking new dialog until we are no longer
-    //   waiting on an ACK.
-    //for () {
-    //}
-    return false;
-  };
 }
 
 
@@ -44,8 +31,7 @@ function queues() {
 // THIS MUST BE CALLED WITH A .BIND() FROM THE PARENT TO GET THE "THIS"
 // TO WORK PROPERLY...
 function parseAct(jsonBuff) {
-  
-  
+
   switch (jsonBuff.messageName) {
     case 'LEGEND_MESSAGES':
       // actions on public members...
@@ -54,7 +40,6 @@ function parseAct(jsonBuff) {
       break;
     case 'KA':
       console.log("i got a ka");
-      //this.emit('doneParsing', 'client', jsonBuff)
       // When we get a KA, we should ACK it immediately.
       var ack_message = {
         "messageId":  1,
@@ -63,7 +48,7 @@ function parseAct(jsonBuff) {
         "flag":       0,
         "args":       []
       };
-      this.emit('doneBuilding', 'data', ack_message)
+      //this.emit('doneBuilding', 'data', ack_message)
       break;
     case 'REPLY':
       // Dive into our dialog objects and find out what was being ACK'd.
@@ -184,11 +169,6 @@ function buildAct(jsonBuff) {
   
 }
 
-
-
-function ackCheck(jsonBuff) {
-
-}
 
 
 module.exports = {

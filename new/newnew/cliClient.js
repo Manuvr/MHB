@@ -501,6 +501,29 @@ function quit() {
 }
 
 
+/**
+* This is here to help with commands that require a session. Allows us to use a
+*   previously-specified session, versus forcing the user to specify it each time.
+*/
+function runSessionCommand(cmd, args, data) {
+  if (session_in_use && (args.length == 0)) {
+    sessions[session_in_use].emit('fromClient', 'session', cmd, (data ? data : null));
+  } 
+  else if (args.length > 0) {
+    var ses = args.shift();
+    if (!sessions.hasOwnProperty(ses)) {
+      console.log(error('Session \'' + ses + '\' was not found.'));
+    } 
+    else {
+      sessions[ses].emit('fromClient', 'session', cmd, (data ? data : null));
+    }
+  } 
+  else {
+    console.log(error('You need to specify a session inline or with \'use\'.'));
+  }
+}
+
+
 /*
  * The prompt and user-input handling function.
  */
@@ -585,68 +608,15 @@ function promptUserForDirective() {
           dumpConfiguration();
           break;
         case 'scan': // Scan the given session's transport.
-          if (session_in_use) {
-            sessions[session_in_use].emit('fromClient', 'transport', 'scan');
-          } else if (args.length > 0) {
-            var ses = args.shift();
-            if (!sessions.hasOwnProperty(ses)) {
-              console.log(error('Session \'' + ses + '\' was not found.'));
-            } else {
-              sessions[ses].emit('fromClient', 'transport', 'scan');
-            }
-          } else {
-            console.log(error(
-              'You need to specify a session inline or with \'use\'.'));
-          }
+          runSessionCommand('scan', args);
           break;
         case 'liveconfig': // Show the configuration.
         case 'lc':
-          if (session_in_use) {
-            sessions[session_in_use].emit('fromClient', 'session',
-              'getLiveConfig');
-          } else if (args.length > 0) {
-            var ses = args.shift();
-            if (!sessions.hasOwnProperty(ses)) {
-              console.log(error('Session \'' + ses + '\' was not found.'));
-            } else {
-              sessions[ses].emit('fromClient', 'session', 'getLiveConfig');
-            }
-          } else {
-            console.log(error(
-              'You need to specify a session inline or with \'use\'.'));
-          }
+          runSessionCommand('getLiveConfig', args);
           break;
         case 'connect': // Cause the given session to connect.
-          if (session_in_use) {
-            sessions[session_in_use].emit('fromClient', 'session',
-              'connect', true);
-          } else if (args.length > 0) {
-            var ses = args.shift();
-            if (!sessions.hasOwnProperty(ses)) {
-              console.log(error('Session \'' + ses + '\' was not found.'));
-            } else {
-              sessions[ses].emit('fromClient', 'session', 'connect', [true]);
-            }
-          } else {
-            console.log(error(
-              'You need to specify a session inline or with \'use\'.'));
-          }
-          break;
         case 'disconnect': // Cause the given session to connect.
-          if (session_in_use) {
-            sessions[session_in_use].emit('fromClient', 'session',
-              'connect', [false]);
-          } else if (args.length > 0) {
-            var ses = args.shift();
-            if (!sessions.hasOwnProperty(ses)) {
-              console.log(error('Session \'' + ses + '\' was not found.'));
-            } else {
-              sessions[ses].emit('fromClient', 'session', 'connect', [false]);
-            }
-          } else {
-            console.log(error(
-              'You need to specify a session inline or with \'use\'.'));
-          }
+          runSessionCommand('connect', args, [directive == 'connect']);
           break;
         case 'saveconfig': // Force-Save the current configuration.
           config.dirty = true;
@@ -711,3 +681,4 @@ prompt.start(); // Start prompt running.
 
 // Kick off the interaction by prompting the user.
 promptUserForDirective();
+
