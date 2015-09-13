@@ -175,9 +175,13 @@ function mCore() {
     var jsonBuff;
     while (jsonBuff = that.receiver.parser.read()) {
       // Try to extract meaning from the parsed packet.
-      that.messageParser.parse(jsonBuff);
-      parseAction.bind(that)(jsonBuff);
-      
+      if (that.messageParser.parse(jsonBuff)) {
+        // If the message and its arguments all parsed ok, act on it...
+        parseAction.bind(that)(jsonBuff);
+      }
+      else {
+        fromEngine('log', ['Transport returned a packet, but parse failed:\n ' + jsonBuff.strigify(), 3]);
+      }
     }
   });
 };

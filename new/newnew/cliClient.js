@@ -215,11 +215,11 @@ function toClientAggregation(ses, origin, type, data) {
       break;
     default:
       console.log(
-        chalk.cyan.bold(ses_obj.getUUID() + ' (' + origin + "):\n\t" +
+        chalk.cyan.bold(ses) + ' (' + origin + "):\n\t" +
           "type:" + type + "\n\t" +
           "data:" + util.inspect(data, {
             depth: 10
-          })
+          }
         ));
       break;
   }

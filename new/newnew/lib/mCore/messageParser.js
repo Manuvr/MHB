@@ -309,7 +309,7 @@ MessageParser.prototype.parse = function(jsonBuff) {
     console.log('No messageID. (no arguments will be parsed) ', jsonBuff);
     return false;
   }
-  jsonBuff.messageDef = this.commands[jsonBuff.messageId].def;
+  jsonBuff.messageName = this.commands[jsonBuff.messageId].def;
   jsonBuff.flag = this.commands[jsonBuff.messageId].flag;
   jsonBuff.args = [];
   jsonBuff.message = jsonBuff.messageCode === 11 ?

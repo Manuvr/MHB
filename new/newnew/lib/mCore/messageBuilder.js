@@ -152,13 +152,13 @@ var packOwnLegendMessages = function(msg_defs) {
 }
 
 */
-var builder = function(messageDef, types, jsonBuff) {
+var builder = function(messageDefs, types, jsonBuff) {
   var return_value = false;
 
   var flattened_args = false;
 
   if (jsonBuff.args && jsonBuff.args.length > 0) {
-    var arg_forms = getPotentialArgFormsByCardinality(messageDef[jsonBuff.messageId], jsonBuff.args.length);
+    var arg_forms = getPotentialArgFormsByCardinality(messageDefs[jsonBuff.messageId], jsonBuff.args.length);
     // At this point, if we have more than one potential match, we will need to start
     //   eliminating options based on examining the types of the arguments, or something
     //   hopefully smarter.

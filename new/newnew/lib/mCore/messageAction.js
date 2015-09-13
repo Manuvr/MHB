@@ -54,7 +54,16 @@ function parseAct(jsonBuff) {
       break;
     case 'KA':
       console.log("i got a ka");
-      this.emit('doneParsing', 'client', jsonBuff)
+      //this.emit('doneParsing', 'client', jsonBuff)
+      // When we get a KA, we should ACK it immediately.
+      var ack_message = {
+        "messageId":  1,
+        "messageDef": 'REPLY',
+        "uniqueId":   jsonBuff.uniqueId,
+        "flag":       0,
+        "args":       []
+      };
+      this.emit('doneBuilding', 'data', ack_message)
       break;
     case 'REPLY':
       // Dive into our dialog objects and find out what was being ACK'd.
