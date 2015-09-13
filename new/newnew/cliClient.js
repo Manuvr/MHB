@@ -33,6 +33,10 @@ function isFunction(fxn) {
   return (typeof fxn === 'function');
 }
 
+function isObject(fxn) {
+  return (typeof fxn === 'object');
+}
+
 
 /*
  * Extends the given input string to a fixed length by padding it with character.
@@ -148,6 +152,30 @@ var chalk = require('chalk');
 // Let's take some some time to setup some CLI styles.
 var error = chalk.bold.red;
 
+var INNER_TABLE_STYLE = {
+  chars: {
+    'top': '',
+    'top-mid': '',
+    'top-left': '',
+    'top-right': '',
+    'bottom': '',
+    'bottom-mid': '',
+    'bottom-left': '',
+    'bottom-right': '',
+    'left': ' ',
+    'left-mid': '─',
+    'mid': '─',
+    'mid-mid': '┼',
+    'right': ' ',
+    'right-mid': '─',
+    'middle': '│'
+  },
+  style: {
+    'padding-left': 0,
+    'padding-right': 0
+  }
+};
+
 
 /****************************************************************************************************
  * This is junk related to prompt.                                                                   *
@@ -211,7 +239,9 @@ function toClientAggregation(ses, origin, type, data) {
           origin + "):\t" + data[0] + '\n');
       }
       break;
-    case '':
+    case 'config':
+      // A session is telling us that it experienced a configuration change.
+      showSessionConfig(ses, data);
       break;
     default:
       console.log(
@@ -251,6 +281,73 @@ sessions.serial.on('toClient', function(origin, type, data) {
  ****************************************************************************************************/
 var logo = require('./manuvrLogo'); // This is the Manuvr logo.
 
+
+/*
+ * Print a listing of instantiated sessions, along with their subcomponents.
+ */
+function showSessionConfig(ses, sconf) {
+  var column_names = [''];
+  var sub_tables   = [];
+  
+  for (var unit in sconf) {
+    var table_ses = new Table(INNER_TABLE_STYLE);
+    column_names.push(chalk.white.bold(unit));
+    var table_ses = new Table(INNER_TABLE_STYLE);
+    for (var key in sconf[unit]) {
+      var table_rh_side = '';
+      if (sconf[unit].hasOwnProperty(key)) {
+        if (isObject(sconf[unit][key])) {
+          var table_obj = new Table(INNER_TABLE_STYLE);
+          for (var okey in sconf[unit][key]) {
+            table_obj.push([okey.toString(), util.inspect(sconf[unit][key][okey])]);
+          }
+          table_rh_side = table_obj.toString();
+        }
+        else {
+          table_rh_side = sconf[unit][key].toString();
+        }
+        table_ses.push([key.toString(), table_rh_side]);
+      }
+    }
+    sub_tables.push(table_ses.toString());
+  }
+
+  var final_array = [];
+  final_array.push(chalk.green(ses));
+  while (sub_tables.length > 0) {
+    final_array.push(chalk.gray(sub_tables.shift()));
+  }
+  
+  var table = new Table({
+    head: column_names,
+    chars: {
+      'top': '─',
+      'top-mid': '┬',
+      'top-left': '┌',
+      'top-right': '┐',
+      'bottom': '─',
+      'bottom-mid': '┴',
+      'bottom-left': '└',
+      'bottom-right': '┘',
+      'left': '│',
+      'left-mid': '├',
+      'mid': '─',
+      'mid-mid': '┼',
+      'right': '│',
+      'right-mid': '┤',
+      'middle': '│'
+    },
+    style: {
+      'padding-left': 0,
+      'padding-right': 0
+    }
+  });
+  
+  table.push(final_array);
+  console.log(table.toString() + '\n');
+}
+
+
 /*
  * Print a listing of instantiated sessions, along with their subcomponents.
  */
@@ -287,32 +384,9 @@ function listSessions(filter) {
       if ((0 === filter.length) || (-1 != filter.indexOf(ses))) {
         var sesObj = sessions[ses];
 
-        var inner_table_style = {
-          chars: {
-            'top': '',
-            'top-mid': '',
-            'top-left': '',
-            'top-right': '',
-            'bottom': '',
-            'bottom-mid': '',
-            'bottom-left': '',
-            'bottom-right': '',
-            'left': ' ',
-            'left-mid': '─',
-            'mid': '─',
-            'mid-mid': '┼',
-            'right': ' ',
-            'right-mid': '─',
-            'middle': '│'
-          },
-          style: {
-            'padding-left': 0,
-            'padding-right': 0
-          }
-        };
-        var table_ses = new Table(inner_table_style);
-        var table_eng = new Table(inner_table_style);
-        var table_trn = new Table(inner_table_style);
+        var table_ses = new Table(INNER_TABLE_STYLE);
+        var table_eng = new Table(INNER_TABLE_STYLE);
+        var table_trn = new Table(INNER_TABLE_STYLE);
 
         for (var key in sesObj) {
           if (sesObj.hasOwnProperty(key) && sesObj[key] && (key !== '_events')) {
