@@ -48,7 +48,7 @@ function parseAct(jsonBuff) {
         "flag":       0,
         "args":       []
       };
-      //this.emit('doneBuilding', 'data', ack_message)
+      this.emit('doneBuilding', 'data', this.buildBuffer(this.mLegend, this.types, ack_message))
       break;
     case 'REPLY':
       // Dive into our dialog objects and find out what was being ACK'd.
@@ -102,10 +102,11 @@ function buildAct(jsonBuff) {
     generateUniqueId();
 
   switch(jsonBuff.messageDef) {
+    case 'KA':
+      this.queues.outbound_queue.push(jsonBuff);
     case 'REPLY':
     case 'REPLY_RETRY':
     case 'REPLY_FAIL':
-    case 'KA':
       // These are the cases that ignore the outbound queue lock.
       result = this.buildBuffer(this.mLegend, this.types, jsonBuff);
       break;

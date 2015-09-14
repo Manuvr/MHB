@@ -283,7 +283,7 @@ var logo = require('./manuvrLogo'); // This is the Manuvr logo.
 
 
 /*
- * Print a listing of instantiated sessions, along with their subcomponents.
+ * Print the given configuration object, along with its subcomponents.
  */
 function showSessionConfig(ses, sconf) {
   var column_names = [''];
