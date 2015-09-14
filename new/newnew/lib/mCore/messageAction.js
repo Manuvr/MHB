@@ -48,6 +48,7 @@ function parseAct(jsonBuff) {
         "flag":       0,
         "args":       []
       };
+      this.emit('toCore', 'syncd', true);
       this.emit('doneBuilding', 'data', this.buildBuffer(this.mLegend, this.types, ack_message))
       break;
     case 'REPLY':

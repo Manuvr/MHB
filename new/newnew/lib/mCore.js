@@ -24,9 +24,7 @@ var messageBuilder = require('./mCore/messageBuilder.js')
 var config = {
   name: 'MHB',
   state: {
-    'connected'      : {type: 'boolean',  value: false},
-    'listening'      : {type: 'boolean',  value: true},
-    'localAddress'   : {type: 'string',   value: ''},
+    'syncd'          : {type: 'boolean',  value: false},
     'remoteAddress'  : {type: 'string',   value: ''}
   },
   inputs: {
@@ -35,9 +33,8 @@ var config = {
     'connect':       {label:  'Connect', desc: ['Connect'], type: 'array'}
   },
   outputs: {
-    'connected':     {type:   'boolean',        state: 'connected'},
+    'syncd':         {type:   'boolean',        state: 'syncd'},
     'scanResult':    {label:  ['Address'],      type:  'array'},
-    'localAddress':  {label:  'Local Address',  type:  'string',  state: 'localAddress'},
     'remoteAddress': {label:  'Remote Address', type:  'string',  state: 'remoteAddress'},
     'log': 'log'
   }
@@ -154,6 +151,9 @@ function mCore() {
         if (data) {
           sendSync()
         }
+        break;
+      case 'syncd':
+        fromEngine('log', ['AM I SYNCD? ' + data, 5]);
         break;
       default:
         fromEngine('log', ['Not a valid type.', 2]);
