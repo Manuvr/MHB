@@ -145,6 +145,16 @@ function session(transport, core) {
             // manipulate this (only issue actions)
             toClient('session', 'config', that.config);
             break;
+          case 'assign':
+            // The client is assigning an engine ahead of connection.
+            if (data && data.length >= 2) {
+              that.swapEngines(data[0], data[1]);
+              
+            }
+            else {
+              toClient('session', 'log', ['Need a name and a version.', 2]);
+            }
+            break;
           case 'connect':
             toTransport(type, data);
             break;
