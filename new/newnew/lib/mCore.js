@@ -111,8 +111,11 @@ function mCore() {
   this.receiver.ee.on('outOfSync', function(outOfSync, reason) {
     if (outOfSync) {
       fromCore('data', SYNC_PACKET_DEF);
+      fromEngine('syncd', false);
       fromEngine('log', ['Became desync\'d because ' + reason + '.', 6]);
     } else {
+      // We do not want to "fromEngine('syncd', true);" at this point, because
+      //   we still need to go through our KA cycle.
       clearInterval(that.timer);
       that.syncCount = 0;
       // Start sending KA
@@ -177,7 +180,13 @@ function mCore() {
   var toCore = function(type, data) {
     switch (type) {
       case 'data':
-        that.receiver.parser.write(data);
+        if (Buffer.isBuffer(data)) {
+          that.receiver.parser.write(data);  // Pass buffer data into the parser.
+        }
+        else {
+          // Invalid type.
+          fromEngine('log', ['Not a valid type for transport-directed "data": '+ typeof data, 2]);
+        }
         break;
       case 'connected':
         fromEngine('log', ['AM I CONNECTED? ' + data, 5]);

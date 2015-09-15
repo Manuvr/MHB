@@ -99,7 +99,8 @@ function session(transport, core) {
         break;
       case 'log': // passthrough
       default:
-        //toClient('engine', type, data);
+        toClient('engine', type, data);
+        break;
     }
     if (_has(that.config, ['engine', 'outputs', type, 'state']) && data !==
       undefined) {
@@ -108,7 +109,6 @@ function session(transport, core) {
     } else {
       // didn't find a state to update...
     }
-    toClient('engine', type, data)
   }
 
   var fromTransport = function(type, data) {
@@ -134,6 +134,8 @@ function session(transport, core) {
         break;
       case 'log': // passthrough
       default:
+        toClient('transport', type, data)
+        break;
     }
     // updates the state value based on the "outputs" definition.
     if (_has(that.config, ['transport', 'outputs', type, 'state']) && data !==
@@ -143,7 +145,6 @@ function session(transport, core) {
     } else {
       // didn't find a state to update...
     }
-    toClient('transport', type, data)
   }
 
   // this is essentially our inbound API. May want to expand this a bit?
