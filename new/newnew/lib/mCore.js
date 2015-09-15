@@ -7,7 +7,7 @@ var inherits = require('util').inherits;
 var ee = require('events').EventEmitter;
 var uuid = require('node-uuid');
 
-var merge      = require('lodash.merge');
+var merge = require('lodash.merge');
 var _clonedeep = require('lodash.clonedeep');
 
 var receiver = require('./mCore/receiver.js');
@@ -24,18 +24,44 @@ var messageBuilder = require('./mCore/messageBuilder.js')
 var config = {
   name: 'MHB',
   state: {
-    'syncd'          : {type: 'boolean',  value: false},
-    'remoteAddress'  : {type: 'string',   value: ''}
+    'syncd': {
+      type: 'boolean',
+      value: false
+    },
+    'remoteAddress': {
+      type: 'string',
+      value: ''
+    }
   },
   inputs: {
-    'scan':          {label:  'Scan',              type: 'none'},
-    'data':          {label:  'Data',              type: 'buffer'},
-    'connect':       {label:  'Connect', desc: ['Connect'], type: 'array'}
+    'scan': {
+      label: 'Scan',
+      type: 'none'
+    },
+    'data': {
+      label: 'Data',
+      type: 'buffer'
+    },
+    'connect': {
+      label: 'Connect',
+      desc: ['Connect'],
+      type: 'array'
+    }
   },
   outputs: {
-    'syncd':         {type:   'boolean',        state: 'syncd'},
-    'scanResult':    {label:  ['Address'],      type:  'array'},
-    'remoteAddress': {label:  'Remote Address', type:  'string',  state: 'remoteAddress'},
+    'syncd': {
+      type: 'boolean',
+      state: 'syncd'
+    },
+    'scanResult': {
+      label: ['Address'],
+      type: 'array'
+    },
+    'remoteAddress': {
+      label: 'Remote Address',
+      type: 'string',
+      state: 'remoteAddress'
+    },
     'log': 'log'
   }
 };
@@ -52,7 +78,7 @@ function mCore() {
   this.timer;
 
   this.syncCount = 0;
-  
+
   this.queues = new dialogQueues();
 
   var sendSync = function() {
@@ -84,10 +110,10 @@ function mCore() {
       that.syncCount = 0;
       // Start sending KA
       var ka_message = {
-        "messageId":  8,
+        "messageId": 8,
         "messageDef": 'KA',
-        "flag":       0,
-        "args":       []
+        "flag": 0,
+        "args": []
       };
       buildAction.bind(that)(ka_message);
 
@@ -98,7 +124,7 @@ function mCore() {
 
   this.buildBuffer = messageBuilder;
 
-  this.mLegend  = _clonedeep(mLegend);
+  this.mLegend = _clonedeep(mLegend);
   this.types = types;
 
   this.messageParser = new messageParser(this.mLegend, mFlags)
@@ -154,6 +180,8 @@ function mCore() {
         break;
       case 'syncd':
         fromEngine('log', ['AM I SYNCD? ' + data, 5]);
+        //This is required to set local state in the session
+        fromEngine('syncd', data)
         break;
       default:
         fromEngine('log', ['Not a valid type.', 2]);
@@ -164,9 +192,9 @@ function mCore() {
   // input listeners
   this.on('toEngine', toEngine);
   this.on('toCore', toCore);
-  
+
   // Dialog callback signals.
-  this.on('doneParsing',  fromEngine);
+  this.on('doneParsing', fromEngine);
   this.on('doneBuilding', fromCore);
 
   this.receiver.parser.on('readable', function() {
@@ -176,9 +204,11 @@ function mCore() {
       if (that.messageParser.parse(jsonBuff)) {
         // If the message and its arguments all parsed ok, act on it...
         parseAction.bind(that)(jsonBuff);
-      }
-      else {
-        fromEngine('log', ['Transport returned a packet, but parse failed:\n ' + jsonBuff.strigify(), 3]);
+      } else {
+        fromEngine('log', [
+          'Transport returned a packet, but parse failed:\n ' +
+          jsonBuff.strigify(), 3
+        ]);
       }
     }
   });

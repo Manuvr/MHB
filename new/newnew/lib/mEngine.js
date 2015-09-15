@@ -81,6 +81,7 @@ function mEngine(parent) {
         that.fromEngine(type, merge({}, data, config))
       default:
         // something random from parent
+        that.fromEngine(type, data);
 
     }
   }

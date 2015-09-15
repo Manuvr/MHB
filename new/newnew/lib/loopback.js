@@ -79,28 +79,39 @@ function pairConstructor() {
   var transport0_addr = Math.random().toString();
   var transport1_addr = Math.random().toString();
 
+  var ioDelay = 5;
+
   this.transport0.on('toDevice', function(type, data) {
-    switch (type) {
-      case 'scan':
-        // This is an oddity specific to a loopback.
-        that.transport1.emit('fromDevice', 'scanResult', [transport0_addr]);
-        break;
-      default:
-        that.transport1.emit('fromDevice', type, data);
-        break;
-    }
+    // for faking I/O delay
+    setTimeout(function() {
+      switch (type) {
+        case 'scan':
+          // This is an oddity specific to a loopback.
+          that.transport1.emit('fromDevice', 'scanResult', [
+            transport0_addr
+          ]);
+          break;
+        default:
+          that.transport1.emit('fromDevice', type, data);
+          break;
+      }
+    }, ioDelay)
   });
 
   this.transport1.on('toDevice', function(type, data) {
-    switch (type) {
-      case 'scan':
-        // This is an oddity specific to a loopback.
-        that.transport0.emit('fromDevice', 'scanResult', [transport1_addr]);
-        break;
-      default:
-        that.transport0.emit('fromDevice', type, data);
-        break;
-    }
+    setTimeout(function() {
+      switch (type) {
+        case 'scan':
+          // This is an oddity specific to a loopback.
+          that.transport0.emit('fromDevice', 'scanResult', [
+            transport1_addr
+          ]);
+          break;
+        default:
+          that.transport0.emit('fromDevice', type, data);
+          break;
+      }
+    }, ioDelay)
   });
 
 
