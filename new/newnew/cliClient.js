@@ -243,6 +243,10 @@ function toClientAggregation(ses, origin, type, data) {
       // A session is telling us that it experienced a configuration change.
       showSessionConfig(ses, data);
       break;
+    case 'config':
+      // A session is telling us that it experienced a configuration change.
+      showSessionConfig(ses, data);
+      break;
     default:
       console.log(
         chalk.cyan.bold(ses) + ' (' + origin + "):\n\t" +

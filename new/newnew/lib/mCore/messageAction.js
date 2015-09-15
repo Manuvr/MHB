@@ -39,7 +39,6 @@ function parseAct(jsonBuff) {
       // final emit to client??
       break;
     case 'KA':
-      console.log("i got a ka");
       // When we get a KA, we should ACK it immediately.
       var ack_message = {
         "messageId":  1,
