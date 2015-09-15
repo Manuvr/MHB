@@ -159,7 +159,7 @@ function session(transport, core) {
           case 'assign':
             // The client is assigning an engine ahead of connection.
             if (data && data.length >= 2) {
-              that.swapEngines(data[0], data[1]);
+              that.swapEngine(data[0], data[1]);
 
             } else {
               toClient('session', 'log', ['Need a name and a version.', 2]);

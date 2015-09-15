@@ -223,8 +223,7 @@ sessions.serial = sessionGenerator.init(new SPTransport());
 // Any sessions that are supposed to be able to cope with a given Manuvrable, need to
 //   be provided Engines for them. In this case, we want the debug engine to be available
 //   on the loopback sessions...
-sessions.actor0.addEngine(debugEngine);
-sessions.actor0.addEngine(debugEngine);
+sessionGenerator.addEngine(debugEngine);
 // What we did above only made the sessions *aware* of the engine "MHBDebug". It did not
 //   actually cause a binding.
 
