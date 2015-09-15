@@ -25,6 +25,10 @@ var config = {
     'sendText': {
       label: 'sendText',
       type:  'string'
+    },
+    'sendTextNoAck': {
+      label: 'sendText',
+      type:  'string'
     }
   },
   outputs: {
@@ -86,16 +90,20 @@ function mEngine(parent) {
 
   // Emits to parent
   var toParent = function(type, data) {
-    fromEngine('log', ["MHBDebug toParent: '"+type+"'   Data:\n"+data+"' ", 6]);
+    fromEngine('log', ["MHBDebug toParent: '"+type+"'   Data:\n"+data+"' ", 7]);
     that.parent.emit('toEngine', type, data)
   }
 
   // Inputs from session
   var toEngine = function(type, data) {
-    fromEngine('log', ["MHBDebug toEngine: '"+type+"'   Data:\n"+data+"' ", 6]);
+    fromEngine('log', ["MHBDebug toEngine: '"+type+"'   Data:\n"+data+"' ", 7]);
     switch (type) {
       case 'sendText':
         fromEngine('log', ["Sending a text message across the wire: '"+data+"' ", 6]);
+        // TODO: Build the message according to our local message legend and ship it.
+        break;
+      case 'sendTextNoAck':
+        fromEngine('log', ["Sending a text message across the wire without caring about ACK: '"+data+"' ", 6]);
         // TODO: Build the message according to our local message legend and ship it.
         break;
       default:
@@ -106,7 +114,7 @@ function mEngine(parent) {
 
   // Inputs from parent
   var fromParent = function(type, data) {
-    fromEngine('log', ["MHBDebug fromParent: '"+type+"'   Data:\n"+data+"' ", 6]);
+    fromEngine('log', ["MHBDebug fromParent: '"+type+"'   Data:\n"+data+"' ", 7]);
     switch (type) {
       case 'client':
         fromEngine(type, customRead(data));
