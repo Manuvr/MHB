@@ -628,14 +628,24 @@ function promptUserForDirective() {
           listSessions(args);
           break;
         case 'use': // User is indicating that ve wants to use the named session.
-        case 'u':
+        case 'u':   // No argument un-uses the current session.
           {
             var list_sessions_brief = false;
             if (0 == args.length) {
-              console.log(error(
-                'There exists more than one session. You must therefore name it explicitly.'
-              ));
-              list_sessions_brief = true;
+              if (session_in_use) {
+                cli_mode.pop();
+                if (0 == cli_mode.length) {
+                  prompt.message = '';
+                  session_in_use = '';
+                }
+                break;
+              }
+              else {
+                console.log(error(
+                  'There exists more than one session. You must therefore name it explicitly.'
+                ));
+                list_sessions_brief = true;
+              }
             } else {
               if (1 < args.length) {
                 console.log(error(
@@ -684,10 +694,6 @@ function promptUserForDirective() {
         case 'scan': // Scan the given session's transport.
           runSessionCommand('scan', args);
           break;
-        case 'liveconfig': // Show the configuration.
-        case 'lc':
-          runSessionCommand('getLiveConfig', args);
-          break;
         case 'connect': // Cause the given session to connect.
         case 'disconnect': // Cause the given session to connect.
           runSessionCommand('connect', args, [directive == 'connect']);
@@ -719,19 +725,24 @@ function promptUserForDirective() {
           quit();
           break;
         case '':
-          if (cli_mode.length > 0) {
-            cli_mode.pop();
-            if (0 == cli_mode.length) {
-              prompt.message = '';
-              session_in_use = '';
-            }
-            break;
+          if ('' !== session_in_use) {
+            runSessionCommand('getLiveConfig', [session_in_use]);
           }
-          // No break on purpose.
+          else {
+            printUsage();
+          }
+          break;
         case 'help':
         case 'h':
-        default: // Show user help and usage info.
           printUsage(cli_mode.length ? cli_mode[0] : '');
+          break;
+        default:  // Pass directive to the session.
+          if ('' !== session_in_use) {
+            sessions[session_in_use].emit('fromClient', 'session', directive, (args.length > 0 ? args : null));
+          }
+          else {
+            printUsage();
+          }
           break;
       }
     }
