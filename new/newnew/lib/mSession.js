@@ -7,6 +7,7 @@ var inspect = require('util').inspect;
 var _cloneDeep = require('lodash.clonedeep');
 var _has = require('lodash.has');
 var _merge = require('lodash.merge');
+var _defaultsDeep = require('lodash.defaultsdeep');
 
 // Global default MHB and engine list;
 var MHB = require('./mCore.js')
@@ -87,16 +88,11 @@ function session(transport, core) {
         toTransport('connected', false);
         break;
       case 'config':
-        //that.config['engine'] = _cloneDeep(data);
-        _merge(that.config['engine'], _cloneDeep(
-          data), function(objVal, srcVal, key) {
-          if (key === "value") {
-            toClient('session', 'log', ['Engine config update. Key ' + key + '. discarding src (' +srcVal+ ') in favor of existing (' + objVal+ ').', 7]);
-            return objVal;
-          } else {
-            return srcVal;
-          }
-        })
+        if (_has(that.config, 'engine')) {
+          _defaultsDeep(that.config['engine'], _cloneDeep(data));
+        } else {
+          that.config['engine'] = _cloneDeep(data);
+        }
         break;
       case 'log': // passthrough
       default:
@@ -122,16 +118,11 @@ function session(transport, core) {
         toCore('connected', data);
         break;
       case 'config':
-        _merge(that.config['engine'],
-          _cloneDeep(
-            data),
-          function(objVal, srcVal, key) {
-            if (key === "value") {
-              return objVal;
-            } else {
-              return srcVal;
-            }
-          })
+        if (_has(that.config, 'transport')) {
+          _defaultsDeep(that.config['transport'], _cloneDeep(data));
+        } else {
+          that.config['transport'] = _cloneDeep(data);
+        }
         break;
       case 'log': // passthrough
       default:
@@ -169,9 +160,8 @@ function session(transport, core) {
             // The client is assigning an engine ahead of connection.
             if (data && data.length >= 2) {
               that.swapEngines(data[0], data[1]);
-              
-            }
-            else {
+
+            } else {
               toClient('session', 'log', ['Need a name and a version.', 2]);
             }
             break;
@@ -207,14 +197,11 @@ function session(transport, core) {
     var engineConfig;
     for (var i = 0; i < engines.length; i++) {
       engineConfig = engines[i].getConfig();
-      if (name === engineConfig.name &&
-        version === engineConfig.version) {
+      if (name === engineConfig['describe']['identity']) {
         that.engine.removeListener('fromEngine', fromEngine);
         that.engine = new engines[i](that.engine)
         that.engine.on('fromEngine', fromEngine);
-        toClient('session', 'log', ['Found engine for ' + name + ', ' +
-          version, 4
-        ]);
+        toClient('session', 'log', ['Found and attached engine for "' + name + '"', 4]);
         // double check this later...
         toEngine('config');
         break;
