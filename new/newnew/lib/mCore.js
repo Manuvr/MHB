@@ -170,8 +170,9 @@ function mCore() {
         break;
       case 'config':
         fromEngine('config', config);
+        break;
       default:
-        fromEngine('log', ['Not a valid type.', 2]);
+        fromEngine('log', ['Not a valid input: ' + type, 2]);
         break;
     }
   }

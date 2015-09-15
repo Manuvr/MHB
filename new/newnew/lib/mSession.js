@@ -88,9 +88,10 @@ function session(transport, core) {
         break;
       case 'config':
         //that.config['engine'] = _cloneDeep(data);
-        that.config['engine'] = _merge({}, that.config['engine'], _cloneDeep(
+        _merge(that.config['engine'], _cloneDeep(
           data), function(objVal, srcVal, key) {
           if (key === "value") {
+            toClient('session', 'log', ['Engine config update. Key ' + key + '. discarding src (' +srcVal+ ') in favor of existing (' + objVal+ ').', 7]);
             return objVal;
           } else {
             return srcVal;
@@ -121,7 +122,7 @@ function session(transport, core) {
         toCore('connected', data);
         break;
       case 'config':
-        that.config['transport'] = _merge({}, that.config['engine'],
+        _merge(that.config['engine'],
           _cloneDeep(
             data),
           function(objVal, srcVal, key) {

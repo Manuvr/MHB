@@ -691,7 +691,6 @@ function promptUserForDirective() {
           console.log('Console verbosity is presently ' + chalk.green(
             config.verbosity) + '.');
           break;
-        case 'config': // Show the configuration.
         case 'c':
           dumpConfiguration();
           break;
@@ -735,7 +734,14 @@ function promptUserForDirective() {
           break;
         default:  // Pass directive to the session.
           if ('' !== session_in_use) {
-            sessions[session_in_use].emit('fromClient', 'session', directive, (args.length > 0 ? args : null));
+            var target_module = 'session';
+            if (args.length > 0) {
+              if ((directive == 'engine') || (directive == 'transport')) {
+                target_module = directive;
+                directive = args.shift();
+              }
+            }
+            sessions[session_in_use].emit('fromClient', target_module, directive, (args.length > 0 ? args : null));
           }
           else {
             printUsage();
