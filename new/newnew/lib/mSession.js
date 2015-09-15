@@ -6,6 +6,7 @@ var inspect = require('util').inspect;
 
 var _cloneDeep = require('lodash.clonedeep');
 var _has = require('lodash.has');
+var _merge = require('lodash.merge');
 
 // Global default MHB and engine list;
 var MHB = require('./mCore.js')
@@ -86,7 +87,15 @@ function session(transport, core) {
         toTransport('connected', false);
         break;
       case 'config':
-        that.config['engine'] = _cloneDeep(data);
+        //that.config['engine'] = _cloneDeep(data);
+        that.config['engine'] = _merge({}, that.config['engine'], _cloneDeep(
+          data), function(objVal, srcVal, key) {
+          if (key === "value") {
+            return objVal;
+          } else {
+            return srcVal;
+          }
+        })
         break;
       case 'log': // passthrough
       default:
@@ -112,7 +121,16 @@ function session(transport, core) {
         toCore('connected', data);
         break;
       case 'config':
-        that.config['transport'] = _cloneDeep(data);
+        that.config['transport'] = _merge({}, that.config['engine'],
+          _cloneDeep(
+            data),
+          function(objVal, srcVal, key) {
+            if (key === "value") {
+              return objVal;
+            } else {
+              return srcVal;
+            }
+          })
         break;
       case 'log': // passthrough
       default:
@@ -155,8 +173,8 @@ function session(transport, core) {
             // log?
         }
         break;
-      
-      // TODO: We might phase these out as our debugging needs diminish.
+
+        // TODO: We might phase these out as our debugging needs diminish.
       case 'transport':
         toTransport(type, data);
         break;
