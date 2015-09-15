@@ -231,7 +231,7 @@ function toClientAggregation(ses, origin, type, data) {
   switch (type) {
     case 'log': // Client is getting a log from somewhere.
       if (data[1] && data[1] <= config.verbosity) {
-        console.log(chalk.cyan.bold((Date.now()/1000).toString()+'\t'+ses) + chalk.yellow(' (' + origin + "):\t") + chalk.gray(data[0]));
+        console.log(chalk.cyan.bold((Date.now()/1000).toString()+'\t'+ses) + chalk.yellow(' (' + origin + "):\t") + chalk.gray(data[0])+"\n");
       }
       if (current_log_file) {
         // Write to the log file if we have one open.
@@ -690,13 +690,6 @@ function promptUserForDirective() {
         case 'config': // Show the configuration.
         case 'c':
           dumpConfiguration();
-          break;
-        case 'scan': // Scan the given session's transport.
-          runSessionCommand('scan', args);
-          break;
-        case 'connect': // Cause the given session to connect.
-        case 'disconnect': // Cause the given session to connect.
-          runSessionCommand('connect', args, [directive == 'connect']);
           break;
         case 'saveconfig': // Force-Save the current configuration.
           config.dirty = true;
