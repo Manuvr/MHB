@@ -11,23 +11,66 @@ var ee = require('events').EventEmitter;
 
 // sample config for transport parameters
 var config = {
-  name: 'mTransport',
+  describe: {
+    'mtu': 1000000,
+    'pVersion': "0.0.1",
+    'identity': "Digitabulum",
+    'fVersion': '1.5.4',
+    'hVersion': '0',
+    'extDetail': ''
+  },
   state: {
-    'connected'      : {type: 'boolean',  value: false},
-    'listening'      : {type: 'boolean',  value: true},
-    'localAddress'   : {type: 'string',   value: ''},
-    'remoteAddress'  : {type: 'string',   value: ''}
+    'connected': {
+      type: 'boolean',
+      value: false
+    },
+    'listening': {
+      type: 'boolean',
+      value: true
+    },
+    'localAddress': {
+      type: 'string',
+      value: ''
+    },
+    'remoteAddress': {
+      type: 'string',
+      value: ''
+    }
   },
   inputs: {
-    'scan':          {label:  'Scan',              type: 'none'},
-    'data':          {label:  'Data',              type: 'buffer'},
-    'connect':       {label:  'Connect', desc: ['Connect'], type: 'array'}
+    'scan': {
+      label: 'Scan',
+      type: 'none'
+    },
+    'data': {
+      label: 'Data',
+      type: 'buffer'
+    },
+    'connect': {
+      label: 'Connect',
+      desc: ['Connect'],
+      type: 'array'
+    }
   },
   outputs: {
-    'connected':     {type:   'boolean',        state: 'connected'},
-    'scanResult':    {label:  ['Address'],      type:  'array'},
-    'localAddress':  {label:  'Local Address',  type:  'string',  state: 'localAddress'},
-    'remoteAddress': {label:  'Remote Address', type:  'string',  state: 'remoteAddress'},
+    'connected': {
+      type: 'boolean',
+      state: 'connected'
+    },
+    'scanResult': {
+      label: ['Address'],
+      type: 'array'
+    },
+    'localAddress': {
+      label: 'Local Address',
+      type: 'string',
+      state: 'localAddress'
+    },
+    'remoteAddress': {
+      label: 'Remote Address',
+      type: 'string',
+      state: 'remoteAddress'
+    },
     'log': 'log'
   }
 };
@@ -40,7 +83,7 @@ function mTransport() {
   var that = this;
 
   this.connAddress = "";
-  
+
   var toTransport = function(type, data) {
     switch (type) {
       case 'connect':
@@ -83,7 +126,7 @@ function mTransport() {
         break;
     }
   }
-  
+
   // from local EE
   this.on('toTransport', toTransport);
 

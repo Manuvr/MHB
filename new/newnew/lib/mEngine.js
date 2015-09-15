@@ -7,8 +7,14 @@ var merge = require('lodash.merge');
 
 // Config for mConnector to act on... pulled in to the constructor.
 var config = {
-  name: 'DHB',
-  version: '1.0.0',
+  describe: {
+    'mtu': 1000000,
+    'pVersion': "0.0.1",
+    'identity': "Digitabulum",
+    'fVersion': '1.5.4',
+    'hVersion': '0',
+    'extDetail': ''
+  },
   inputs: {
     'data': 'data'
   },
