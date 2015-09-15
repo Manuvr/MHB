@@ -77,7 +77,7 @@ function mEngine(parent) {
   this.parent = parent;
   this.uuid   = parent.uuid;
 
-  this.mLegend = _clonedeep(mLegend);
+  this.mLegend = mLegend;
   
   // Emits to session
   var fromEngine = function(type, data) {
@@ -86,37 +86,41 @@ function mEngine(parent) {
 
   // Emits to parent
   var toParent = function(type, data) {
+    fromEngine('log', ["MHBDebug toParent: '"+type+"'   Data:\n"+data+"' ", 6]);
     that.parent.emit('toEngine', type, data)
   }
 
   // Inputs from session
   var toEngine = function(type, data) {
+    fromEngine('log', ["MHBDebug toEngine: '"+type+"'   Data:\n"+data+"' ", 6]);
     switch (type) {
-      case 'send_txt_msg':
-        that.fromEngine('log', ["Sending a text message across the wire: '"+data+"' ", 6])
+      case 'sendText':
+        fromEngine('log', ["Sending a text message across the wire: '"+data+"' ", 6]);
+        // TODO: Build the message according to our local message legend and ship it.
         break;
       default:
-        that.toParent(type, customBuild(data));
+        toParent(type, customBuild(data));
         break;
     }
   }
 
   // Inputs from parent
   var fromParent = function(type, data) {
+    fromEngine('log', ["MHBDebug fromParent: '"+type+"'   Data:\n"+data+"' ", 6]);
     switch (type) {
       case 'client':
-        that.fromEngine(type, customRead(data));
+        fromEngine(type, customRead(data));
         break;
       case 'log':
-        that.fromEngine(type, data);
+        fromEngine(type, data);
         break;
       case 'config':
         // TODO: merge() is sloppy here...
-        that.fromEngine(type, merge({}, data, config));
+        fromEngine(type, merge({}, data, config));
         break;
       default:
         // something random from parent
-        that.fromEngine(type, data);
+        fromEngine(type, data);
         break;
     }
   }
@@ -132,4 +136,5 @@ mEngine.prototype.getConfig = function() {
   return config;
 }
 
-module.exports = mEngine;
+module.exports = {init: mEngine, config: config}; //mEngine;
+

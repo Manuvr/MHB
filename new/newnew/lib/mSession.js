@@ -159,7 +159,7 @@ function session(transport, core) {
           case 'assign':
             // The client is assigning an engine ahead of connection.
             if (data && data.length >= 2) {
-              that.swapEngine(data[0], data[1]);
+              swapEngine(data[0], data[1]);
 
             } else {
               toClient('session', 'log', ['Need a name and a version.', 2]);
@@ -196,10 +196,10 @@ function session(transport, core) {
   var swapEngine = function(name, version) {
     var engineConfig;
     for (var i = 0; i < engines.length; i++) {
-      engineConfig = engines[i].getConfig();
+      engineConfig = engines[i].config;
       if (name === engineConfig['describe']['identity']) {
         that.engine.removeListener('fromEngine', fromEngine);
-        that.engine = new engines[i](that.engine)
+        that.engine = new engines[i].init(that.engine)
         that.engine.on('fromEngine', fromEngine);
         toClient('session', 'log', ['Found and attached engine for "' + name + '"', 4]);
         // double check this later...
