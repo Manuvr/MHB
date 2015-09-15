@@ -201,7 +201,7 @@ function mCore() {
         fromEngine('syncd', data)
         break;
       default:
-        fromEngine('log', ['Not a valid type.', 2]);
+        fromEngine('log', ['Not a valid input toCore: ' + type, 2]);
         break;
     }
   }

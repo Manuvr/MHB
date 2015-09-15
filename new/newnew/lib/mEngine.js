@@ -8,26 +8,52 @@ var merge = require('lodash.merge');
 // Config for mConnector to act on... pulled in to the constructor.
 var config = {
   describe: {
-    'mtu': 1000000,
+    'mtu': 50000,
     'pVersion': "0.0.1",
-    'identity': "Digitabulum",
-    'fVersion': '1.5.4',
+    'identity': "MHBDebug",
+    'fVersion': '0.0.1',
     'hVersion': '0',
     'extDetail': ''
   },
+  state: {
+    'lastText': {
+      type:  'string',
+      value: ''
+    }
+  },
   inputs: {
-    'data': 'data'
+    'sendText': {
+      label: 'sendText',
+      type:  'string'
+    }
   },
   outputs: {
-    'GLOVE_MODEL': 'direct_socket', // these will be definitions in connector
-    'ERROR': 'log'
-      //etc
-  },
-  state: {
-    'LED_1': 'number',
-    'GLOVE_MODEL': 'string'
+    'gotText': {
+      label: 'gotText',
+      type:  'string'
+    }
   }
 };
+
+// TODO: Should probably be part of config.
+var mLegend = {
+  0x8000: {
+    flag: 0x0004,
+    argForms: {
+      '1': [14]
+    },
+    def: 'TXT_MSG'
+  }, // A simple text message.
+  0x8001: {
+    flag: 0x0000,
+    argForms: {
+      '1': [14]
+    },
+    def: 'TXT_MSG_NO_ACK'
+  }  // Same thing, but does not require an ACK.
+};
+
+
 
 function customBuild(data) {
   // manipulate buildable data with switch case
@@ -49,7 +75,10 @@ function mEngine(parent) {
   var that = this;
   this.config = config;
   this.parent = parent;
+  this.uuid   = parent.uuid;
 
+  this.mLegend = _clonedeep(mLegend);
+  
   // Emits to session
   var fromEngine = function(type, data) {
     that.emit('fromEngine', type, data)
@@ -63,15 +92,11 @@ function mEngine(parent) {
   // Inputs from session
   var toEngine = function(type, data) {
     switch (type) {
-      case 'send':
-        // build new
-        that.toParent(type, customBuild(data));
-        break;
-      case 'state':
-        // do something
+      case 'send_txt_msg':
+        that.fromEngine('log', ["Sending a text message across the wire: '"+data+"' ", 6])
         break;
       default:
-        that.fromEngine('log', ["not a valid type", 2])
+        that.toParent(type, customBuild(data));
         break;
     }
   }
@@ -81,14 +106,18 @@ function mEngine(parent) {
     switch (type) {
       case 'client':
         that.fromEngine(type, customRead(data));
+        break;
       case 'log':
         that.fromEngine(type, data);
+        break;
       case 'config':
-        that.fromEngine(type, merge({}, data, config))
+        // TODO: merge() is sloppy here...
+        that.fromEngine(type, merge({}, data, config));
+        break;
       default:
         // something random from parent
         that.fromEngine(type, data);
-
+        break;
     }
   }
 

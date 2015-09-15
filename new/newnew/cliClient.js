@@ -195,7 +195,7 @@ var session_in_use = '';
 var mSession = require('./lib/mSession.js'); // session factory
 var sessionGenerator = new mSession();
 
-var mEngine = require('./lib/mEngine.js'); // DHB
+var debugEngine = require('./lib/mEngine.js'); // The MHB debug engine. (An example)
 
 
 var BTTransport = require('./lib/bluetooth.js'); // bluetooth
@@ -220,6 +220,13 @@ sessions.actor0 = sessionGenerator.init(lb.transport0);
 sessions.actor1 = sessionGenerator.init(lb.transport1);
 sessions.serial = sessionGenerator.init(new SPTransport());
 
+// Any sessions that are supposed to be able to cope with a given Manuvrable, need to
+//   be provided Engines for them. In this case, we want the debug engine to be available
+//   on the loopback sessions...
+sessions.actor0.addEngine(debugEngine);
+sessions.actor0.addEngine(debugEngine);
+// What we did above only made the sessions *aware* of the engine "MHBDebug". It did not
+//   actually cause a binding.
 
 /*
  * This function is where all toClient callbacks are funneled to, if they
