@@ -205,12 +205,12 @@ var session_in_use = '';
 var mSession = require('./lib/mSession.js'); // session factory
 var sessionGenerator = new mSession();
 
-var debugEngine = require('./lib/mEngine.js'); // The MHB debug engine. (An example)
+var debugEngine = require('./lib/debugEngine.js'); // The MHB debug engine. (An example)
 
 
-var BTTransport = require('./lib/bluetooth.js'); // bluetooth
-var SPTransport = require('./lib/mtSerialPort.js'); // serialport
-var LBTransport = require('./lib/loopback.js'); // loopback
+var BTTransport = require('./lib/transports/bluetooth.js'); // bluetooth
+var SPTransport = require('./lib/transports/mtSerialPort.js'); // serialport
+var LBTransport = require('./lib/transports/loopback.js'); // loopback
 
 // We track instantiated transports with this object.
 var transports = {};

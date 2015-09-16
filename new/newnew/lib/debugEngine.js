@@ -3,41 +3,73 @@
 // template for DHB middle-man interaction
 var inherits = require('util').inherits;
 var ee = require('events').EventEmitter;
+var merge = require('lodash.merge');
 
 // Config for mConnector to act on... pulled in to the constructor.
 var config = {
-  name: 'DHB',
-  version: '1.0.0',
-  inputs: {
-    'data': 'data'
-  },
-  outputs: {
-    'GLOVE_MODEL': 'direct_socket', // these will be definitions in connector
-    'ERROR': 'log'
-      //etc
+  describe: {
+    'mtu': 50000,
+    'pVersion': "0.0.1",
+    'identity': "MHBDebug",
+    'fVersion': '0.0.1',
+    'hVersion': '0',
+    'extDetail': ''
   },
   state: {
-    'LED_1': 'number',
-    'GLOVE_MODEL': 'string'
+    'lastText': {
+      type:  'string',
+      value: ''
+    }
+  },
+  inputs: {
+    'sendText': {
+      label: 'sendText',
+      type:  'string'
+    },
+    'sendTextNoAck': {
+      label: 'sendText',
+      type:  'string'
+    }
+  },
+  outputs: {
+    'gotText': {
+      label: 'gotText',
+      type:  'string'
+    }
   }
 };
+
+// TODO: Should probably be part of config.
+var mLegend = {
+  0x8000: {
+    flag: 0x0004,
+    argForms: {
+      '1': [14]
+    },
+    def: 'TXT_MSG'
+  }, // A simple text message.
+  0x8001: {
+    flag: 0x0000,
+    argForms: {
+      '1': [14]
+    },
+    def: 'TXT_MSG_NO_ACK'
+  }  // Same thing, but does not require an ACK.
+};
+
+
 
 function customBuild(data) {
   // manipulate buildable data with switch case
   return data
 }
 
-
 /**
-* This is where functionality specific to the Manuvrable ought to be cased-off.
-*
-*/
+ * This is where functionality specific to the Manuvrable ought to be cased-off.
+ *
+ */
 function customRead(data) {
-  switch (data.message) {
-    case 'SYS_POWER_MODE':
-      
-      break;
-  }
+  // manipulate parsed data with switch case
   return data;
 }
 
@@ -47,11 +79,10 @@ function mEngine(parent) {
   var that = this;
   this.config = config;
   this.parent = parent;
+  this.uuid   = parent.uuid;
 
-  // listeners
-  this.on('toEngine', toEngine)
-  this.parent.on('fromEngine', fromParent)
-
+  this.mLegend = mLegend;
+  
   // Emits to session
   var fromEngine = function(type, data) {
     that.emit('fromEngine', type, data)
@@ -59,42 +90,59 @@ function mEngine(parent) {
 
   // Emits to parent
   var toParent = function(type, data) {
+    fromEngine('log', ["MHBDebug toParent: '"+type+"'   Data:\n"+data+"' ", 7]);
     that.parent.emit('toEngine', type, data)
   }
 
   // Inputs from session
   var toEngine = function(type, data) {
+    fromEngine('log', ["MHBDebug toEngine: '"+type+"'   Data:\n"+data+"' ", 7]);
     switch (type) {
-      case 'send':
-        // build new
-        that.toParent(type, customBuild(data));
+      case 'sendText':
+        fromEngine('log', ["Sending a text message across the wire: '"+data+"' ", 6]);
+        // TODO: Build the message according to our local message legend and ship it.
         break;
-      case 'state':
-        // do something
+      case 'sendTextNoAck':
+        fromEngine('log', ["Sending a text message across the wire without caring about ACK: '"+data+"' ", 6]);
+        // TODO: Build the message according to our local message legend and ship it.
         break;
       default:
-        that.fromEngine('log', "not a valid type")
+        toParent(type, customBuild(data));
         break;
     }
   }
 
   // Inputs from parent
   var fromParent = function(type, data) {
+    fromEngine('log', ["MHBDebug fromParent: '"+type+"'   Data:\n"+data+"' ", 7]);
     switch (type) {
       case 'client':
-        that.fromEngine(type, customRead(data));
+        fromEngine(type, customRead(data));
+        break;
       case 'log':
-        that.fromEngine(type, data);
+        fromEngine(type, data);
+        break;
+      case 'config':
+        // TODO: merge() is sloppy here...
+        fromEngine(type, merge({}, data, config));
+        break;
       default:
         // something random from parent
-
+        fromEngine(type, data);
+        break;
     }
   }
+
+  // listeners
+  this.on('toEngine', toEngine)
+  this.parent.on('fromEngine', fromParent)
+
 };
-util.inherits(mEngine, ee);
+inherits(mEngine, ee);
 
 mEngine.prototype.getConfig = function() {
   return config;
 }
 
-module.exports = mEngine;
+module.exports = {init: mEngine, config: config}; //mEngine;
+

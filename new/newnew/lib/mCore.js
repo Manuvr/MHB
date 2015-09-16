@@ -23,7 +23,7 @@ var messageBuilder = require('./mCore/messageBuilder.js')
 // Config for mConnector to act on
 var config = {
   describe: {
-    'mtu': 1000000,
+    'mtu': 16777215,  // Largest-possible MTU for the protocol.
     'pVersion': "0.0.1",
     'identity': "MHB",
     'fVersion': '1.5.4',
