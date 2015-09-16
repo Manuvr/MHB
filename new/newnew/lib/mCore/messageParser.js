@@ -1,9 +1,15 @@
 'use strict';
 
-// var types = require('./types');
-// var commands = require('./messageLegend.js');
-
-function legendMessage(jsonBuff, commands, types) {
+/**
+ * This is a special-case parser that extracts a message legend from a message payload.
+ * A fully-formed message legend is returned on success. False otherwise.
+ *
+ * @param   {object}  jsonBuff  An object containing a message legend that needs un-packing.
+ * @config  {Buffer}  raw       A buffer that contains the payload of a MessageLegend message.
+ * @param   {object}  types     An object containing our own type legend.
+ * @returns {object}
+ */
+function legendMessage(jsonBuff, types) {
   var zeroScanner;
   var zeroLoc;
   var startLoc;
@@ -81,11 +87,14 @@ function legendMessage(jsonBuff, commands, types) {
 
 
 /**
- * Passed a sequence of type-codes, returns true if there is a variable-length type among them. False otherwise.
+ * Passed a sequence of type-codes, returns true if there is a variable-length type among them.
+ * False otherwise.
+ *
+ * @param   {array}   argForm  An array of type codes that we will evaluate for length-ambiguity.
+ * @param   {object}  types    An object containing our own type legend.
+ * @returns {boolean}
  */
 function containsVariableLengthTypeCode(argForm, types) {
-  //for (var key in Object.getOwnPropertyNames(command_def.argForms)) {
-  //}
   var i = 0;
   var parseType;
   while (i < argForm.length) {
@@ -102,10 +111,12 @@ function containsVariableLengthTypeCode(argForm, types) {
  * Passed a sequence of type-codes, returns the minimum number of bytes required to store it.
  * All variable-length types are presumed to have a minimum length of 1.
  * Returns -1 on failure, since 0 is a valid return (argForm may have no types in it).
+ *
+ * @param   {array}   argForm  An array of type codes for which we will sum lengths.
+ * @param   {object}  types    An object containing our own type legend.
+ * @returns {integer}
  */
 function minimumSizeOfArgForm(argForm, types) {
-  //for (var key in Object.getOwnPropertyNames(command_def.argForms)) {
-  //}
   var i = 0;
   var return_value = 0;
   var parseType;
@@ -117,29 +128,15 @@ function minimumSizeOfArgForm(argForm, types) {
 }
 
 
-// /**
-//  * @return length of extracted string if there exists a null-terminator between 'offset' and the end of the raw buffer. Otherwise, returns -1.
-//  */
-// function extractNullTerminatedString(jsonBuff, offset) {
-//   var i = offset;
-//   var max = jsonBuff.raw.length;
-//   while (i < max) {
-//     if (jsonBuff.raw.readUInt8(i) === 0) {
-//       jsonBuff.args[jsonBuff.args.length()] = parseType.read(jsonBuff.raw.slice(
-//         offset, i));
-//       return (i - offset);
-//     }
-//     i++;
-//   }
-//   return -1;
-// }
-
-
-
 /**
  * Calling this fxn with a messageDef and a raw payload length will return either...
  *   A) An array of argForms that might fit the length.
  *   B) An empty set, if no such arg forms are found.
+ *
+ * @param   {object}  messageDef  The definition of the message being parsed.
+ * @param   {integer} len         The length of the payload we are tasked with parsing.
+ * @param   {object}  types    An object containing our own type legend.
+ * @returns {array}
  */
 function getPotentialArgForms(messageDef, len, types) {
   var return_value = {};
@@ -162,15 +159,28 @@ function getPotentialArgForms(messageDef, len, types) {
 
 
 
-function typeParse(jsonBuff, commands, types) {
-  var handler = commands[jsonBuff.messageId];
+/**
+ * This is the last step in message parsing. Function takes a raw buffer and from it
+ *   inflates typed arguments; placing them into an array in jsonBuff.
+ * Any message class that does not have its own special parseFloat requirements will
+ *   pass through this function on its way into MHB. 
+ *
+ * @param   {object}  jsonBuff     An object containing the message we wish to pack.
+ * @config  {integer} messageId    The caller needs to have decided what kind of message this is.
+ * @config  {Buffer}  raw          The buffer containing the source data for our parse.
+ * @param   {object}  messageDefs  An object containing the message legend against which we will parse.
+ * @param   {object}  types        An object containing our own type legend.
+ * @returns {array}
+ */
+function typeParse(jsonBuff, messageDefs, types) {
+  var handler = messageDefs[jsonBuff.messageId];
   var outObj = []; // instantiate an output object
 
   // check to see if the buffer is empty
   if ([] !== jsonBuff.raw && jsonBuff.raw.length !== 0) {
     // If the buffer is non-empty, fetch a list of possible ways to interpret it...
     var handlers = getPotentialArgForms(
-      commands[jsonBuff.messageId],
+      messageDefs[jsonBuff.messageId],
       jsonBuff.raw.length,
       types);
 
@@ -244,7 +254,6 @@ function typeParse(jsonBuff, commands, types) {
       //   be a good time to consult them before asploding.
     }
   } else {
-    // I'm an empty array!
     //console.log('No args present');
   }
   return outObj;
@@ -296,7 +305,10 @@ function typeParse(jsonBuff, commands, types) {
 // }
 
 
-
+/**
+ * @constructor
+ * 
+ */
 function MessageParser(commands, types) {
   this.commands = commands;
   this.types = types;
@@ -313,7 +325,7 @@ MessageParser.prototype.parse = function(jsonBuff) {
   jsonBuff.flag = this.commands[jsonBuff.messageId].flag;
   jsonBuff.args = [];
   jsonBuff.message = jsonBuff.messageCode === 11 ?
-    legendMessage(jsonBuff, this.commands, this.types) : typeParse(jsonBuff,
+    legendMessage(jsonBuff, this.types) : typeParse(jsonBuff,
       this.commands, this.types);
   delete jsonBuff.raw;
   delete jsonBuff.totalLength;

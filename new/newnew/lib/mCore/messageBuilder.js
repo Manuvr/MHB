@@ -22,7 +22,7 @@ var writeUInt24LE = function(buf, offset, value) {
  *   A) An array of argForms that have the same cardinality as the supplied integer.
  *   B) An empty set, if no such arg forms are found.
  *
- * @param {integer} messageDef  The value to be written.
+ * @param {object}  messageDef  The definition of the message being sent.
  * @param {integer} card        The number (cardinality) of arguments.
  * @returns (array)
  */
