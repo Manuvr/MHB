@@ -59,6 +59,11 @@ function extendToFixedLength(input, length, character) {
 }
 
 
+/**
+ * Open a new log file at the given path.
+ *
+ * @param   {string}  path  The filesystem path where the log directory is located.
+ */
 function openLogFile(path) {
   fs.open(path, 'ax',
     function(err, fd) {
@@ -73,7 +78,11 @@ function openLogFile(path) {
 }
 
 
-/* Save the current config, if it is dirty. */
+/**
+ * Save the current config, if it is dirty.
+ *
+ * @param   {callback}  callback  The function to call when the operation is finished.
+ */
 function saveConfig(callback) {
   if (config.dirty) {
     delete config.dirty;
@@ -96,10 +105,13 @@ function saveConfig(callback) {
   }
 }
 
-/*
+
+/**
  * Tries to load a conf file from the given path, or the default path if no path
  *   is provided. If config load fails, function will populate config with a default
  *   and mark it dirty.
+ *
+ * @param   {string}  path  The filesystem path where the log directory is located.
  */
 function loadConfig(path) {
   if (!path) {
@@ -155,8 +167,8 @@ loadConfig();
 
 
 /****************************************************************************************************
- * We are using chalk and cli-table for console formatting.                                          *
- ****************************************************************************************************/
+* We are using chalk and cli-table for console formatting.                                          *
+****************************************************************************************************/
 var Table = require('cli-table');
 var chalk = require('chalk');
 // Let's take some some time to setup some CLI styles.
@@ -569,15 +581,15 @@ var sampleObject = {
 
 
 
-/*
+/**
  * This fxn does the cleanup required to exit gracefully, and then ends the process.
+ * This function does not return.
  */
 function quit() {
   // Write a config file if the conf is dirty.
   saveConfig(function(err) {
     if (err) {
-      console.log(
-        'Failed to save config prior to exit. Changes will be lost.');
+      console.log('Failed to save config prior to exit. Changes will be lost.');
     }
     if (current_log_file) {
       fs.close(current_log_file, function(err) {

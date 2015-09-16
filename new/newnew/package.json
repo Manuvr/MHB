@@ -1,5 +1,5 @@
 {
-  "name": "msession",
+  "name": "ManuvrHostBridge",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -22,8 +22,9 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "docgen" : "jsdoc -d ./doc/ cliClient.js `find ./lib -type f \\( -name \\*.js \\)`",
     "stats" : "find ./lib -type f \\( -name \\*.js \\) -exec wc -l {} +"
   },
-  "author": "",
+  "author": "Manuvr, Inc",
   "license": "ISC"
 }
