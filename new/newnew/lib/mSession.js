@@ -27,9 +27,6 @@ var config = {
  */
 function session(transport, core) {
   ee.call(this);
-
-  this.uuid = '';
-
   this.config = {};
 
   this.transport = transport;
@@ -228,8 +225,9 @@ function session(transport, core) {
   toEngine('config');
   toTransport('config');
 }
-inherits(session, ee);
 
+
+inherits(session, ee);
 
 /**
  * Return a human-readable string representing the session.
@@ -241,34 +239,6 @@ session.prototype.getUUID = function() {
   return this.core.uuid;
 }
 
-
-/**
- */
-session.prototype.toJSON = function(unit) {
-  var return_obj = {};
-
-  switch (unit) {
-    case 'session':
-      return_obj = {
-        uuid: this.core.uuid
-      };
-      break;
-    case 'engine':
-      return_obj = this.core.getConfig();
-      break;
-    case 'transport':
-      return_obj = this.transport;
-      break;
-    default:
-      return_obj.session = {
-        uuid: this.core.uuid
-      };
-      return_obj.transport = this.transport;
-      return_obj.engine = this.core.getConfig();
-      break;
-  }
-  return JSON.stringify(return_obj);
-}
 
 // EXPOSED SESSION FACTORY
 

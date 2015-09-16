@@ -1,6 +1,12 @@
-/*
+/**
+ * Writes a 24-bit unsigned integer to the given buf.
+ * 
  * Thanks matanamir... Just needed this one function
  * Credit: https://github.com/matanamir/int24
+ *
+ * @param {Buffer}  buf    The buffer to which we will write.
+ * @param {integer} offset The offset of within the buffer we should write to.
+ * @param {integer} value  The value to be written.
  */
 var writeUInt24LE = function(buf, offset, value) {
   Math.floor(value, 0xffffff)
@@ -15,13 +21,17 @@ var writeUInt24LE = function(buf, offset, value) {
  * Calling this fxn with a messageDef and an integer will return either...
  *   A) An array of argForms that have the same cardinality as the supplied integer.
  *   B) An empty set, if no such arg forms are found.
+ *
+ * @param {integer} messageDef  The value to be written.
+ * @param {integer} card        The number (cardinality) of arguments.
+ * @returns (array)
  */
 function getPotentialArgFormsByCardinality(messageDef, card) {
-  var return_value = {};
+  var return_value = [];
   for (var argForm in messageDef.argForms) {
     if (messageDef.argForms.hasOwnProperty(argForm)) {
       if (argForm.length == card) {
-        return_value[return_value.length] = argForm;
+        return_value.push(argForm);
       }
     }
   }
@@ -32,15 +42,19 @@ function getPotentialArgFormsByCardinality(messageDef, card) {
 /**
  * After types have been flattened into a buffer, a uniqueID assigned, and a message-id
  *   boiled down to an integer, this function is called to merge it all together, generate
- *   a checksum, and reurn a buffer fit for the transport.
+ *   a checksum, and reurns a buffer fit for the transport.
  * There is no good reason for this function to fail.
+ *
+ * @param {integer} messageID     The integer that identifies the message class.
+ * @param {integer} uniqueID      The integer that identifies this particular message.
+ * @param {Buffer}  [argBuffObj]  A buffer containing the message payload.
+ * @returns (Buffer)
  */
 var formPacketBuffer = function(messageID, uniqueID, argBuffObj) {
   //  Binary Model:
   //  uint24le        uint8       uint16le    uint16le    (buffer)
   //  totalLength     checkSum    uniqueID    messageId    raw
   //  total bytes   uID to end
-
   var buffSum = 0;
   var checkBuf;
   var headBuf = new Buffer(4);
@@ -77,6 +91,9 @@ var formPacketBuffer = function(messageID, uniqueID, argBuffObj) {
  *
  * We need to loop twice. The first time to count everything and decide how large a buffer
  *   to create, and the second time to actually do the writing.
+ *
+ * @param {Buffer}  msg_defs  An object containing our own message legend.
+ * @returns (Buffer)
  */
 var packOwnLegendMessages = function(msg_defs) {
   var required_size = 0;
@@ -132,25 +149,26 @@ var packOwnLegendMessages = function(msg_defs) {
 
 
 /**
-* Call this with a plush message in jsonBuff, the messageDef by which it is to be
-*   interpreted, and the types in which it is to be encoded. It will either return
-*   false on error, or a formed buffer that represents the packet to be sent over
-*   the transport.
-*
-* Rules:
-* If there is already a uniqueID in the jsonBuff, it will be used. Otherwise, one will
-*   be generated and inserted into the jsonBuff upon success.
-* messageDef will contain a set of argForms, many of which might fit the jsonBuff.
-*   A best-attempt will be made to choose the correct argForm for the task until we
-*   think of a way to unambiguously dictate it when needed.
-*
-* Sample object follows:
-
-{
-
-  "args" : []
-}
-
+ * Call this with a plush message in jsonBuff, the messageDef by which it is to be
+ *   interpreted, and the types in which it is to be encoded. It will either return
+ *   false on error, or a formed buffer that represents the packet to be sent over
+ *   the transport.
+ *
+ * Rules:
+ * If there is already a uniqueID in the jsonBuff, it will be used. Otherwise, one will
+ *   be generated and inserted into the jsonBuff upon success.
+ * messageDef will contain a set of argForms, many of which might fit the jsonBuff.
+ *   A best-attempt will be made to choose the correct argForm for the task until we
+ *   think of a way to unambiguously dictate it when needed.
+ *
+ *
+ * @param {object}   messageDefs  An object containing our own message legend.
+ * @param {object}   types        An object containing our own type legend.
+ * @param {object}   jsonBuff     An object containing the message we wish to pack.
+ * @config {integer} messageId    The caller needs to have decided what kind of message this is.
+ * @config {integer} uniqueID     The caller needs to have assigned a uniqueId to this message.
+ * @config {array}   [args]       If this message has arguments, they should be provided as an array.
+ * @returns (Buffer)
 */
 var builder = function(messageDefs, types, jsonBuff) {
   var return_value = false;
@@ -179,14 +197,7 @@ var builder = function(messageDefs, types, jsonBuff) {
     }
   }
 
-  return_value = formPacketBuffer(jsonBuff.messageId, jsonBuff.uniqueId,
-    flattened_args);
-
-  // if (return_value) {
-  //   // If we got a buffer back, we know that we succeeded, and we should now
-  //   //   mutate the jsonBuff appropriately.
-  //   jsonBuff.uniqueId = jsonBuff.uniqueId;
-  // }
+  return_value = formPacketBuffer(jsonBuff.messageId, jsonBuff.uniqueId, flattened_args);
   return return_value;
 }
 
