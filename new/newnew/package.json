@@ -21,7 +21,8 @@
     "eslint": "^1.1.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "stats" : "find ./lib -type f \\( -name \\*.js \\) -exec wc -l {} +"
   },
   "author": "",
   "license": "ISC"

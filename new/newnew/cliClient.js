@@ -1,6 +1,16 @@
 /*
- * This is to become the transport test directory.
+ * This is the command-line client for Manuvr. It's functionality is limited,
+ *   but it ought to be enough to demonstrate what a client is expected to do
+ *   and how it can be done. It is also expected that this client will serve
+ *   as a sort of test-bench for developing Manuvrables (either hardware devices
+ *   or pure software modules).
+ * It is also possible that someone might wish to run MHB as a service on a
+ *   small computer to act as a connection point for other Manuvrables, but without
+ *   the need of an API. In that case, this client can be run with the headless
+ *   setting via forever or monit, thereby filling all the roles of a client without 
+ *   any kind of a breakout.
  *
+ * For most purposes, we imagine our electron or API clients will find more usage.
  */
 'use strict'
 

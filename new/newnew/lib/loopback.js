@@ -118,9 +118,6 @@ function pairConstructor() {
   // We update our attached session with our local address...
   this.transport0.emit('fromTransport', 'localAddress', transport0_addr);
   this.transport1.emit('fromTransport', 'localAddress', transport1_addr);
-
-  //this.transport0.emit('fromTransport', 'connected', true);
-  //this.transport1.emit('fromTransport', 'connected', true);
 }
 
 
