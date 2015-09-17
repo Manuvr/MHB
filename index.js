@@ -1,3 +1,5 @@
-var MHB = require('./new/mhb.js')();
+'use strict'
 
-module.exports = MHB;
+var mSession = require('./lib/mSession.js')();
+
+module.exports = mSession;

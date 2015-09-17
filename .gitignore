@@ -1,4 +1,4 @@
-app/bower_components
+old/app/bower_components
 node_modules
 ./.idea/
 .idea
@@ -11,3 +11,4 @@ temp.js
 .swp
 .swo
 .DS_Store
+.directory
