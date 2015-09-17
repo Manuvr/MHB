@@ -4,7 +4,7 @@ var Dissolve = require('dissolve');
 var EventEmitter = require('events').EventEmitter;
 
 
-// variables
+/** This is the definition of a sync packet. */
 var syncPacket = new Buffer([0x04, 0x00, 0x00, 0x55], 'hex');
 
 // helpers
@@ -29,7 +29,12 @@ var bufferCompare = function(a, b) {
   return true;
 };
 
-// this will be exposed
+/**
+ * This is the exposed constructor for the Receiver class. It is the interface between
+ *   mCore, and the transport's emitted data (by way of Dissolve).
+ *
+ * @constructor
+ */
 function Receiver() {
   this.ee = new EventEmitter();
   this.waitingForSync = true;

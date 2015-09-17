@@ -1,5 +1,11 @@
 'use strict';
 
+/**
+ * These are the statically-coded types that Manuvr supports. This definition might be
+ *   replaced in the future with the results of a TYPE_LEGEND message so that types
+ *   may be dynamically negotiated between parties. This protects (IE) 8-bit microcontrollers
+ *   from having to support 64-bit floating point numbers. For now, we are hard-coding them.
+ */
 var types = module.exports = {
   0: {
     name: 'DO NOT USE',
@@ -130,7 +136,14 @@ var types = module.exports = {
     name: 'Vector4(Float)',
     len: 16, write: function(value){ var e = new Buffer(16); e.writeFloatLE(value.x, 0).writeFloatLE(value.y, 4).writeFloatLE(value.z, 8).writeFloatLE(value.w, 12); return e; },
     read: function(buff){return { x: buff.readFloatLE(0), y: buff.readFloatLE(4), z: buff.readFloatLE(8), w: buff.readFloatLE(12) }; }
-  }, // Vector4 (quat)
+  }, // Vector4
+  23: {
+    // URL is an alias of string. Treat it the same.
+    name: 'URL',
+    len: 0, 
+    write: function(value){ return value; },
+    read: function(buff){ return buff; }
+  }, // URL
   175: {
     name: 'StringB(ascii)',
     len: 0,

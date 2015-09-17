@@ -2,21 +2,22 @@
 var merge = require('lodash.merge');
 var mapKeys = require('lodash.mapkeys');
 
-// If not specified, messages that demand an acknowledgement will be
-//   retried this many times.
+/** If not specified, messages that demand an acknowledgement will be retried this many times. */
 var DEFAULT_RETRY_COUNT = 3;
 
 /**
  * Generates a new uniqueID in a 16-bit range.
  * Never chooses zero, despite it being a valid choice for this field. Zero is spooky.
+ *
+ * @return {integer}
  */
 var generateUniqueId = function() {
   return Math.random() * (65535 - 1) + 1;
 }
 
-
-
-
+/**
+ * These are the queues that we depend upon for making sense of a stateful dialog.
+ */
 function queues() {
   this.outbound_queue = [];
     
@@ -27,9 +28,12 @@ function queues() {
 }
 
 
-
-// THIS MUST BE CALLED WITH A .BIND() FROM THE PARENT TO GET THE "THIS"
-// TO WORK PROPERLY...
+/**
+ * THIS MUST BE CALLED WITH A .BIND() FROM THE PARENT TO GET THE "THIS"
+ * TO WORK PROPERLY...
+ *
+ * @param {object} jsonBuff
+ */
 function parseAct(jsonBuff) {
 
   switch (jsonBuff.messageName) {
@@ -94,8 +98,12 @@ function parseAct(jsonBuff) {
 
 
 
-// THIS MUST BE CALLED WITH A .BIND() FROM THE PARENT TO GET THE "THIS"
-// TO WORK PROPERLY...
+/**
+ * THIS MUST BE CALLED WITH A .BIND() FROM THE PARENT TO GET THE "THIS"
+ * TO WORK PROPERLY...
+ *
+ * @param {object} jsonBuff
+ */
 function buildAct(jsonBuff) {
   var result = null;
   jsonBuff.uniqueId = (undefined !== jsonBuff.uniqueId) ? jsonBuff.uniqueId :

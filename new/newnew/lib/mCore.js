@@ -20,7 +20,7 @@ var buildAction = require('./mCore/messageAction.js').buildAct;
 var dialogQueues = require('./mCore/messageAction.js').queues;
 var messageBuilder = require('./mCore/messageBuilder.js')
 
-// Config for mConnector to act on
+/** This is the default config for mCore. */
 var config = {
   describe: {
     'mtu': 16777215,  // Largest-possible MTU for the protocol.

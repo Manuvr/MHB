@@ -264,7 +264,7 @@ function typeParse(jsonBuff, messageDefs, types) {
  *   not ambiguous. But until the general typeParse() fxn can handle several strings, we need it.
  */
 // function selfDescribeParse(jsonBuff) {
-//   var handler = commands[jsonBuff.messageId];
+//   var handler = messageLegend[jsonBuff.messageId];
 //
 //   if (jsonBuff.raw.length > 0) {
 //     if (jsonBuff.raw.length >= 9) {
@@ -309,24 +309,24 @@ function typeParse(jsonBuff, messageDefs, types) {
  * @constructor
  * 
  */
-function MessageParser(commands, types) {
-  this.commands = commands;
+function MessageParser(messageLegend, types) {
+  this.messageLegend = messageLegend;
   this.types = types;
   var that = this;
 
 }
 
 MessageParser.prototype.parse = function(jsonBuff) {
-  if (!this.commands.hasOwnProperty(jsonBuff.messageId)) {
+  if (!this.messageLegend.hasOwnProperty(jsonBuff.messageId)) {
     console.log('No messageID. (no arguments will be parsed) ', jsonBuff);
     return false;
   }
-  jsonBuff.messageName = this.commands[jsonBuff.messageId].def;
-  jsonBuff.flag = this.commands[jsonBuff.messageId].flag;
+  jsonBuff.messageName = this.messageLegend[jsonBuff.messageId].def;
+  jsonBuff.flag = this.messageLegend[jsonBuff.messageId].flag;
   jsonBuff.args = [];
   jsonBuff.message = jsonBuff.messageCode === 11 ?
     legendMessage(jsonBuff, this.types) : typeParse(jsonBuff,
-      this.commands, this.types);
+      this.messageLegend, this.types);
   delete jsonBuff.raw;
   delete jsonBuff.totalLength;
   delete jsonBuff.checkSum;
@@ -334,8 +334,8 @@ MessageParser.prototype.parse = function(jsonBuff) {
   return true;
 };
 
-MessageParser.prototype.updateCommands = function(commands) {
-  this.commands = commands;
+MessageParser.prototype.updateCommands = function(messageLegend) {
+  this.messageLegend = messageLegend;
 }
 
 MessageParser.prototype.updateTypes = function(types) {

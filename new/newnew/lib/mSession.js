@@ -10,9 +10,12 @@ var _merge = require('lodash.merge');
 var _defaultsDeep = require('lodash.defaultsdeep');
 
 // Global default MHB and engine list;
-var MHB = require('./mCore.js')
+var MHB = require('./mCore.js');
+
+/** This is an array of possible Engines that might connect to a session. */
 var engines = [];
 
+/** This is the default config for an mSession. */
 var config = {
   state: {},
   input: {},
@@ -21,6 +24,7 @@ var config = {
 
 /**
  * A generated session object constructor
+ *
  * @class
  * @param  {object} transport An instantiated mTransport
  * @param  {object} core      An instantiated mCore
@@ -230,12 +234,13 @@ function session(transport, core) {
 inherits(session, ee);
 
 /**
- * Return a human-readable string representing the session.
+ * Return a UUID identifying the session.
  * The core is what actually represents the state of the session, and thus
  *   it is the source of the unique identifier.
+ *
+ * @return {string} The UUID for this session.
  */
 session.prototype.getUUID = function() {
-  //return ('UUID: ' + this.core.uuid + '   Via ' + this.transport.getName() + ' which is ' + (this.transport.isConnected() ?'connected':'unconnected'));
   return this.core.uuid;
 }
 
@@ -244,6 +249,7 @@ session.prototype.getUUID = function() {
 
 /**
  * Constructor information for mSession
+ *
  * @class {object} This is the empty generator class
  */
 function mSession() {
@@ -252,6 +258,7 @@ function mSession() {
 
 /**
  * Adds an "mEngine" to the engine search array
+ *
  * @param  {function} engine This requires an UNINSTANTIATED mEngine function
  */
 mSession.prototype.addEngine = function(engine) {
@@ -260,6 +267,7 @@ mSession.prototype.addEngine = function(engine) {
 
 /**
  * Replaces the MHB default core (not reccomended)
+ *
  * @param  {object} core This requires an INSTANTIATED mCore
  */
 mSession.prototype.replaceCore = function(core) {
@@ -269,6 +277,7 @@ mSession.prototype.replaceCore = function(core) {
 
 /**
  * This returns a new session object with the given transport
+ *
  * @param  {object} transport Requires a "new-ed" mTransport
  * @return {object} Returns an "newed" session object
  */

@@ -5,7 +5,7 @@ var inherits = require('util').inherits;
 var ee = require('events').EventEmitter;
 var merge = require('lodash.merge');
 
-// Config for mConnector to act on... pulled in to the constructor.
+/** This is the default config for this Engine. */
 var config = {
   describe: {
     'mtu': 50000,

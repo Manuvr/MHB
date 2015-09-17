@@ -2,34 +2,16 @@
 
 var messageFlags = require('./messageFlags.js');
 
-// quat: x, y z = between 0 and 1, between 0 and 1
-// acc : force in micro g's
-// gyro: degrees per second
-// mag : micro tesla's
-
-/*
-#define MSG_FLAG_IDEMPOTENT   0x0001      // Indicates that only one of the given message should be enqueue.
-#define MSG_FLAG_EXPORTABLE   0x0002      // Indicates that the message might be sent between systems.
-#define MSG_FLAG_DEMAND_ACK   0x0004      // Demands that a message be acknowledged if sent outbound.
-
-#define MSG_FLAG_RESERVED_C   0x0008      // Reserved flag.
-#define MSG_FLAG_RESERVED_B   0x0010      // Reserved flag.
-#define MSG_FLAG_RESERVED_A   0x0020      // Reserved flag.
-#define MSG_FLAG_RESERVED_9   0x0040      // Reserved flag.
-#define MSG_FLAG_RESERVED_8   0x0080      // Reserved flag.
-#define MSG_FLAG_RESERVED_7   0x0100      // Reserved flag.
-#define MSG_FLAG_RESERVED_6   0x0200      // Reserved flag.
-#define MSG_FLAG_RESERVED_5   0x0400      // Reserved flag.
-#define MSG_FLAG_RESERVED_4   0x0800      // Reserved flag.
-#define MSG_FLAG_RESERVED_3   0x1000      // Reserved flag.
-#define MSG_FLAG_RESERVED_2   0x2000      // Reserved flag.
-#define MSG_FLAG_RESERVED_1   0x4000      // Reserved flag.
-#define MSG_FLAG_RESERVED_0   0x8000      // Reserved flag.
-*/
-
+/**
+ * This is our default message legend. These message definitions are part of what
+ *   make the protocol version what it is. These should be the only things hard-coded
+ *   in mCore, as they represent the minimum-supported API for discovery of everything else.
+ *
+ * These definitions are not sent over the wire when we exchange MESSAGE_LEGEND messages
+ *   because their support and definition are implied with the protocol version we supply
+ *   (or are supplied).
+ */
 var messageLegend = {
-  //These are the final codes for ManuvrOS. These should be the only things hard-coded, as they
-  //represent the minimum-supported API for discovery of everything else.
   // TODO: change command to message to represent two way communication
   // TODO: match on def instead of index
 

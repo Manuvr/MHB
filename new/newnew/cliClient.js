@@ -33,7 +33,10 @@ var util = require('util');
 var packageJSON = require('./package.json');
 var fs = require('fs');
 
+/** This object stores our presently-active config. */
 var config = {};
+
+/** If we have an open log file, this will be a file-descriptor. */
 var current_log_file = false;
 
 /****************************************************************************************************
