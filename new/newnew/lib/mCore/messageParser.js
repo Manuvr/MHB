@@ -162,7 +162,7 @@ function getPotentialArgForms(messageDef, len, types) {
 /**
  * This is the last step in message parsing. Function takes a raw buffer and from it
  *   inflates typed arguments; placing them into an array in jsonBuff.
- * Any message class that does not have its own special parseFloat requirements will
+ * Any message class that does not have its own special parse requirements will
  *   pass through this function on its way into MHB. 
  *
  * @param   {object}  jsonBuff     An object containing the message we wish to pack.

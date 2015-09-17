@@ -28,8 +28,8 @@ var util = require('util');
 
 
 /****************************************************************************************************
- * This is the configuration for this client and some meta-awareness.                                *
- ****************************************************************************************************/
+* This is the configuration for this client and some meta-awareness.                                *
+****************************************************************************************************/
 var packageJSON = require('./package.json');
 var fs = require('fs');
 
@@ -37,8 +37,8 @@ var config = {};
 var current_log_file = false;
 
 /****************************************************************************************************
- * Small utility functions...                                                                        *
- ****************************************************************************************************/
+* Small utility functions...                                                                        *
+****************************************************************************************************/
 function isFunction(fxn) {
   return (typeof fxn === 'function');
 }
@@ -199,9 +199,45 @@ var INNER_TABLE_STYLE = {
 };
 
 
+/**
+ * This function instantiates a table with the given header and style. Prevents redundant code.
+ *
+ * @param   {array}  header     An array of strings to use as a table header.
+ * @returns {Table}
+ */
+var issueOuterTable = function(header) {
+  var table = new Table({
+    head: header,
+    chars: {
+      'top': '─',
+      'top-mid': '┬',
+      'top-left': '┌',
+      'top-right': '┐',
+      'bottom': '─',
+      'bottom-mid': '┴',
+      'bottom-left': '└',
+      'bottom-right': '┘',
+      'left': '│',
+      'left-mid': '├',
+      'mid': '─',
+      'mid-mid': '┼',
+      'right': '│',
+      'right-mid': '┤',
+      'middle': '│'
+    },
+    style: {
+      'padding-left': 0,
+      'padding-right': 0
+    }
+  });
+  return table;
+}
+
+
+
 /****************************************************************************************************
- * This is junk related to prompt.                                                                   *
- ****************************************************************************************************/
+* This is junk related to prompt.                                                                   *
+****************************************************************************************************/
 var prompt = require('prompt');
 prompt.message = '';
 prompt.delimiter = '';
@@ -218,7 +254,6 @@ var mSession = require('./lib/mSession.js'); // session factory
 var sessionGenerator = new mSession();
 
 var debugEngine = require('./lib/debugEngine.js'); // The MHB debug engine. (An example)
-
 
 var BTTransport = require('./lib/transports/bluetooth.js'); // bluetooth
 var SPTransport = require('./lib/transports/mtSerialPort.js'); // serialport
@@ -242,21 +277,25 @@ sessions.actor0 = sessionGenerator.init(lb.transport0);
 sessions.actor1 = sessionGenerator.init(lb.transport1);
 sessions.serial = sessionGenerator.init(new SPTransport());
 
-// Any sessions that are supposed to be able to cope with a given Manuvrable, need to
-//   be provided Engines for them. In this case, we want the debug engine to be available
+// Any sessions that are to be able to cope with a given Manuvrable need to be provided
+//   Engines capable of handling them. In this case, we want the debug engine to be available
 //   on the loopback sessions...
 sessionGenerator.addEngine(debugEngine);
 // What we did above only made the sessions *aware* of the engine "MHBDebug". It did not
 //   actually cause a binding.
 
-/*
- * This function is where all toClient callbacks are funneled to, if they
- *   are not specifically handled elsewhere. Common client broadcasts should
- *   probably be handled here.
+/**
+ * This function is where all toClient callbacks are funneled to (if they are not
+ *   specifically handled elsewhere). Common client broadcasts should probably be handled here.
+ *   
+ * @param   {string}  ses     The name of the session that emitted the event.
+ * @param   {string}  origin  The component of the session that emitted the event.
+ * @param   {string}  method  The method being emitted.
+ * @param   {object}  data    An object containing the arguments to the method.
  */
-function toClientAggregation(ses, origin, type, data) {
+function toClientAggregation(ses, origin, method, data) {
   var ses_obj = sessions[ses];
-  switch (type) {
+  switch (method) {
     case 'log': // Client is getting a log from somewhere.
       if (data[1] && data[1] <= config.verbosity) {
         console.log(chalk.cyan.bold((Date.now()/1000).toString()+'\t'+ses) + chalk.yellow(' (' + origin + "):\t") + chalk.gray(data[0])+"\n");
@@ -271,18 +310,12 @@ function toClientAggregation(ses, origin, type, data) {
       // A session is telling us that it experienced a configuration change.
       showSessionConfig(ses, data);
       break;
-    case 'config':
-      // A session is telling us that it experienced a configuration change.
-      showSessionConfig(ses, data);
-      break;
     default:
-      console.log(
-        chalk.cyan.bold(ses) + ' (' + origin + "):\n\t" +
-          "type:" + type + "\n\t" +
-          "data:" + util.inspect(data, {
-            depth: 10
-          }
-        ));
+      {
+        var table = issueOuterTable([chalk.white.bold('Source'), chalk.white.bold('Method'), chalk.white.bold('Arguments')]);
+        table.push([chalk.cyan.bold(ses+'->'+origin), chalk.gray.bold(method), chalk.gray(util.inspect(data, {depth: 10}))]);
+        console.log(table.toString());
+      }
       break;
   }
 }
@@ -309,13 +342,16 @@ sessions.serial.on('toClient', function(origin, type, data) {
 
 
 /****************************************************************************************************
- * Functions that just print things.                                                                 *
- ****************************************************************************************************/
+* Functions that just print things.                                                                 *
+****************************************************************************************************/
 var logo = require('./manuvrLogo'); // This is the Manuvr logo.
 
 
-/*
+/**
  * Print the given configuration object, along with its subcomponents.
+ *
+ * @param   {string}  ses     The name of the session that emitted the event.
+ * @param   {object}  sconf   The data the session exports.
  */
 function showSessionConfig(ses, sconf) {
   var column_names = [''];
@@ -350,67 +386,20 @@ function showSessionConfig(ses, sconf) {
     final_array.push(chalk.gray(sub_tables.shift()));
   }
   
-  var table = new Table({
-    head: column_names,
-    chars: {
-      'top': '─',
-      'top-mid': '┬',
-      'top-left': '┌',
-      'top-right': '┐',
-      'bottom': '─',
-      'bottom-mid': '┴',
-      'bottom-left': '└',
-      'bottom-right': '┘',
-      'left': '│',
-      'left-mid': '├',
-      'mid': '─',
-      'mid-mid': '┼',
-      'right': '│',
-      'right-mid': '┤',
-      'middle': '│'
-    },
-    style: {
-      'padding-left': 0,
-      'padding-right': 0
-    }
-  });
+  var table = issueOuterTable(column_names);
   
   table.push(final_array);
   console.log(table.toString() + '\n');
 }
 
 
-/*
- * Print a listing of instantiated sessions, along with their subcomponents.
+/**
+ * Print a listing of instantiated sessions.
+ *
+ * @param   {string}  [filter]  If we only want to print a single session, name it here.
  */
 function listSessions(filter) {
-  var table = new Table({
-    head: [chalk.white.bold('Name'), chalk.white.bold('Session'), chalk.white
-      .bold('Transport'), chalk.white.bold('Engine')
-    ],
-    chars: {
-      'top': '─',
-      'top-mid': '┬',
-      'top-left': '┌',
-      'top-right': '┐',
-      'bottom': '─',
-      'bottom-mid': '┴',
-      'bottom-left': '└',
-      'bottom-right': '┘',
-      'left': '│',
-      'left-mid': '├',
-      'mid': '─',
-      'mid-mid': '┼',
-      'right': '│',
-      'right-mid': '┤',
-      'middle': '│'
-    },
-    style: {
-      'padding-left': 0,
-      'padding-right': 0
-    }
-  });
-
+  var table = issueOuterTable([chalk.white.bold('Name'), chalk.white.bold('Session'), chalk.white.bold('Transport'), chalk.white.bold('Engine')]);
   for (var ses in sessions) {
     if (sessions.hasOwnProperty(ses)) {
       if ((0 === filter.length) || (-1 != filter.indexOf(ses))) {
@@ -462,7 +451,7 @@ function listSessions(filter) {
 }
 
 
-/*
+/**
  * Print our currently-active configuration to the console.
  */
 function dumpConfiguration() {
@@ -502,8 +491,8 @@ function dumpConfiguration() {
 }
 
 
-/*
- * Inline help.
+/**
+ * Print inline help.
  */
 function printUsage(current_mode) {
   var table = new Table({
@@ -608,9 +597,13 @@ function quit() {
 
 
 /**
-* This is here to help with commands that require a session. Allows us to use a
-*   previously-specified session, versus forcing the user to specify it each time.
-*/
+ * This is here to help with commands that require a session. Allows us to use a
+ *   previously-specified session, versus forcing the user to specify it each time.
+ *
+ * @param   {string} cmd     The command to run.
+ * @param   {array}  [args]  If we only want to print a single session, name it here.
+ * @param   {array}  [data]  If we only want to print a single session, name it here.
+ */
 function runSessionCommand(cmd, args, data) {
   if (session_in_use && (args.length == 0)) {
     sessions[session_in_use].emit('fromClient', 'session', cmd, (data ? data : null));
@@ -630,7 +623,7 @@ function runSessionCommand(cmd, args, data) {
 }
 
 
-/*
+/**
  * The prompt and user-input handling function.
  */
 function promptUserForDirective() {
@@ -788,8 +781,8 @@ function promptUserForDirective() {
 
 
 /****************************************************************************************************
- * Execution begins below this block.                                                                *
- ****************************************************************************************************/
+* Execution begins below this block.                                                                *
+****************************************************************************************************/
 
 console.log(chalk.white(packageJSON.name + '  v' + packageJSON.version));
 prompt.start(); // Start prompt running.
