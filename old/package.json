@@ -1,0 +1,61 @@
+{
+  "name": "MHB",
+  "version": "0.0.5",
+  "description": "Manuvr Host Bridge",
+  "main": "index.js",
+  "dependencies": {
+    "CBuffer": "^1.1.0",
+    "JSONStream": "^1.0.4",
+    "angular": "^1.3.16",
+    "angular-animate": "^1.3.16",
+    "angular-route": "^1.3.16",
+    "bl": "*",
+    "bluetooth-serial-port": "https://github.com/Zone-Ghost/node-bluetooth-serial-port/tarball/da1548ce05b39c39e3d48d18659e987363f51d72",
+    "bower": "*",
+    "browser-sync": "^2.7.6",
+    "dissolve": "https://github.com/Zone-Ghost/dissolve/tarball/5644fd8a70d4ecda3a362755ec00814e9e6c0f4a",
+    "gulp": "*",
+    "gulp-nodemon": "*",
+    "int24": "*",
+    "lodash": "^3.9.3",
+    "midi": "^0.9.3",
+    "node-libs-browser": "^0.5.2",
+    "readable-stream": "*",
+    "robotjs": "octalmage/robotjs.git",
+    "segfault-handler": "^0.2.4",
+    "serialport": "^1.7.4",
+    "socket.io": "*",
+    "socket.io-client": "*",
+    "teoria": "^1.9.0",
+    "webpack": "^1.9.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Manuvr/MHB"
+  },
+  "bugs": {
+    "url": "https://github.com/Manuvr/MHB/issues"
+  },
+  "homepage": "https://github.com/Manuvr/MHB",
+  "devDependencies": {
+    "chai": "~3.0.0",
+    "connect-livereload": "~0.5.3",
+    "express": "~4.12.4",
+    "gulp-embedlr": "~0.5.2",
+    "gulp-livereload": "~3.8.0",
+    "gulp-util": "^3.0.5",
+    "mocha": "^2.2.5",
+    "sinon": "^1.14.1",
+    "tiny-lr": "~0.1.5",
+    "webpack": "^1.9.10",
+  },
+  "scripts": {
+    "start": "node lib/server.js",
+    "debug": "node-debug lib/server.js",
+    "build": "gulp",
+    "serve": "webpack-dev-server",
+    "test": "mocha test"
+  },
+  "author": "Zone-Ghost, drquinn, jspark311",
+  "license": "ISC"
+}
