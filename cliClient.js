@@ -90,6 +90,30 @@ var INNER_TABLE_STYLE = {
   }
 };
 
+var MIMIMAL_TABLE_STYLE = {
+    chars: {
+      'top': '',
+      'top-mid': '',
+      'top-left': '',
+      'top-right': '',
+      'bottom': '',
+      'bottom-mid': '',
+      'bottom-left': '',
+      'bottom-right': '',
+      'left': '',
+      'left-mid': '',
+      'mid': '',
+      'mid-mid': '',
+      'right': '',
+      'right-mid': '',
+      'middle': ' '
+    },
+    style: {
+      'padding-left': 0,
+      'padding-right': 0
+    }
+  };
+
 
 /**
  * This function instantiates a table with the given header and style. Prevents redundant code.
@@ -460,8 +484,10 @@ function listSessions(filter) {
 
 /**
  * Print our currently-active configuration to the console.
+ *
+ * @param {string} [s_key]   A specific key the user wants to see.
  */
-function dumpConfiguration() {
+function dumpConfiguration(s_key) {
   var table = new Table({
     chars: {
       'top': '',
@@ -488,7 +514,9 @@ function dumpConfiguration() {
 
   for (var key in config) {
     if (config.hasOwnProperty(key) && config[key] && (key !== 'dirty')) {
-      table.push([chalk.cyan(key), chalk.white(config[key].toString())]);
+      if ((!s_key ^ (s_key == key))) {
+        table.push([chalk.cyan(key), chalk.white(config[key].toString())]);
+      }
     }
   }
 
@@ -498,38 +526,14 @@ function dumpConfiguration() {
 }
 
 
+
 /**
  * Print inline help.
  */
 function printUsage(current_mode) {
-  var table = new Table({
-    chars: {
-      'top': '',
-      'top-mid': '',
-      'top-left': '',
-      'top-right': '',
-      'bottom': '',
-      'bottom-mid': '',
-      'bottom-left': '',
-      'bottom-right': '',
-      'left': '',
-      'left-mid': '',
-      'mid': '',
-      'mid-mid': '',
-      'right': '',
-      'right-mid': '',
-      'middle': ' '
-    },
-    style: {
-      'padding-left': 0,
-      'padding-right': 0
-    }
-  });
+  var table = new Table(MIMIMAL_TABLE_STYLE);
 
-  console.log(chalk.white.bold(
-    extendToFixedLength("==< MHB Debug Console   v" + packageJSON.version +
-      ' >', 128, '=')
-  ));
+  console.log(chalk.white.bold(extendToFixedLength("==< MHB Debug Console   v" + packageJSON.version + ' >', 128, '=')));
 
   // These are mode-specific commands.
   switch (current_mode) {
@@ -584,16 +588,17 @@ var sampleObject = {
 function quit(exit_code) {
   // Write a config file if the conf is dirty.
   saveConfig(function(err) {
-    console.log('Exiting with reason: ' + exit_code);
+    if (exit_code) {
+      console.log('Exiting with reason: ' + exit_code);
+    }
+    
     if (err) {
-      console.log('Failed to save config prior to exit. Changes will be lost.');
+      console.log(error('Failed to save config prior to exit. Changes will be lost.'));
     }
     if (current_log_file) {
       fs.close(current_log_file, function(err) {
         if (err) {
-          console.log(
-            'Failed to close the log file. It will be closed when our process ends in a moment.'
-          );
+          console.log('Failed to close the log file. It will be closed when our process ends in a moment.');
         }
         process.exit(); // An hero...
       });
@@ -657,9 +662,10 @@ function promptUserForDirective() {
       'ManuvrHostBridge> ').magenta
   }], function(prompt_err, result) {
     if (prompt_err) {
-      console.log(error('\nno. die. ' + prompt_err));
-      process.exit(1);
-    } else {
+      exit_in_progress = true;
+      quit();
+    } 
+    else {
       var args = result.directive.toString().split(' ');
       var directive = args.shift();
 
@@ -729,7 +735,28 @@ function promptUserForDirective() {
             config.verbosity) + '.');
           break;
         case 'c':
-          dumpConfiguration();
+          switch (args.length) {
+            case 0:
+              dumpConfiguration();
+              break;
+            case 1:
+              dumpConfiguration(args.shift());
+              break;
+            default:
+              {
+                // This will be construed as the user setting a conf key.
+                var k = args.shift();
+                var v = args.shift();
+                if (config.hasOwnProperty(k) && config[k] === v) {
+                  console.log('Config key ' + k + ' already has the value ' + v + '.');
+                }
+                else {
+                  config[k] = v;
+                  config.dirty = true;
+                }
+              }
+              break;
+          }
           break;
         case 'saveconfig': // Force-Save the current configuration.
           config.dirty = true;
