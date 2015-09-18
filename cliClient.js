@@ -33,8 +33,14 @@ var util = require('util');
 var packageJSON = require('./package.json');
 var fs = require('fs');
 
-/** This object stores our presently-active config. */
-var config = {};
+/** This object stores our presently-active config. This config is the default.
+ *  It may be clobbered by loadConfig().
+ */
+var config = {
+  writtenByVersion:    packageJSON.version,
+  verbosity:           7,
+  logPath:             './logs/'
+};
 
 /** If we have an open log file, this will be a file-descriptor. */
 var current_log_file = false;
@@ -48,6 +54,75 @@ function isFunction(fxn) {
 
 function isObject(fxn) {
   return (typeof fxn === 'object');
+}
+
+
+
+/****************************************************************************************************
+* We are using chalk and cli-table for console formatting.                                          *
+****************************************************************************************************/
+var Table = require('cli-table');
+var chalk = require('chalk');
+// Let's take some some time to setup some CLI styles.
+var error = chalk.bold.red;
+
+var INNER_TABLE_STYLE = {
+  chars: {
+    'top': '',
+    'top-mid': '',
+    'top-left': '',
+    'top-right': '',
+    'bottom': '',
+    'bottom-mid': '',
+    'bottom-left': '',
+    'bottom-right': '',
+    'left': ' ',
+    'left-mid': '─',
+    'mid': '─',
+    'mid-mid': '┼',
+    'right': ' ',
+    'right-mid': '─',
+    'middle': '│'
+  },
+  style: {
+    'padding-left': 0,
+    'padding-right': 0
+  }
+};
+
+
+/**
+ * This function instantiates a table with the given header and style. Prevents redundant code.
+ *
+ * @param   {array}  header     An array of strings to use as a table header.
+ * @returns {Table}
+ */
+var issueOuterTable = function(header) {
+  var table = new Table({
+    head: header,
+    chars: {
+      'top': '─',
+      'top-mid': '┬',
+      'top-left': '┌',
+      'top-right': '┐',
+      'bottom': '─',
+      'bottom-mid': '┴',
+      'bottom-left': '└',
+      'bottom-right': '┘',
+      'left': '│',
+      'left-mid': '├',
+      'mid': '─',
+      'mid-mid': '┼',
+      'right': '│',
+      'right-mid': '┤',
+      'middle': '│'
+    },
+    style: {
+      'padding-left': 0,
+      'padding-right': 0
+    }
+  });
+  return table;
 }
 
 
@@ -120,122 +195,51 @@ function loadConfig(path) {
   if (!path) {
     path = './config.json';
   }
-  fs.readFile(path, 'ascii',
-    function(err, data) {
-      if (err) {
-        // Hmmmm... We failed to read a config file. Generate a default.
-        console.log('Failed to read configuration from ' + path +
-          '. Using defaults...');
-        config = {
-          dirty: true,
-          writtenByVersion: packageJSON.version,
-          verbosity: 7,
-          logPath: './logs/'
-        };
-      } else {
-        config = JSON.parse(data);
-      }
-
-      // Now we should setup logging if we need it...
-      if (config.logPath) {
-        fs.exists(config.logPath,
-          function(exists) {
-            if (exists) {
-              openLogFile(config.logPath + 'mhb-' + Math.floor(new Date() /
-                1000) + '.log');
-            } else {
-              fs.mkdir(config.logPath,
-                function(err) {
-                  if (err) {
-                    console.log(error('Log directory (' + config.logPath +
-                      ') does not exist and could not be created. Logging disabled.'
-                    ));
-                  } else {
-                    openLogFile(config.logPath + 'mhb-' + Math.floor(new Date() /
-                      1000) + '.log');
-                  }
-                }
-              );
-            }
-          }
-        );
-      }
+  
+  try {
+    fs.existsSync(path, fs.R_OK);
+    var data = fs.readFileSync(path, 'ascii');
+    if (data) {
+      var temp_config = JSON.parse(data);
+      config = temp_config;
     }
-  );
+    else {
+      console.log(error('The config file '+path+' seems to be empty. Using config defaults...'));
+      config.dirty = true;
+    }
+  }
+  catch (err) {
+    console.log(error('We experienced an while trying to load config from '+path+'. Error was '+err+'\nUsing config defaults...'));
+    config.dirty = true;
+  }
+
+  // Now we should setup logging if we need it...
+  if (config.logPath) {
+    fs.exists(config.logPath,
+      function(exists) {
+        if (exists) {
+          openLogFile(config.logPath + 'mhb-' + Math.floor(new Date() / 1000) + '.log');
+        }
+        else {
+          fs.mkdir(config.logPath,
+            function(err) {
+              if (err) {
+                console.log(error('Log directory (' + config.logPath + ') does not exist and could not be created. Logging disabled.'));
+              }
+              else {
+                openLogFile(config.logPath + 'mhb-' + Math.floor(new Date() / 1000) + '.log');
+              }
+            }
+          );
+        }
+      }
+    );
+  }
 }
 
 
 // Load configuration.
 loadConfig();
-
-
-/****************************************************************************************************
-* We are using chalk and cli-table for console formatting.                                          *
-****************************************************************************************************/
-var Table = require('cli-table');
-var chalk = require('chalk');
-// Let's take some some time to setup some CLI styles.
-var error = chalk.bold.red;
-
-var INNER_TABLE_STYLE = {
-  chars: {
-    'top': '',
-    'top-mid': '',
-    'top-left': '',
-    'top-right': '',
-    'bottom': '',
-    'bottom-mid': '',
-    'bottom-left': '',
-    'bottom-right': '',
-    'left': ' ',
-    'left-mid': '─',
-    'mid': '─',
-    'mid-mid': '┼',
-    'right': ' ',
-    'right-mid': '─',
-    'middle': '│'
-  },
-  style: {
-    'padding-left': 0,
-    'padding-right': 0
-  }
-};
-
-
-/**
- * This function instantiates a table with the given header and style. Prevents redundant code.
- *
- * @param   {array}  header     An array of strings to use as a table header.
- * @returns {Table}
- */
-var issueOuterTable = function(header) {
-  var table = new Table({
-    head: header,
-    chars: {
-      'top': '─',
-      'top-mid': '┬',
-      'top-left': '┌',
-      'top-right': '┐',
-      'bottom': '─',
-      'bottom-mid': '┴',
-      'bottom-left': '└',
-      'bottom-right': '┘',
-      'left': '│',
-      'left-mid': '├',
-      'mid': '─',
-      'mid-mid': '┼',
-      'right': '│',
-      'right-mid': '┤',
-      'middle': '│'
-    },
-    style: {
-      'padding-left': 0,
-      'padding-right': 0
-    }
-  });
-  return table;
-}
-
 
 
 /****************************************************************************************************
@@ -577,9 +581,10 @@ var sampleObject = {
  * This fxn does the cleanup required to exit gracefully, and then ends the process.
  * This function does not return.
  */
-function quit() {
+function quit(exit_code) {
   // Write a config file if the conf is dirty.
   saveConfig(function(err) {
+    console.log('Exiting with reason: ' + exit_code);
     if (err) {
       console.log('Failed to save config prior to exit. Changes will be lost.');
     }
@@ -597,6 +602,14 @@ function quit() {
     }
   });
 }
+
+
+// We should bind to some things in the process, so we can clean up.
+process.on('SIGHUP',  function() { quit('SIGHUP');  });
+process.on('SIGINT',  function() { quit('SIGINT');  });
+process.on('SIGQUIT', function() { quit('SIGQUIT'); });
+process.on('SIGABRT', function() { quit('SIGABRT'); });
+process.on('SIGTERM', function() { quit('SIGTERM'); });
 
 
 /**
