@@ -355,20 +355,20 @@ function toClientAggregation(ses, origin, method, data) {
 // Now, for each session that we have, we should add the toClient listener.
 // This is the means by which events are passed from other components to be
 //   shown to the user, sent via API, etc...
-sessions.bt_session.on('toClient', function(origin, type, data) {
-  toClientAggregation('bt_session', origin, type, data);
+sessions.bt_session.on('toClient', function(origin, method, data) {
+  toClientAggregation('bt_session', origin, method, data);
 });
 
-sessions.actor0.on('toClient', function(origin, type, data) {
-  toClientAggregation('actor0', origin, type, data);
+sessions.actor0.on('toClient', function(origin, method, data) {
+  toClientAggregation('actor0', origin, method, data);
 });
 
-sessions.actor1.on('toClient', function(origin, type, data) {
-  toClientAggregation('actor1', origin, type, data);
+sessions.actor1.on('toClient', function(origin, method, data) {
+  toClientAggregation('actor1', origin, method, data);
 });
 
-sessions.serial.on('toClient', function(origin, type, data) {
-  toClientAggregation('serial', origin, type, data);
+sessions.serial.on('toClient', function(origin, method, data) {
+  toClientAggregation('serial', origin, method, data);
 });
 
 
