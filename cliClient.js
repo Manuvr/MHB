@@ -42,9 +42,6 @@ var config = {
   logPath:             './logs/'
 };
 
-/** If we have an open log file, this will be a file-descriptor. */
-var current_log_file = false;
-
 /****************************************************************************************************
 * Small utility functions...                                                                        *
 ****************************************************************************************************/
@@ -162,25 +159,6 @@ function extendToFixedLength(input, length, character) {
 
 
 /**
- * Open a new log file at the given path.
- *
- * @param   {string}  path  The filesystem path where the log directory is located.
- */
-function openLogFile(path) {
-  fs.open(path, 'ax',
-    function(err, fd) {
-      if (err) {
-        console.log(error('Failed to create log file (' + path +
-          ') with error (' + err + '). Logging disabled.'));
-      } else {
-        current_log_file = fd;
-      }
-    }
-  );
-}
-
-
-/**
  * Save the current config, if it is dirty.
  *
  * @param   {callback}  callback  The function to call when the operation is finished.
@@ -236,29 +214,6 @@ function loadConfig(path) {
     console.log(error('We experienced an while trying to load config from '+path+'. Error was '+err+'\nUsing config defaults...'));
     config.dirty = true;
   }
-
-  // Now we should setup logging if we need it...
-  if (config.logPath) {
-    fs.exists(config.logPath,
-      function(exists) {
-        if (exists) {
-          openLogFile(config.logPath + 'mhb-' + Math.floor(new Date() / 1000) + '.log');
-        }
-        else {
-          fs.mkdir(config.logPath,
-            function(err) {
-              if (err) {
-                console.log(error('Log directory (' + config.logPath + ') does not exist and could not be created. Logging disabled.'));
-              }
-              else {
-                openLogFile(config.logPath + 'mhb-' + Math.floor(new Date() / 1000) + '.log');
-              }
-            }
-          );
-        }
-      }
-    );
-  }
 }
 
 
@@ -281,39 +236,9 @@ var session_in_use = '';
 /****************************************************************************************************
  * Let's bring in the MHB stuff...                                                                   *
  ****************************************************************************************************/
-var mSession = require('./lib/mSession.js'); // session factory
-var sessionGenerator = new mSession();
+var mHub = require('./lib/mHub.js');
+var hub  = new mHub(config);;
 
-var debugEngine = require('./lib/debugEngine.js'); // The MHB debug engine. (An example)
-
-var BTTransport = require('./lib/transports/bluetooth.js'); // bluetooth
-var SPTransport = require('./lib/transports/mtSerialPort.js'); // serialport
-var LBTransport = require('./lib/transports/loopback.js'); // loopback
-
-// We track instantiated transports with this object.
-var transports = {};
-transports.bt_transport = BTTransport;
-transports.loopback = LBTransport;
-
-var lb = new LBTransport();
-
-// We track instantiated sessions with this object.
-var sessions = {};
-
-// By passing in the transports, we are returned sessions. When a session is successfully
-//   setup, the actor variable will become a reference to the specific kind of manuvrable
-//   that connected to the given transport.
-sessions.bt_session = sessionGenerator.init(new BTTransport());
-sessions.actor0 = sessionGenerator.init(lb.transport0);
-sessions.actor1 = sessionGenerator.init(lb.transport1);
-sessions.serial = sessionGenerator.init(new SPTransport());
-
-// Any sessions that are to be able to cope with a given Manuvrable need to be provided
-//   Engines capable of handling them. In this case, we want the debug engine to be available
-//   on the loopback sessions...
-sessionGenerator.addEngine(debugEngine);
-// What we did above only made the sessions *aware* of the engine "MHBDebug". It did not
-//   actually cause a binding.
 
 /**
  * This function is where all toClient callbacks are funneled to (if they are not
@@ -324,53 +249,51 @@ sessionGenerator.addEngine(debugEngine);
  * @param   {string}  method  The method being emitted.
  * @param   {object}  data    An object containing the arguments to the method.
  */
-function toClientAggregation(ses, origin, method, data) {
-  var ses_obj = sessions[ses];
-  switch (method) {
-    case 'log': // Client is getting a log from somewhere.
-      if (data[1] && data[1] <= config.verbosity) {
-        console.log(chalk.cyan.bold((Date.now()/1000).toString()+'\t'+ses) + chalk.yellow(' (' + origin + "):\t") + chalk.gray(data[0])+"\n");
-      }
-      if (current_log_file) {
-        // Write to the log file if we have one open.
-        fs.writeSync(current_log_file, new Date() + '\t' + ses_obj.getUUID() + ' (' +
-          origin + "):\t" + data[0] + '\n');
-      }
-      break;
-    case 'config':
-      // A session is telling us that it experienced a configuration change.
-      showSessionConfig(ses, data);
-      break;
-    default:
-      {
-        var table = issueOuterTable([chalk.white.bold('Source'), chalk.white.bold('Method'), chalk.white.bold('Arguments')]);
-        table.push([chalk.cyan.bold(ses+'->'+origin), chalk.gray.bold(method), chalk.gray(util.inspect(data, {depth: 10}))]);
-        console.log(table.toString());
-      }
-      break;
-  }
-}
+//function toClientAggregation(ses, origin, method, data) {
+//  var ses_obj = sessions[ses];
+//  switch (method) {
+//    case 'log': // Client is getting a log from somewhere.
+//      if (data[1] && data[1] <= config.verbosity) {
+//        console.log(chalk.cyan.bold((Date.now()/1000).toString()+'\t'+ses) + chalk.yellow(' (' + origin + "):\t") + chalk.gray(data[0])+"\n");
+//      }
+//      if (current_log_file) {
+//        // Write to the log file if we have one open.
+//        fs.writeSync(current_log_file, new Date() + '\t' + ses_obj.getUUID() + ' (' +
+//          origin + "):\t" + data[0] + '\n');
+//      }
+//      break;
+//    case 'config':
+//      // A session is telling us that it experienced a configuration change.
+//      showSessionConfig(ses, data);
+//      break;
+//    default:
+//      {
+//        var table = issueOuterTable([chalk.white.bold('Source'), chalk.white.bold('Method'), chalk.white.bold('Arguments')]);
+//        table.push([chalk.cyan.bold(ses+'->'+origin), chalk.gray.bold(method), chalk.gray(util.inspect(data, {depth: 10}))]);
+//        console.log(table.toString());
+//      }
+//      break;
+//  }
+//}
 
 
-// Now, for each session that we have, we should add the toClient listener.
-// This is the means by which events are passed from other components to be
-//   shown to the user, sent via API, etc...
-sessions.bt_session.on('toClient', function(origin, method, data) {
-  toClientAggregation('bt_session', origin, method, data);
+hub.on('fromHub', function(payload) {
+    switch (payload.origin) {
+      case 'session':
+        //origin, method, data, name, module
+        break;
+      case 'transport':
+        //origin, method, data, name
+        break;
+      case 'hub':
+        //origin, method, data
+        break;
+      default:
+        console.log(error('Unknown origin: ' + payload.origin));
+        break;
+    }
+  console.log('PLACEHOLDER: ' + util.inspect(payload));
 });
-
-sessions.actor0.on('toClient', function(origin, method, data) {
-  toClientAggregation('actor0', origin, method, data);
-});
-
-sessions.actor1.on('toClient', function(origin, method, data) {
-  toClientAggregation('actor1', origin, method, data);
-});
-
-sessions.serial.on('toClient', function(origin, method, data) {
-  toClientAggregation('serial', origin, method, data);
-});
-
 
 /****************************************************************************************************
 * Functions that just print things.                                                                 *
@@ -384,44 +307,44 @@ var logo = require('./manuvrLogo'); // This is the Manuvr logo.
  * @param   {string}  ses     The name of the session that emitted the event.
  * @param   {object}  sconf   The data the session exports.
  */
-function showSessionConfig(ses, sconf) {
-  var column_names = [''];
-  var sub_tables   = [];
-  
-  for (var unit in sconf) {
-    var table_ses = new Table(INNER_TABLE_STYLE);
-    column_names.push(chalk.white.bold(unit));
-    var table_ses = new Table(INNER_TABLE_STYLE);
-    for (var key in sconf[unit]) {
-      var table_rh_side = '';
-      if (sconf[unit].hasOwnProperty(key)) {
-        if (isObject(sconf[unit][key])) {
-          var table_obj = new Table(INNER_TABLE_STYLE);
-          for (var okey in sconf[unit][key]) {
-            table_obj.push([okey.toString(), util.inspect(sconf[unit][key][okey])]);
-          }
-          table_rh_side = table_obj.toString();
-        }
-        else {
-          table_rh_side = sconf[unit][key].toString();
-        }
-        table_ses.push([key.toString(), table_rh_side]);
-      }
-    }
-    sub_tables.push(table_ses.toString());
-  }
-
-  var final_array = [];
-  final_array.push(chalk.green(ses));
-  while (sub_tables.length > 0) {
-    final_array.push(chalk.gray(sub_tables.shift()));
-  }
-  
-  var table = issueOuterTable(column_names);
-  
-  table.push(final_array);
-  console.log(table.toString() + '\n');
-}
+//function showSessionConfig(ses, sconf) {
+//  var column_names = [''];
+//  var sub_tables   = [];
+//  
+//  for (var unit in sconf) {
+//    var table_ses = new Table(INNER_TABLE_STYLE);
+//    column_names.push(chalk.white.bold(unit));
+//    var table_ses = new Table(INNER_TABLE_STYLE);
+//    for (var key in sconf[unit]) {
+//      var table_rh_side = '';
+//      if (sconf[unit].hasOwnProperty(key)) {
+//        if (isObject(sconf[unit][key])) {
+//          var table_obj = new Table(INNER_TABLE_STYLE);
+//          for (var okey in sconf[unit][key]) {
+//            table_obj.push([okey.toString(), util.inspect(sconf[unit][key][okey])]);
+//          }
+//          table_rh_side = table_obj.toString();
+//        }
+//        else {
+//          table_rh_side = sconf[unit][key].toString();
+//        }
+//        table_ses.push([key.toString(), table_rh_side]);
+//      }
+//    }
+//    sub_tables.push(table_ses.toString());
+//  }
+//
+//  var final_array = [];
+//  final_array.push(chalk.green(ses));
+//  while (sub_tables.length > 0) {
+//    final_array.push(chalk.gray(sub_tables.shift()));
+//  }
+//  
+//  var table = issueOuterTable(column_names);
+//  
+//  table.push(final_array);
+//  console.log(table.toString() + '\n');
+//}
 
 
 /**
@@ -595,16 +518,10 @@ function quit(exit_code) {
     if (err) {
       console.log(error('Failed to save config prior to exit. Changes will be lost.'));
     }
-    if (current_log_file) {
-      fs.close(current_log_file, function(err) {
-        if (err) {
-          console.log('Failed to close the log file. It will be closed when our process ends in a moment.');
-        }
-        process.exit(); // An hero...
-      });
-    } else {
+    
+    hub.quit(function() {
       process.exit(); // An hero...
-    }
+    });
   });
 }
 
@@ -829,6 +746,8 @@ function promptUserForDirective() {
 
 console.log(chalk.white(packageJSON.name + '  v' + packageJSON.version));
 prompt.start(); // Start prompt running.
+
+hub.clientReady();   // Start MHB churning.
 
 
 // Kick off the interaction by prompting the user.
