@@ -214,6 +214,29 @@ function loadConfig(path) {
     console.log(error('We experienced an while trying to load config from '+path+'. Error was '+err+'\nUsing config defaults...'));
     config.dirty = true;
   }
+
+  // Now we should setup logging if we need it...
+  if (config.logPath) {
+    fs.exists(config.logPath,
+      function(exists) {
+        if (exists) {
+          openLogFile(config.logPath + 'mhb-' + Math.floor(new Date() / 1000) + '.log');
+        }
+        else {
+          fs.mkdir(config.logPath,
+            function(err) {
+              if (err) {
+                console.log('Log directory (' + config.logPath + ') does not exist and could not be created. Logging disabled.');
+              }
+              else {
+                openLogFile(config.logPath + 'mhb-' + Math.floor(new Date() / 1000) + '.log');
+              }
+            }
+          );
+        }
+      }
+    );
+  }
 }
 
 
