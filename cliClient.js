@@ -214,29 +214,6 @@ function loadConfig(path) {
     console.log(error('We experienced an while trying to load config from '+path+'. Error was '+err+'\nUsing config defaults...'));
     config.dirty = true;
   }
-
-  // Now we should setup logging if we need it...
-  if (config.logPath) {
-    fs.exists(config.logPath,
-      function(exists) {
-        if (exists) {
-          openLogFile(config.logPath + 'mhb-' + Math.floor(new Date() / 1000) + '.log');
-        }
-        else {
-          fs.mkdir(config.logPath,
-            function(err) {
-              if (err) {
-                console.log('Log directory (' + config.logPath + ') does not exist and could not be created. Logging disabled.');
-              }
-              else {
-                openLogFile(config.logPath + 'mhb-' + Math.floor(new Date() / 1000) + '.log');
-              }
-            }
-          );
-        }
-      }
-    );
-  }
 }
 
 
@@ -299,6 +276,9 @@ var hub  = new mHub(config);;
 //  }
 //}
 
+var sessions = [];
+var engines = [];
+var transports = [];
 
 hub.on('fromHub', function(payload) {
     switch (payload.origin) {
@@ -309,7 +289,17 @@ hub.on('fromHub', function(payload) {
         //origin, method, data, name
         break;
       case 'hub':
-        //origin, method, data
+        switch (payload.method) {
+          case 'sessionList':
+            sessions = data;
+            break;
+          case 'engineList':
+            engines = data;
+            break;
+          case 'transportList':
+            transports = data;
+            break;
+        }
         break;
       default:
         console.log(error('Unknown origin: ' + payload.origin));
