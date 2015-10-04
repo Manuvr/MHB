@@ -11,4 +11,7 @@ temp.js
 .swp
 .swo
 .DS_Store
+config.json
+./doc/
+./logs/
 .directory
