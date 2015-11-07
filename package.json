@@ -15,8 +15,9 @@
     "lodash.mapkeys": "^3.8.0",
     "lodash.merge": "^3.3.2",
     "prompt": "^0.2.14",
-    "serialport": "*",
+    "serialport": "^2.0.2",
     "socket.io": "^1.3.7",
+    "socket.io-client": "^1.3.7",
     "stream-browserify": "^2.0.1"
   },
   "devDependencies": {
