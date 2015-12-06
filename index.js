@@ -1,5 +1,5 @@
 'use strict'
 
-var mSession = require('./lib/mSession.js')();
+var mHub = require('./lib/mHub.js')();
 
-module.exports = mSession;
+module.exports = mHub;
