@@ -11,7 +11,7 @@
     "lodash": "^3.10.1",
     "machina": "^1.1.2",
     "prompt": "^0.2.14",
-    "serialport": "^2.0.2",
+    "serialport": "^2.0.5",
     "socket.io": "^1.3.7",
     "socket.io-client": "^1.3.7",
     "stream-browserify": "^2.0.1"
