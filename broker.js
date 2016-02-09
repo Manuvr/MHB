@@ -23,7 +23,7 @@ hub.on('output', function(message) {
         "Bouncing message [" + message.target.join(", ") + "] :"
         + JSON.stringify(message.data)
       )
-      hub.emit([message.target, "deacon", "mHub"], message.data)
+      hub.emit([message.target, "Deacon", "mHub"], message.data)
     }
 
 });
