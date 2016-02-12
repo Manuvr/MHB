@@ -15,4 +15,3 @@ config.json
 ./doc/
 ./logs/
 .directory
-lib/transports/bluetooth.js
