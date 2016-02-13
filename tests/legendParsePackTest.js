@@ -1,8 +1,8 @@
 'use strict';
 
 // this is where the Express app would live
-var leg = require('./lib/mCore/messageLegend.js');
-var typ = require('./lib/mCore/types.js');
+var leg = require('../lib/mCore/messageLegend.js');
+var typ = require('../lib/mCore/types.js');
 
 
 function legendMessage(jsonBuff, types) {
@@ -82,6 +82,7 @@ function packOwnLegendMessages(msg_defs) {
       return_value.write(msg_def.name, offset, 'ascii'); // +(some more) for the string to represent the message class.
       offset += msg_def.name.length;
       return_value.writeUInt8(0, offset++);
+
       var i = 0;
       while (i < msg_def.argForm.length) {
         return_value.writeUInt8(msg_def.argForm[i++], offset++); // +(some more) for the string to represent the argument form.
