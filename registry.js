@@ -115,7 +115,7 @@ function registry() {
             }, function(err, res, body){
               if(err || body.status === "ERROR"){
                 me.send('log', {
-                    body: "Error: " + body.data.errCode,
+                    body: "Error: " + body.data.errorCode,
                     verbosity: 5
                   })
               } else {
