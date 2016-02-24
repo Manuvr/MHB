@@ -1,24 +1,23 @@
-var session = require('./lib/mSession_refactor.js')
+//var session = require('./lib/mSession_refactor.js')
 
-var derp = new session();
-var herp = new session();
-derp.addAdjunct("lowerSession", herp);
-
-derp.on('output', function(msg) {
-  console.log(msg.target + " : " + msg.data);
-})
-
-herp.send("sessionEstablished")
-derp.emit("input", {target:["sessionEstablished"], data: {}})
-
+//var derp = new session();
+//var herp = new session();
+//derp.addAdjunct("lowerSession", herp);
+//
+//derp.on('output', function(msg) {
+//  console.log(msg.target + " : " + msg.data);
+//})
+//
+//herp.send("sessionEstablished")
+//derp.emit("input", {target:["sessionEstablished"], data: {}})
 
 
 
 //// NOTES
 
 var router = function(){
-  var bluetooth  = new session();
-  var registry =  new session();
+  var bluetooth  = new require('./lib/transports/bluetooth.js')();
+  var deacon     =  new session();
 
   var client = new EventEmitter();
   client.on('input', function(msg){
