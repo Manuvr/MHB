@@ -113,7 +113,7 @@ function registry() {
                 "modelId": data[0]
               },
             }, function(err, res, body){
-              iif(err || body.status === "ERROR"){
+              if(err || body.status === "ERROR"){
                 me.send('log', {
                     body: "Error: " + body.data.errCode,
                     verbosity: 5
