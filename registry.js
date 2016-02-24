@@ -35,12 +35,17 @@ function registry() {
                 "name": data[0]
               },
             }, function(err, res, body){
-              if(!err){
-              me.send('log', {
-                  body: "Manufacturer Created",
-                  verbosity: 5
-                })
-                console.log(JSON.stringify(body))
+              if(err || body.status === "ERROR"){
+                me.send('log', {
+                    body: "Error: " + body.data.errCode,
+                    verbosity: 5
+                  })
+              } else {
+                me.send('log', {
+                    body: "New Manufacturer: " + body.data.id + " :: " + body.data.name,
+                    verbosity: 5
+                  })
+                me.send("mfgId", body.data.id)
               }
             })
           }
@@ -56,12 +61,17 @@ function registry() {
                 "name": data[0]
               },
             }, function(err, res, body){
-              if(!err){
-              me.send('log', {
-                  body: "Owner Created",
-                  verbosity: 5
-                })
-                console.log(JSON.stringify(body))
+              if(err || body.status === "ERROR"){
+                me.send('log', {
+                    body: "Error: " + body.data.errCode,
+                    verbosity: 5
+                  })
+              } else {
+                me.send('log', {
+                    body: "New Owner: " + body.data.id + " :: " + body.data.name,
+                    verbosity: 5
+                  })
+                me.send("ownerId", body.data.id)
               }
             })
           }
@@ -77,12 +87,17 @@ function registry() {
                 "name": data[1]
               },
             }, function(err, res, body){
-              if(!err){
-              me.send('log', {
-                  body: "Model Created",
-                  verbosity: 5
-                })
-                console.log(JSON.stringify(body))
+              if(err || body.status === "ERROR"){
+                me.send('log', {
+                    body: "Error: " + body.data.errCode,
+                    verbosity: 5
+                  })
+              } else {
+                me.send('log', {
+                    body: "New Model: " + body.data.id + " :: " + body.data.name,
+                    verbosity: 5
+                  })
+                me.send("modelId", body.data.id)
               }
             })
           }
@@ -98,33 +113,43 @@ function registry() {
                 "modelId": data[0]
               },
             }, function(err, res, body){
-              if(!err){
-              me.send('log', {
-                  body: "Thing Created",
-                  verbosity: 5
-                })
-                console.log(JSON.stringify(body))
+              iif(err || body.status === "ERROR"){
+                me.send('log', {
+                    body: "Error: " + body.data.errCode,
+                    verbosity: 5
+                  })
+              } else {
+                me.send('log', {
+                    body: "New Thing: " + body.data.id + " :: " + body.data.name,
+                    verbosity: 5
+                  })
+                me.send("thingId", body.data)
               }
             })
           }
         },
         'claimThing': {
           label: "OWNER: Claim Thing",
-          args: [{ label: 'Thing ID', type: 'string' }, {label: 'Password', type:"string"}],
+          args: [{ label: 'Thing ID', type: 'string' }, {label: 'Owner ID', type:"string"}],
           func: function(me, data) {
             request.put({
               url: addr + "things/" + data[0] + "/claim",
               json: true,
               body: {
-                "password": data[1]
+                "id": data[1]
               },
             }, function(err, res, body){
-              if(!err){
-              me.send('log', {
-                  body: "Thing Claimed",
-                  verbosity: 5
-                })
-                console.log(JSON.stringify(body))
+              if(err || body.status === "ERROR"){
+                me.send('log', {
+                    body: "Error: " + body.data.errCode,
+                    verbosity: 5
+                  })
+              } else {
+                me.send('log', {
+                    body: "Thing " + body.data.id + " claimed for owner " + body.data.owner.id,
+                    verbosity: 5
+                  })
+                me.send("claimed", body.data)
               }
             })
           }
@@ -134,30 +159,61 @@ function registry() {
           args: [{ label: 'Thing ID', type: 'string' }],
           func: function(me, data) {
             request.get({
-              url: addr + "things/" + data[0],
-              json: true,
-              body: {
-                "thingId": data[0]
-              },
+              url: addr + "things/" + data[0]
             }, function(err, res, body){
-              if(!err){
-              me.send('log', {
-                  body: "Thing Identified",
-                  verbosity: 5
-                })
-                console.log(JSON.stringify(body))
+              if(err || body.status === "ERROR"){
+                me.send('log', {
+                    body: "Error: " + body.data.errCode,
+                    verbosity: 5
+                  })
+              } else {
+                me.send('log', {
+                    body: "Thing queried: " + JSON.stringify(body.data),
+                    verbosity: 5
+                  })
+                me.send("queried", body.data)
               }
             })
           }
         }
       },
       outputs: {
-        'thingId' : {
-          label: 'ID Returned:',
+        'newMfgId' : {
+          label: 'Mfg. ID:',
           type: 'string',
           value: "",
           hidden: false
-        }
+        },
+        'newOwnerId' : {
+          label: 'Owner ID:',
+          type: 'string',
+          value: "",
+          hidden: false
+        },
+        'newModelId' : {
+          label: 'Model ID:',
+          type: 'string',
+          value: "",
+          hidden: false
+        },
+        'newThingId' : {
+          label: 'Thing ID:',
+          type: 'string',
+          value: "",
+          hidden: false
+        },
+        'claimed' : {
+          label: 'Claimed:',
+          type: 'string',
+          value: "",
+          hidden: false
+        },
+        'queried' : {
+          label: 'Query Data:',
+          type: 'object',
+          value: "",
+          hidden: false
+        },
       }
     },
     adjuncts:{
