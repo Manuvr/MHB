@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var mHub = require('./lib/mHub.js');
 
-var local_ip = "127.0.0.1"
+var local_ip = "0.0.0.0"
 
 
 // Temporary broker file.  Need to retrofit this and a
@@ -24,13 +24,9 @@ hub.on('output', function(message) {
         + JSON.stringify(message.data)
       )
       
-    if(message.target[0] === 'connected') {
-
-
-
-
-      hub.emit(["assignEngine"], ['NewSession0', 'Deacon.js']);
-    }
+    //if(message.target[0] === 'connected') {
+    //  hub.emit(["assignEngine"], ['NewSession0', 'Deacon.js']);
+    //}
 });
 
 //
@@ -38,4 +34,4 @@ hub.on('output', function(message) {
 //   local_ip = add;
 // })
 
-hub.emit(["listen", "tcp.js"], [true, local_ip, 8008]);
+hub.emit(["listen", "tcp"], [true, local_ip, 8008]);
