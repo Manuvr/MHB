@@ -17,7 +17,7 @@ derp.emit("input", {target:["sessionEstablished"], data: {}})
 //// NOTES
 
 var router = function(){
-  var bluetooth  = new session();
+  var bluetooth  = require('./lib/transport/bluetooth.js').init()
   var registry =  new session();
 
   var client = new EventEmitter();
@@ -93,3 +93,6 @@ var route_beaconRegistry = function(bluetooth, beacon, clientSess) {
   }
 
 }
+
+//hub.emit(["listen", "tcp.js"], [true, local_ip, 8008]);
+

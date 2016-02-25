@@ -1,8 +1,8 @@
 var _ = require('lodash');
 var mHub = require('./lib/mHub.js');
 
-var local_ip = "127.0.0.1"
-
+//var local_ip = "10.96.164.31";
+var local_ip = '0.0.0.0';
 
 // Temporary broker file.  Need to retrofit this and a
 // general JSON schema to mHub to replace this logic...
@@ -24,13 +24,9 @@ hub.on('output', function(message) {
         + JSON.stringify(message.data)
       )
       
-    if(message.target[0] === 'connected') {
-
-
-
-
-      hub.emit(["assignEngine"], ['NewSession0', 'Deacon.js']);
-    }
+    //if(message.target[0] === 'connected') {
+      //hub.emit('input', {target: ["assignEngine"], data: ['NewSession0', 'Deacon.js']});
+    //}
 });
 
 //
@@ -38,4 +34,7 @@ hub.on('output', function(message) {
 //   local_ip = add;
 // })
 
-hub.emit(["listen", "tcp.js"], [true, local_ip, 8008]);
+setTimeout(function(){
+	console.log('SENDING EMIT INTO HUB TO CREATE TCP LISTENER');
+	hub.emit('input', {target: ["listen", "tcp"], data: [true, local_ip, 8008]});
+	}, 3000);
