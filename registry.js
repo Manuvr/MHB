@@ -37,7 +37,7 @@ function registry() {
             }, function(err, res, body){
               if(err || body.status === "ERROR"){
                 me.send('log', {
-                    body: "Error: " + body.data.errCode,
+                    body: "Error: " + body.data.errorCode,
                     verbosity: 5
                   })
               } else {
@@ -63,7 +63,7 @@ function registry() {
             }, function(err, res, body){
               if(err || body.status === "ERROR"){
                 me.send('log', {
-                    body: "Error: " + body.data.errCode,
+                    body: "Error: " + body.data.errorCode,
                     verbosity: 5
                   })
               } else {
@@ -89,7 +89,7 @@ function registry() {
             }, function(err, res, body){
               if(err || body.status === "ERROR"){
                 me.send('log', {
-                    body: "Error: " + body.data.errCode,
+                    body: "Error: " + body.data.errorCode,
                     verbosity: 5
                   })
               } else {
@@ -123,7 +123,7 @@ function registry() {
                     body: "New Thing: " + body.data.id + " :: " + body.data.name,
                     verbosity: 5
                   })
-                me.send("thingId", body.data)
+                me.send("thingId", body.data.id)
               }
             })
           }
@@ -141,7 +141,7 @@ function registry() {
             }, function(err, res, body){
               if(err || body.status === "ERROR"){
                 me.send('log', {
-                    body: "Error: " + body.data.errCode,
+                    body: "Error: " + body.data.errorCode,
                     verbosity: 5
                   })
               } else {
@@ -149,7 +149,7 @@ function registry() {
                     body: "Thing " + body.data.id + " claimed for owner " + body.data.owner.id,
                     verbosity: 5
                   })
-                me.send("claimed", body.data)
+                me.send("claimed", body.data.id)
               }
             })
           }
@@ -163,15 +163,15 @@ function registry() {
             }, function(err, res, body){
               if(err || body.status === "ERROR"){
                 me.send('log', {
-                    body: "Error: " + body.data.errCode,
+                    body: "Error: " + body.data.errorCode,
                     verbosity: 5
                   })
               } else {
                 me.send('log', {
-                    body: "Thing queried: " + JSON.stringify(body.data),
+                    body: "Thing queried: " + JSON.stringify(body),
                     verbosity: 5
                   })
-                me.send("queried", body.data)
+                me.send("queried", body)
               }
             })
           }
@@ -203,13 +203,13 @@ function registry() {
           hidden: false
         },
         'claimed' : {
-          label: 'Claimed:',
+          label: 'Claimed: ',
           type: 'string',
           value: "",
           hidden: false
         },
         'queried' : {
-          label: 'Query Data:',
+          label: 'Query Data: ',
           type: 'object',
           value: "",
           hidden: false
