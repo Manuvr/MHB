@@ -34,4 +34,8 @@ hub.on('output', function(message) {
 //   local_ip = add;
 // })
 
-hub.emit(["listen", "tcp"], [true, local_ip, 8008]);
+setTimeout(
+function() { 
+	console.log("LOG TO UR MOM");
+	hub.emit(["listen", "tcp"], [true, local_ip, 8008]);
+	}, 6000);
