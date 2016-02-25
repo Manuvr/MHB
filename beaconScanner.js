@@ -1,28 +1,14 @@
-var session = require('./lib/mSession_refactor.js')
-
-var derp = new session();
-var herp = new session();
-derp.addAdjunct("lowerSession", herp);
-
-derp.on('output', function(msg) {
-  console.log(msg.target + " : " + msg.data);
-})
-
-herp.send("sessionEstablished")
-derp.emit("input", {target:["sessionEstablished"], data: {}})
-
-
-
-
-//// NOTES
+var _blueooth = require('./lib/transports/bluetooth');
+var _mHub = require('./lib/transports/mHub');
 
 var router = function(){
-  var bluetooth  = require('./lib/transport/bluetooth.js').init()
-  var registry =  new session();
+  var bluetooth  = new _blueooth();
+  var mHub =  new _mHub();
 
   var client = new EventEmitter();
+
   client.on('input', function(msg){
-    console.log(msg.target + " // " + msg.data)
+    console.log(msg.target + " // " + JSON.stringify(msg.data))
   })
 
   var route1 = route_beaconRegistry(bluetooth, beacon, client);
@@ -33,7 +19,7 @@ var router = function(){
 
 }
 
-var route_beaconRegistry = function(bluetooth, beacon, clientSess) {
+var route_beaconScanner = function(bluetooth, beacon, clientSess) {
   var blueDef = [];
   var beacDef = [];
 
@@ -93,6 +79,3 @@ var route_beaconRegistry = function(bluetooth, beacon, clientSess) {
   }
 
 }
-
-//hub.emit(["listen", "tcp.js"], [true, local_ip, 8008]);
-
