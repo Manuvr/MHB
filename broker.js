@@ -23,7 +23,7 @@ hub.on('output', function(message) {
         "Received: [" + message.target.join(", ") + "] :"
         + JSON.stringify(message.data)
       )
-      
+
     //if(message.target[0] === 'connected') {
     //  hub.emit(["assignEngine"], ['NewSession0', 'Deacon.js']);
     //}
@@ -35,7 +35,7 @@ hub.on('output', function(message) {
 // })
 
 setTimeout(
-function() { 
+function() {
 	console.log("LOG TO UR MOM");
-	hub.emit(["listen", "tcp"], [true, local_ip, 8008]);
+	hub.emit('input', {target: ["listen", "tcp"], data:[true, local_ip, 8008]});
 	}, 6000);
