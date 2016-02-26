@@ -36,6 +36,5 @@ hub.on('output', function(message) {
 
 setTimeout(
 function() {
-	console.log("LOG TO UR MOM");
 	hub.emit('input', {target: ["listen", "tcp"], data:[true, local_ip, 8008]});
-	}, 6000);
+}, 4000);
