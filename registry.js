@@ -104,13 +104,15 @@ function registry() {
         },
         'makeThing': {
           label: "MFG: Make Thing",
-          args: [{ label: 'modelID', type: 'string' }],
+          args: [{ label: 'Name: ', type: 'string' },
+                {label: "Model ID: ", type: 'string'}],
           func: function(me, data) {
             request.post({
               url: addr + "things/",
               json: true,
               body: {
-                "modelId": data[0]
+                "name": data[0],
+                "modelId": data[1]
               },
             }, function(err, res, body){
               if(err || body.status === "ERROR"){
