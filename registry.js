@@ -89,7 +89,7 @@ function registry() {
             }, function(err, res, body){
               if(err || body.status === "ERROR"){
                 me.send('log', {
-                    body: "Error: " + body.data.errorCode,
+                    body: "Error: " + body.errorCode,
                     verbosity: 5
                   })
               } else {
@@ -198,7 +198,7 @@ function registry() {
           value: "",
           hidden: false
         },
-        'newThingId' : {
+        'thingId' : {
           label: 'Thing ID:',
           type: 'string',
           value: "",
