@@ -18,6 +18,13 @@ function registry() {
 
   var addr = "http://iotreg-env.us-west-2.elasticbeanstalk.com/";
 
+  this.restLog = function(body){
+    that.send('log', {
+        body: "Response Body: " + JSON.stringify(body) ,
+        verbosity: 7
+      })
+  }
+
   this.sessionEstablished = false;
 
   this.interface_spec = {
@@ -36,11 +43,13 @@ function registry() {
               },
             }, function(err, res, body){
               if(err || body.status === "ERROR"){
+                me.restLog(body)
                 me.send('log', {
                     body: "Error: " + body.errorCode,
                     verbosity: 5
                   })
               } else {
+                me.restLog(body)
                 me.send('log', {
                     body: "New Manufacturer: " + body.data.id + " :: " + body.data.name,
                     verbosity: 5
@@ -62,11 +71,13 @@ function registry() {
               },
             }, function(err, res, body){
               if(err || body.status === "ERROR"){
+                me.restLog(body)
                 me.send('log', {
                     body: "Error: " + body.errorCode,
                     verbosity: 5
                   })
               } else {
+                me.restLog(body)
                 me.send('log', {
                     body: "New Owner: " + body.data.id + " :: " + body.data.name,
                     verbosity: 5
@@ -88,11 +99,13 @@ function registry() {
               },
             }, function(err, res, body){
               if(err || body.status === "ERROR"){
+                me.restLog(body)
                 me.send('log', {
                     body: "Error: " + body.errorCode,
                     verbosity: 5
                   })
               } else {
+                me.restLog(body)
                 me.send('log', {
                     body: "New Model: " + body.data.id + " :: " + body.data.name,
                     verbosity: 5
@@ -117,11 +130,13 @@ function registry() {
               },
             }, function(err, res, body){
               if(err || body.status === "ERROR"){
+                me.restLog(body)
                 me.send('log', {
                     body: "Error: " + body.errorCode,
                     verbosity: 5
                   })
               } else {
+                me.restLog(body)
                 me.send('log', {
                     body: "New Thing: " + body.data.id + " :: " + body.data.name,
                     verbosity: 5
@@ -143,11 +158,13 @@ function registry() {
               },
             }, function(err, res, body){
               if(err || body.status === "ERROR"){
+                me.restLog(body)
                 me.send('log', {
                     body: "Error: " + body.errorCode,
                     verbosity: 5
                   })
               } else {
+                me.restLog(body)
                 me.send('log', {
                     body: "Thing " + body.data.id + " claimed for owner " + body.data.owner.id,
                     verbosity: 5
@@ -165,11 +182,13 @@ function registry() {
               url: addr + "things/" + data[0]
             }, function(err, res, body){
               if(err || body.status === "ERROR"){
+                me.restLog(body)
                 me.send('log', {
                     body: "Error: " + body.errorCode,
                     verbosity: 5
                   })
               } else {
+                me.restLog(body)
                 me.send('log', {
                     body: "Thing queried: " + JSON.stringify(body),
                     verbosity: 5
