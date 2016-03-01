@@ -105,7 +105,8 @@ function registry() {
         'makeThing': {
           label: "MFG: Make Thing",
           args: [{ label: 'Name: ', type: 'string' },
-                {label: "Model ID: ", type: 'string'}],
+                {label: "Model ID: ", type: 'string'},
+                {label: 'Session Target:', type:"string"}],
           func: function(me, data) {
             request.post({
               url: addr + "things/",
@@ -125,14 +126,14 @@ function registry() {
                     body: "New Thing: " + body.data.id + " :: " + body.data.name,
                     verbosity: 5
                   })
-                me.send("thingId", body.data.id)
+                me.send("thingId", [data[2], body.data.id])
               }
             })
           }
         },
         'claimThing': {
           label: "OWNER: Claim Thing",
-          args: [{ label: 'Thing ID', type: 'string' }, {label: 'Owner ID', type:"string"}],
+          args: [{ label: 'Thing ID', type: 'string' }, {label: 'Owner ID', type:"string"}, {label: 'Session Target:', type:"string"}],
           func: function(me, data) {
             request.put({
               url: addr + "things/" + data[0] + "/claim",
@@ -151,7 +152,7 @@ function registry() {
                     body: "Thing " + body.data.id + " claimed for owner " + body.data.owner.id,
                     verbosity: 5
                   })
-                me.send("claimed", body.data.owner.id)
+                me.send("claimed", [data[2], body.data.owner.id])
               }
             })
           }
@@ -200,14 +201,14 @@ function registry() {
         },
         'thingId' : {
           label: 'Thing ID:',
-          type: 'string',
-          value: "",
+          type: 'array',
+          value: [],
           hidden: false
         },
         'claimed' : {
           label: 'Claimed: ',
-          type: 'string',
-          value: "",
+          type: 'array',
+          value: [],
           hidden: false
         },
         'queried' : {
