@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var mHub = require('./lib/mHub.js');
+var mHub = require('./lib/mHub_beac.js');
 
 var local_ip = "0.0.0.0"
 
