@@ -151,7 +151,7 @@ function registry() {
                     body: "Thing " + body.data.id + " claimed for owner " + body.data.owner.id,
                     verbosity: 5
                   })
-                me.send("claimed", body.data.id)
+                me.send("claimed", body.data.owner.id)
               }
             })
           }
