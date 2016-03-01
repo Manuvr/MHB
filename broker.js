@@ -12,7 +12,7 @@ var local_ip = "0.0.0.0"
 
 // need to remove config requirement from mHub...
 var config = {
-  nothing: "here"
+  logPath: "./logs/"
 };
 
 var hub = new mHub(config);
