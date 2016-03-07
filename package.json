@@ -19,6 +19,7 @@
     "serialport": "^2.0.5",
     "socket.io": "^1.3.7",
     "socket.io-client": "^1.3.7",
+    "telehash": "*",
     "stream-browserify": "^2.0.1"
   },
   "devDependencies": {
